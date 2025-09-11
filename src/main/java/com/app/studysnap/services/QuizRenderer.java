@@ -6,7 +6,7 @@ import com.app.studysnap.model.Quiz;
 import java.util.List;
 
 /**
- * Renders a Quiz back to preview text with up to 5 options (A–E).
+ Renders a Quiz back to preview text with up to 5 options (A–E).
  */
 public final class QuizRenderer {
 

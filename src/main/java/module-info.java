@@ -11,6 +11,7 @@ module com.example.cab302_project {
     requires com.google.api.services.oauth2;
     requires jdk.httpserver;
     requires org.apache.pdfbox;
+    requires java.net.http;
 
 
     opens com.app.studysnap to javafx.fxml;

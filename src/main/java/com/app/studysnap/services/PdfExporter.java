@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Writes plain text to a simple multipage PDF.
+ Writes plain text to a simple multipage PDF.
 */
 public final class PdfExporter {
 

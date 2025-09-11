@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Parses the text shown in previewArea into structured Questions,
+ Parses the text shown in previewArea into structured Questions,
  */
 public final class QuizTextParser {
 

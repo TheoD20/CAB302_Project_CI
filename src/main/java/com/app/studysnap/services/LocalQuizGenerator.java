@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * This is a temporary AI generated quiz generator. just for test purposes.
- * TODO: Replace with API later
+ This is a temporary AI generated quiz generator. just for test purposes.
+ TODO: Replace with API later
  */
 public final class LocalQuizGenerator {
     private final SecureRandom rnd = new SecureRandom();
