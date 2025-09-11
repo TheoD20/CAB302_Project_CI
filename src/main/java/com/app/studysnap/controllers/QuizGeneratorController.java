@@ -34,7 +34,7 @@ public class QuizGeneratorController {
     @FXML private TextArea pastedTextArea;
     @FXML private CheckBox includeAnswersPaste;
 
-    // Prompt tab (MCQ assumed)
+    // Prompt tab
     @FXML private TextArea promptTextArea;
     @FXML private CheckBox includeAnswersPrompt;
 
@@ -42,6 +42,22 @@ public class QuizGeneratorController {
     @FXML private TextField searchField;
     @FXML private TableView<PublicQuizRow> publicTable;
     @FXML private TableColumn<PublicQuizRow, String> colName, colSubject, colDescription, colAuthor;
+    @FXML private CheckBox publicIncludeAnswersCheck;
+
+    // Display and Actions tab
+    @FXML private CheckBox exportWithAnswersCheck;
+
+    // Services
+    @FXML private final com.app.studysnap.services.QuizService genGateway = new com.app.studysnap.services.QuizService();
+    @FXML private final com.app.studysnap.services.QuizTextParser parser = new com.app.studysnap.services.QuizTextParser();
+    @FXML private final com.app.studysnap.services.QuizRenderer renderer = new com.app.studysnap.services.QuizRenderer();
+    @FXML private final com.app.studysnap.services.PdfExporter pdfExporter = new com.app.studysnap.services.PdfExporter();
+    @FXML private final com.app.studysnap.model.IQuizDAO quizDao = new com.app.studysnap.model.SqliteQuizDAO();
+
+    // Display
+    @FXML private java.util.List<com.app.studysnap.model.Question> lastGeneratedQuestions = java.util.Collections.emptyList();
+    @FXML private String lastGeneratedWithAnswers = null;
+
 
     @FXML
     public void initialize() {
@@ -112,10 +128,17 @@ public class QuizGeneratorController {
             return;
         }
         disableAll(true);
-        // TODO Backend: Extract text from selectedFile and produce MCQs (off UI thread)
-        // runAsync(() -> quizService.generateFromFile(selectedFile, includeAnswersUpload.isSelected()),
-        //          result -> previewArea.setText(result));
-        disableAll(false);
+        runAsync(
+                () -> genGateway.generateFromUpload(selectedFile, true), // force includeAnswers=true
+                txt -> {
+                    lastGeneratedWithAnswers = txt;
+                    lastGeneratedQuestions = parser.parse(txt); // has correct_option set
+                    // Show or hide answers purely in the preview
+                    String display = includeAnswersUpload.isSelected() ? txt : stripAnswers(txt);
+                    previewArea.setText(display);
+                    disableAll(false);
+                }
+        );
     }
 
     // ---------------- Paste ----------------
@@ -126,10 +149,16 @@ public class QuizGeneratorController {
             return;
         }
         disableAll(true);
-        // TODO Backend: generate MCQs from 'text' (off UI thread)
-        // runAsync(() -> quizService.generateFromText(text, includeAnswersPaste.isSelected()),
-        //          result -> previewArea.setText(result));
-        disableAll(false);
+        runAsync(
+                () -> genGateway.generateFromPaste(text, true), // force includeAnswers=true
+                txt -> {
+                    lastGeneratedWithAnswers = txt;
+                    lastGeneratedQuestions = parser.parse(txt);
+                    String display = includeAnswersPaste.isSelected() ? txt : stripAnswers(txt);
+                    previewArea.setText(display);
+                    disableAll(false);
+                }
+        );
     }
 
     @FXML private void onResetPaste() {
@@ -143,13 +172,17 @@ public class QuizGeneratorController {
             alert(Alert.AlertType.WARNING, "Empty prompt", "Write a short prompt.");
             return;
         }
-        boolean includeAnswers = includeAnswersPrompt.isSelected();
-
         disableAll(true);
-        // TODO Backend: generate MCQs from prompt (off UI thread)
-        // runAsync(() -> quizService.generateFromPrompt(prompt, n, includeAnswers),
-        //          result -> previewArea.setText(result));
-        disableAll(false);
+        runAsync(
+                () -> genGateway.generateFromPrompt(prompt, 15, true), // force includeAnswers=true
+                txt -> {
+                    lastGeneratedWithAnswers = txt;
+                    lastGeneratedQuestions = parser.parse(txt);
+                    String display = includeAnswersPrompt.isSelected() ? txt : stripAnswers(txt);
+                    previewArea.setText(display);
+                    disableAll(false);
+                }
+        );
     }
 
     @FXML private void onResetPrompt() {
@@ -158,12 +191,19 @@ public class QuizGeneratorController {
 
     // ---------------- Public ----------------
     @FXML private void onRefreshPublic() {
-        String q = searchField.getText();
+        String q = (searchField.getText() == null) ? "" : searchField.getText().trim();
         disableAll(true);
-        // TODO Backend: fetch summaries list (off UI thread)
-        // runAsync(() -> quizDao.findPublic(q),
-        //          list -> publicTable.getItems().setAll(list));
-        disableAll(false);
+        runAsync(
+                () -> quizDao.findPublic(q),
+                items -> {
+                    var rows = new java.util.ArrayList<PublicQuizRow>();
+                    for (var it : items) rows.add(new PublicQuizRow(
+                            it.quizId(), it.name(), it.subject(), it.description(), it.author()
+                    ));
+                    publicTable.getItems().setAll(rows);
+                    disableAll(false);
+                }
+        );
     }
 
     @FXML private void onDownloadSelected() {
@@ -173,10 +213,29 @@ public class QuizGeneratorController {
             return;
         }
         disableAll(true);
-        // TODO Backend: load full quiz by id (off UI thread)
-        // runAsync(() -> quizDao.getById(sel.id()),
-        //          quiz -> previewArea.setText(quiz.renderAsText(true)));
-        disableAll(false);
+        runAsync(
+                () -> quizDao.getQuizById(sel.quizId()),
+                quiz -> {
+                    // Keep structured questions for saving
+                    lastGeneratedQuestions = quiz.getQuestions();
+
+                    // Keep a full text with answers (even if we hide them in preview)
+                    lastGeneratedWithAnswers = renderer.renderAsText(quiz, true);
+
+                    boolean showAns = publicIncludeAnswersCheck != null && publicIncludeAnswersCheck.isSelected();
+                    String display = showAns ? lastGeneratedWithAnswers : stripAnswers(lastGeneratedWithAnswers);
+                    previewArea.setText(display);
+
+                    disableAll(false);
+                }
+        );
+    }
+
+    @FXML private void onPublicIncludeAnswersToggle() {
+        if (lastGeneratedWithAnswers == null || lastGeneratedWithAnswers.isBlank()) return;
+        boolean showAns = publicIncludeAnswersCheck != null && publicIncludeAnswersCheck.isSelected();
+        String display = showAns ? lastGeneratedWithAnswers : stripAnswers(lastGeneratedWithAnswers);
+        previewArea.setText(display);
     }
 
     // ---------------- Save & Export ----------------
@@ -203,26 +262,114 @@ public class QuizGeneratorController {
         String nm = nameField.getText();
         String subj = subjectField.getText();
         String desc = descArea.getText();
-        boolean isPublic = publicCheck.isSelected();
-        String content = previewArea.getText();
+        boolean is_private = !publicCheck.isSelected();
+
+        if (nm == null || nm.isBlank()) {
+            alert(Alert.AlertType.WARNING, "Missing fields", "Name is required.");
+            return;
+        }
+
+        if (lastGeneratedQuestions == null || lastGeneratedQuestions.isEmpty()) {
+            // Fallback: if user typed/edited manually, try parse the displayed text
+            var parsed = parser.parse(previewArea.getText());
+            if (parsed.isEmpty()) {
+                alert(Alert.AlertType.WARNING, "No questions found",
+                        "Generate a quiz first or use the expected MCQ format (A–E).");
+                return;
+            }
+            lastGeneratedQuestions = parsed;
+        }
+
+        var user = com.app.studysnap.auth.Session.getCurrentUser();
+        int createdBy = (user != null) ? user.getUserId() : 0;
+
+        var quiz = new com.app.studysnap.model.Quiz(nm, subj, desc, is_private, createdBy);
+        quiz.setQuestions(lastGeneratedQuestions);
 
         disableAll(true);
-        // TODO Backend: persist using your DAO (off UI thread)
-        // runAsync(() -> quizDao.saveText(nm, subj, desc, content, isPublic),
-        //          _v -> alert(Alert.AlertType.INFORMATION, "Saved", "Quiz saved successfully."));
-        disableAll(false);
+        runAsync(
+                () -> { quizDao.addQuiz(quiz); return null; },
+                ignored -> {
+                    disableAll(false);
+                    alert(Alert.AlertType.INFORMATION, "Saved", "Quiz saved successfully.");
+                    onRefreshPublic();
+                }
+        );
     }
 
     @FXML private void onExportPdf() {
-        // TODO Backend: export previewArea.getText() to PDF (off UI thread)
-        // runAsync(() -> pdfService.export(previewArea.getText()), _v -> alert(...));
-        alert(Alert.AlertType.INFORMATION, "Export", "PDF export placeholder. Add implementation.");
+        boolean withAnswers = exportWithAnswersCheck != null && exportWithAnswersCheck.isSelected();
+        exportPdfInternal(withAnswers);
+    }
+
+    private void exportPdfInternal(boolean withAnswers) {
+        String txt = buildExportText(withAnswers);
+        if (txt == null || txt.isBlank()) {
+            alert(Alert.AlertType.WARNING, "Nothing to export", "Generate or load a quiz first.");
+            return;
+        }
+
+        // Save As dialog defaulting to Downloads
+        var chooser = new javafx.stage.FileChooser();
+        chooser.setTitle(withAnswers ? "Export Quiz as PDF (with answers)" : "Export Quiz as PDF");
+        chooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("PDF", "*.pdf"));
+        var suggested = defaultDownloadsFile(withAnswers ? "quiz-with-answers" : "quiz");
+        if (suggested.getParentFile().exists()) chooser.setInitialDirectory(suggested.getParentFile());
+        chooser.setInitialFileName(suggested.getName());
+
+        var owner = (tabPane != null && tabPane.getScene() != null) ? tabPane.getScene().getWindow() : null;
+        java.io.File dest = chooser.showSaveDialog(owner);
+        if (dest == null) return;
+
+        disableAll(true);
+        runAsync(
+                () -> { pdfExporter.export(txt, dest); return dest; },
+                out -> {
+                    disableAll(false);
+                    alert(Alert.AlertType.INFORMATION, "Exported", "PDF saved to:\n" + out.getAbsolutePath());
+                }
+        );
     }
 
     // ---------------- Helpers ----------------
     private void disableAll(boolean busy) {
         progress.setVisible(busy);
         tabPane.setDisable(busy);
+    }
+
+    private String buildExportText(boolean withAnswers) {
+        if (!withAnswers) {
+            // Export exactly what's visible
+            return previewArea.getText();
+        }
+        // Prefer the full version we stored during generation
+        if (lastGeneratedWithAnswers != null && !lastGeneratedWithAnswers.isBlank()) {
+            return lastGeneratedWithAnswers;
+        }
+        // If we have structured questions, render a full version with answers
+        if (lastGeneratedQuestions != null && !lastGeneratedQuestions.isEmpty()) {
+            var q = new com.app.studysnap.model.Quiz("Export", null, null, true, 0);
+            q.setQuestions(lastGeneratedQuestions);
+            return renderer.renderAsText(q, true);
+        }
+        // Fallback: use whatever is on screen (may not contain answers)
+        return previewArea.getText();
+    }
+
+    private java.io.File defaultDownloadsFile(String baseName) {
+        var downloads = new java.io.File(System.getProperty("user.home"), "Downloads");
+        if (!downloads.exists() || !downloads.isDirectory()) {
+            downloads = new java.io.File(System.getProperty("user.home"));
+        }
+        var ts = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+        return new java.io.File(downloads, baseName + "-" + ts + ".pdf");
+    }
+
+    // Hide answers if required
+    private String stripAnswers(String text) {
+        if (text == null) return null;
+        // Remove lines starting with "Answer:" (case-insensitive, tolerant spacing)
+        return text.replaceAll("(?im)^\\s*Answer:\\s*.*\\R?", "");
     }
 
     // Async to run work off the UI thread and switch back on success
@@ -241,6 +388,10 @@ public class QuizGeneratorController {
         a.showAndWait();
     }
 
-    // Minimal row model for the public list (adjust later if you add IDs)
-    public record PublicQuizRow(String name, String author, int questions, String updated) {}
+    public record PublicQuizRow(int quizId, String name, String subject, String description, String author) {
+        public String getName() { return name; }
+        public String getSubject() { return subject; }
+        public String getDescription() { return description; }
+        public String getAuthor() { return author; }
+    }
 }

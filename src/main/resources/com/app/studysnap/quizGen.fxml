@@ -101,6 +101,9 @@
                                 <Region HBox.hgrow="ALWAYS"/>
                                 <Button text="Refresh" onAction="#onRefreshPublic"/>
                                 <Button text="Download Selected" onAction="#onDownloadSelected" styleClass="primary"/>
+                                <CheckBox fx:id="publicIncludeAnswersCheck"
+                                          text="Show answers"
+                                          onAction="#onPublicIncludeAnswersToggle"/>
                             </HBox>
 
                             <TableView fx:id="publicTable" prefHeight="260">
@@ -116,7 +119,7 @@
                 </Tab>
             </TabPane>
 
-            <!-- Preview & Actions (no autofill; you can paste/edit manually) -->
+            <!-- Preview & Actions -->
             <VBox spacing="8">
                 <Label text="Preview &amp; Edit" styleClass="section-title"/>
                 <TextArea fx:id="previewArea"
@@ -124,7 +127,13 @@
                           wrapText="true" prefRowCount="14"/>
                 <HBox spacing="8">
                     <Button text="Save to My Quizzes" onAction="#onSave" styleClass="success"/>
-                    <Button text="Export PDF" onAction="#onExportPdf"/>
+                    <HBox spacing="10">
+                        <children>
+                            <Button text="Export PDF" onAction="#onExportPdf" />
+                            <CheckBox fx:id="exportWithAnswersCheck" text="Include answers in export" />
+                        </children>
+                    </HBox>
+
                     <Region HBox.hgrow="ALWAYS"/>
                     <ProgressIndicator fx:id="progress" visible="false" prefWidth="22" prefHeight="22"/>
                 </HBox>

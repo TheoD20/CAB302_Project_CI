@@ -4,12 +4,12 @@ public class Question {
     private int questionId;
     private int quizId;
     private String question;
-    private String option1; //this contains the answer for option 1
-    private String option2; //this contains the answer for option 2
-    private String option3; //this contains the answer for option 3
-    private String option4; //this contains the answer for option 4
-    private String option5; //this contains the answer for option 5
-    private int correctOption; //this stores the int of the correct option
+    private String option1;
+    private String option2;
+    private String option3;
+    private String option4;
+    private String option5;
+    private Integer correctOption;
 
     // Default constructor
     public Question() {
@@ -95,11 +95,11 @@ public class Question {
         this.option5 = option5;
     }
 
-    public int getCorrectOption() {
+    public Integer getCorrectOption() {
         return correctOption;
     }
 
-    public void setCorrectOption(int correctOption) {
+    public void setCorrectOption(Integer correctOption) {
         this.correctOption = correctOption;
     }
 

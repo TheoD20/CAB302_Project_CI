@@ -10,6 +10,7 @@ module com.example.cab302_project {
     requires com.google.api.client.json.gson;
     requires com.google.api.services.oauth2;
     requires jdk.httpserver;
+    requires org.apache.pdfbox;
 
 
     opens com.app.studysnap to javafx.fxml;
