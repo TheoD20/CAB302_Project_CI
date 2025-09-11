@@ -2,15 +2,11 @@
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-background-color: #ecf0f1;
 }
-
-/* Global button */
 .button {
     -fx-background-radius: 5;
     -fx-padding: 8 16;
     -fx-font-size: 14px;
 }
-
-/* Primary button */
 .primary-btn {
     -fx-background-color: #3498db;
     -fx-text-fill: white;
@@ -18,9 +14,11 @@
 .primary-btn:hover {
     -fx-background-color: #2980b9;
 }
-
-/* Title */
 .title {
     -fx-font-size: 20px;
     -fx-font-weight: bold;
+}
+.subtitle {
+    -fx-text-fill: #666;
+    -fx-font-size: 13px;
 }

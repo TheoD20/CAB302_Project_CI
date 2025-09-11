@@ -1,4 +1,4 @@
-@import "style.css"; /* inherit global rules */
+@import "style.css";
 
 .auth-box {
     -fx-padding: 20;

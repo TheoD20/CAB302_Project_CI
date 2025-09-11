@@ -3,47 +3,47 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane fx:controller="com.app.studysnap.controllers.HomeController"
-            xmlns:fx="http://javafx.com/fxml">
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.app.studysnap.controllers.HomeController"
+            stylesheets="@styles/home.css"
+            prefWidth="1100" prefHeight="760">
+    <children>
+        <VBox spacing="16.0" AnchorPane.topAnchor="16" AnchorPane.leftAnchor="16"
+              AnchorPane.rightAnchor="16" AnchorPane.bottomAnchor="16">
 
-    <top>
-        <HBox spacing="12">
-            <padding>
-                <Insets topRightBottomLeft="16"/>
-            </padding>
-            <Label fx:id="welcomeLabel" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-        </HBox>
-    </top>
-
-    <center>
-        <ScrollPane fitToWidth="true">
-            <content>
-                <VBox spacing="10">
-                    <padding>
-                        <!-- top=0, right=16, bottom=16, left=16 -->
-                        <Insets top="0" right="16" bottom="16" left="16"/>
-                    </padding>
-
-                    <Label text="My Quizzes" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-
-                    <FlowPane fx:id="deckContainer" hgap="12" vgap="12" prefWrapLength="900"
-                              BorderPane.alignment="CENTER">
-                        <padding>
-                            <Insets topRightBottomLeft="4"/>
-                        </padding>
-                    </FlowPane>
-
-                    <!-- Empty state -->
-                    <VBox fx:id="emptyState" spacing="8" alignment="CENTER" visible="false" managed="false"
-                          style="-fx-background-color:#f7f7f7; -fx-background-radius:10;">
-                        <padding>
-                            <Insets topRightBottomLeft="16"/>
-                        </padding>
-                        <Label text="You don't have any quizzes yet." style="-fx-text-fill:#555;"/>
-                        <Button text="Create your first quiz" onAction="#onCreateQuiz"/>
-                    </VBox>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <VBox spacing="4">
+                    <Label text="Home" styleClass="title"/>
+                    <Label fx:id="welcomeLabel" styleClass="subtitle"/>
                 </VBox>
-            </content>
-        </ScrollPane>
-    </center>
-</BorderPane>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="＋ Create New Quiz" onAction="#onCreateQuiz" styleClass="primary"/>
+            </HBox>
+
+            <Separator/>
+
+            <ScrollPane fitToWidth="true">
+                <content>
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="0" right="16" bottom="16" left="16"/>
+                        </padding>
+                        <Label text="My Quizzes" styleClass="section-title"/>
+                        <FlowPane fx:id="deckContainer" hgap="12" vgap="12" prefWrapLength="900" BorderPane.alignment="CENTER">
+                            <padding>
+                                <Insets topRightBottomLeft="4"/>
+                            </padding>
+                        </FlowPane>
+                        <VBox fx:id="emptyState" spacing="8" alignment="CENTER" visible="false" managed="false" styleClass="empty-state">
+                            <padding>
+                                <Insets topRightBottomLeft="16"/>
+                            </padding>
+                            <Label text="You don't have any quizzes yet." styleClass="muted"/>
+                            <Button text="Create your first quiz" onAction="#onCreateQuiz" styleClass="primary"/>
+                        </VBox>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </VBox>
+    </children>
+</AnchorPane>

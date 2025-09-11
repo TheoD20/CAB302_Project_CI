@@ -6,17 +6,20 @@ import com.app.studysnap.model.IQuizDAO;
 import com.app.studysnap.model.Quiz;
 import com.app.studysnap.model.SqliteQuizDAO;
 import com.app.studysnap.model.User;
+import com.app.studysnap.services.PdfExporter;
+import com.app.studysnap.services.QuizRenderer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeController {
 
@@ -25,6 +28,8 @@ public class HomeController {
     @FXML private VBox emptyState;
 
     private final IQuizDAO dao = new SqliteQuizDAO();
+    private final PdfExporter pdfExporter = new PdfExporter();
+    private final QuizRenderer renderer = new QuizRenderer();
 
     @FXML
     public void initialize() {
@@ -66,34 +71,33 @@ public class HomeController {
         VBox card = new VBox(8);
         card.setPadding(new Insets(12));
         card.setPrefWidth(280);
-        card.setStyle("""
-            -fx-background-color: white;
-            -fx-background-radius: 12;
-            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);
-            """);
+        card.getStyleClass().add("card");
 
         Label title = new Label(nz(q.getTitle()));
-        title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        title.getStyleClass().add("card-title");
 
         HBox meta = new HBox(10);
         Label subject = new Label("📚 " + nz(q.getSubject()));
-        subject.setStyle("-fx-text-fill: #444;");
-        Label vis = new Label(q.get_is_private() ? "🔒 Private" : "🌐 Public");
-        vis.setStyle("-fx-text-fill: #666;");
-        meta.getChildren().addAll(subject, vis);
+        subject.getStyleClass().add("card-meta");
+        Label is_private = new Label(q.get_is_private() ? "🔒 Private" : "🌐 Public");
+        is_private.getStyleClass().add("card-meta");
+        meta.getChildren().addAll(subject, is_private);
 
         Text desc = new Text(nz(q.getDescription()));
         desc.setWrappingWidth(256);
+        desc.getStyleClass().add("card-desc");
 
         HBox actions = new HBox(8);
-        Button openBtn = new Button("Open");
-        Button exportBtn = new Button("Export");
+        Button openBtn = new Button("Play");
         Button editBtn = new Button("Edit");
+        Button deleteBtn = new Button("Delete");
+        Button exportBtn = new Button("Export");
 
-        openBtn.setOnAction(e -> openInDashboard("quiz_view.fxml", e));
-        editBtn.setOnAction(e -> openInDashboard("quiz_edit.fxml", e));
-        exportBtn.setOnAction(e -> new Alert(Alert.AlertType.INFORMATION,
-                "TODO: Wire exporter for quiz_id=" + q.getQuizId()).showAndWait());
+        openBtn.setOnAction(e -> openInDashboard("playQuiz.fxml", e));
+        editBtn.setOnAction(e -> openInDashboard("editQuiz.fxml", e));
+        deleteBtn.setOnAction(e -> handleDeleteQuiz(q));
+        exportBtn.setOnAction(e -> exportQuizPdf(q.getQuizId()));
+        actions.getChildren().addAll(openBtn, editBtn, deleteBtn, exportBtn);
 
         card.getChildren().addAll(title, meta, desc, actions);
         return card;
@@ -102,13 +106,13 @@ public class HomeController {
     // Empty-state button -> go to quiz generator inside the dashboard
     @FXML
     private void onCreateQuiz() {
-        // Load quizgen.fxml into the dashboard content area
-        openInDashboard("quizgen.fxml", deckContainer);
+        // Load quizGen.fxml into the dashboard content area
+        openInDashboard("quizGen.fxml", deckContainer);
     }
 
     /**
-     * Inject an FXML into the Dashboard content area without touching Navigator or Stage.
-     * Requires dashboard.fxml to set: <StackPane fx:id="contentArea" id="contentArea">
+     Inject an FXML into the Dashboard content area without touching Navigator or Stage.
+     Requires dashboard.fxml to set: <StackPane fx:id="contentArea" id="contentArea">
      */
     private void openInDashboard(String fxml, Object anyChildNode) {
         try {
@@ -117,7 +121,7 @@ public class HomeController {
             BorderPane dashRoot = (BorderPane) any.getScene().getRoot();
             StackPane contentArea = (StackPane) dashRoot.lookup("#contentArea"); // CSS id lookup
             if (contentArea == null) throw new IllegalStateException("contentArea not found. Did you add id=\"contentArea\" in dashboard.fxml?");
-            Node view = FXMLLoader.load(Main.class.getResource(fxml));
+            Node view = FXMLLoader.load(Objects.requireNonNull(Main.class.getResource(fxml)));
             contentArea.getChildren().setAll(view);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -126,8 +130,80 @@ public class HomeController {
     }
 
     private void openInDashboard(String fxml, javafx.event.ActionEvent e) {
-        openInDashboard(fxml, (Node) e.getSource());
+        openInDashboard(fxml, e.getSource());
     }
 
     private String nz(String s) { return s == null ? "" : s; }
+
+    private void handleDeleteQuiz(Quiz q) {
+        ButtonType delete = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancel = ButtonType.CANCEL;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Delete quiz");
+        confirm.setHeaderText("Delete \"" + nz(q.getTitle()) + "\"?");
+        confirm.setContentText("This will permanently remove the quiz and all its questions.");
+        confirm.getButtonTypes().setAll(delete, cancel);
+
+        ButtonType choice = confirm.showAndWait().orElse(cancel);
+        if (choice != delete) return;
+
+        try {
+            dao.deleteQuiz(q.getQuizId());
+            loadMyQuizzes();
+            new Alert(Alert.AlertType.INFORMATION, "Quiz deleted.").showAndWait();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Could not delete quiz:\n" + ex.getMessage()).showAndWait();
+        }
+    }
+    private void exportQuizPdf(int quizId) {
+        // Load full quiz with questions
+        Quiz full = dao.getQuizById(quizId);
+        if (full == null) {
+            new Alert(Alert.AlertType.ERROR, "Could not load quiz details.").showAndWait();
+            return;
+        }
+
+        // Ask user choice (include answers or not)
+        Alert ask = new Alert(Alert.AlertType.CONFIRMATION);
+        ask.setHeaderText("Export Quiz");
+        ask.setContentText("Include answers in the PDF?");
+        ButtonType withAns = new ButtonType("With answers");
+        ButtonType withoutAns = new ButtonType("Without answers");
+        ButtonType cancel = ButtonType.CANCEL;
+        ask.getButtonTypes().setAll(withAns, withoutAns, cancel);
+        ButtonType choice = ask.showAndWait().orElse(cancel);
+        if (choice == cancel) return;
+
+        boolean includeAnswers = (choice == withAns);
+
+        // Render text
+        String txt = renderer.renderAsText(full, includeAnswers);
+        if (txt.isBlank()) {
+            new Alert(Alert.AlertType.WARNING, "Nothing to export.").showAndWait();
+            return;
+        }
+
+        // Save file
+        FileChooser fc = new FileChooser();
+        fc.setTitle(includeAnswers ? "Export Quiz (with answers)" : "Export Quiz");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
+        String base = safeFileName(full.getTitle());
+        fc.setInitialFileName(base + (includeAnswers ? "-with-answers" : "") + ".pdf");
+        File pdf = fc.showSaveDialog(deckContainer.getScene().getWindow());
+        if (pdf == null) return;
+
+        try {
+            pdfExporter.export(txt, pdf);
+            new Alert(Alert.AlertType.INFORMATION, "PDF saved to:\n" + pdf.getAbsolutePath()).showAndWait();
+        } catch (Exception ex) {
+            new Alert(Alert.AlertType.ERROR, "Export failed:\n" + ex.getMessage()).showAndWait();
+        }
+    }
+
+    private String safeFileName(String s) {
+        String base = (s == null || s.isBlank()) ? "quiz" : s.trim();
+        return base.replaceAll("[\\\\/:*?\"<>|]", "_");
+    }
 }
