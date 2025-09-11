@@ -1,16 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.app.studysnap.controllers.HomeController">
+<BorderPane fx:controller="com.app.studysnap.controllers.HomeController"
+            xmlns:fx="http://javafx.com/fxml">
 
-    <children>
-        <Label fx:id="welcomeLabel"
-               layoutX="30"
-               layoutY="30"
-               styleClass="title"
-               text="Welcome!" />
-    </children>
+    <top>
+        <HBox spacing="12">
+            <padding>
+                <Insets topRightBottomLeft="16"/>
+            </padding>
+            <Label fx:id="welcomeLabel" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
 
-</AnchorPane>
+    <center>
+        <ScrollPane fitToWidth="true">
+            <content>
+                <VBox spacing="10">
+                    <padding>
+                        <!-- top=0, right=16, bottom=16, left=16 -->
+                        <Insets top="0" right="16" bottom="16" left="16"/>
+                    </padding>
+
+                    <Label text="My Quizzes" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                    <FlowPane fx:id="deckContainer" hgap="12" vgap="12" prefWrapLength="900"
+                              BorderPane.alignment="CENTER">
+                        <padding>
+                            <Insets topRightBottomLeft="4"/>
+                        </padding>
+                    </FlowPane>
+
+                    <!-- Empty state -->
+                    <VBox fx:id="emptyState" spacing="8" alignment="CENTER" visible="false" managed="false"
+                          style="-fx-background-color:#f7f7f7; -fx-background-radius:10;">
+                        <padding>
+                            <Insets topRightBottomLeft="16"/>
+                        </padding>
+                        <Label text="You don't have any quizzes yet." style="-fx-text-fill:#555;"/>
+                        <Button text="Create your first quiz" onAction="#onCreateQuiz"/>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>
