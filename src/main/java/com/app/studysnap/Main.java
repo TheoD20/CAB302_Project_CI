@@ -26,10 +26,7 @@ public class Main extends Application {
         //Database logic
         SqliteUserDAO userDAO = new SqliteUserDAO();
 
-        //Populate the Users table with 3 mock users data (disabled by default). * Needs to comment after it's called once
-        //userDAO.seedMockUsers();
-
-        //Print users from DB
+        //DEBUGGING REASONS: Print users from DB
         for (User user : userDAO.getAllUsers()) {
             System.out.println(user.getUserId() + " | " + user.getUsername() + " | " + user.getEmail() + " | " + user.getAuthProvider());
         }

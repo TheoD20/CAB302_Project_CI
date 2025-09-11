@@ -13,6 +13,8 @@ public final class LocalQuizGenerator {
     private final SecureRandom rnd = new SecureRandom();
 
     public String generateFromText(String text, boolean includeAnswers) {
+        text = normalize(text);
+
         List<String> sentences = splitSentences(text);
         // Build a reasonably large pool for distractors
         List<String> vocab = topKeywords(text, 200);
@@ -144,5 +146,17 @@ public final class LocalQuizGenerator {
     private String cap(String s) {
         if (s == null || s.isEmpty()) return s;
         return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+
+    private static String normalize(String raw) {
+        if (raw == null) return "";
+        String s = raw.replace("\r\n","\n").replace("\r","\n");
+        s = s.replace('\u00A0',' ').replace("\u200B",""); // NBSP/ZWSP
+        s = s.replace("\u00AD","");                      // soft hyphen
+        s = s.replaceAll("(?<=\\p{L})-\\n(?=\\p{Ll})",""); // unhyphenate
+        s = s.replaceAll("(?<!\\n)\\n(?!\\n)"," ");        // join wrapped lines
+        s = s.replaceAll("[ \\t\\x0B\\f]+"," ");
+        s = s.replaceAll("\\n{3,}","\n\n");
+        return s.trim();
     }
 }
