@@ -1,13 +1,9 @@
 package com.app.studysnap.auth;
 
-import com.app.studysnap.model.IUserDAO;
 import com.app.studysnap.model.SqliteUserDAO;
 import com.app.studysnap.model.User;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
 
 public class SessionTest {
     SqliteUserDAO users;
@@ -26,7 +22,7 @@ public class SessionTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void clearDB() {
         if (users != null) {
             try {
                 for (User u : users.getAllUsers()) {
@@ -41,7 +37,7 @@ public class SessionTest {
 
     // Test if constructor exists
     @Test
-    void Session_EmptyConstructor_MethodExists() throws Exception {
+    void session_EmptyConstructor_MethodExists() throws Exception {
         Class<?> MyClass = Session.class;
         assertNotNull(MyClass.getDeclaredConstructor());
     }
@@ -49,29 +45,25 @@ public class SessionTest {
     // Test if setCurrentUser method exists
     @Test
     void setCurrentUser_MethodExists() throws Exception {
-        Class<?> clazz = Session.class;
-        assertNotNull(clazz.getDeclaredMethod("setCurrentUser", User.class));
+        Class<?> MyClass = Session.class;
+        assertNotNull(MyClass.getDeclaredMethod("setCurrentUser", User.class));
     }
     // Test if getCurrentUser method exists
     @Test
     void getCurrentUser_MethodExists() throws Exception {
-        Class<?> clazz = Session.class;
-        assertNotNull(clazz.getDeclaredMethod("getCurrentUser"));
+        Class<?> MyClass = Session.class;
+        assertNotNull(MyClass.getDeclaredMethod("getCurrentUser"));
     }
     // Test if clear method exists
     @Test
     void clear_MethodExists() throws Exception {
-        Class<?> clazz = Session.class;
-        assertNotNull(clazz.getDeclaredMethod("clear"));
+        Class<?> MyClass = Session.class;
+        assertNotNull(MyClass.getDeclaredMethod("clear"));
     }
 
     // Setting a persisted user should be retrievable by getCurrentUser
     @Test
     void setCurrentUser_WithPersistedUser_SetsAndGets() {
-        if (authService == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         User u = authService.register("alice", "alice@example.com", "pw");
         assertNotNull(u);
         Session.setCurrentUser(u);
@@ -98,10 +90,6 @@ public class SessionTest {
     // Clear should remove current user
     @Test
     void clear_RemovesCurrentUser() {
-        if (authService == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         User u = authService.register("bob", "bob.session@example.com", "pw");
         Session.setCurrentUser(u);
         assertNotNull(Session.getCurrentUser());

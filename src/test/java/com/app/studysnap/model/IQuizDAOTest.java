@@ -18,43 +18,43 @@ public class IQuizDAOTest {
     // Test if method to add quiz exists
     @Test
     void addQuiz_MethodExists() throws Exception {
-        Class<?> clazz = IQuizDAO.class;
-        assertNotNull(clazz.getDeclaredMethod("addQuiz", Quiz.class));
+        Class<?> MyClass = IQuizDAO.class;
+        assertNotNull(MyClass.getDeclaredMethod("addQuiz", Quiz.class));
     }
 
     // Test if method to get quiz by ID exists
     @Test
     void getQuizById_MethodExists() throws Exception {
-        Class<?> clazz = IQuizDAO.class;
-        assertNotNull(clazz.getDeclaredMethod("getQuizById", int.class));
+        Class<?> MyClass = IQuizDAO.class;
+        assertNotNull(MyClass.getDeclaredMethod("getQuizById", int.class));
     }
 
     // Test if method to get Quizzes by creator ID exists
     @Test
     void getQuizzesByUser_MethodExists() throws Exception {
-        Class<?> clazz = IQuizDAO.class;
-        assertNotNull(clazz.getDeclaredMethod("getQuizzesByUser", int.class));
+        Class<?> MyClass = IQuizDAO.class;
+        assertNotNull(MyClass.getDeclaredMethod("getQuizzesByUser", int.class));
     }
 
     // Test if method to find all public quizzes exists
     @Test
     void findPublic_MethodExists() throws Exception {
-        Class<?> clazz = IQuizDAO.class;
-        assertNotNull(clazz.getDeclaredMethod("findPublic", String.class));
+        Class<?> MyClass = IQuizDAO.class;
+        assertNotNull(MyClass.getDeclaredMethod("findPublic", String.class));
     }
 
     // Test if method to update an existing quiz exists
     @Test
     void updateQuiz_MethodExists() throws Exception {
-        Class<?> clazz = IQuizDAO.class;
-        assertNotNull(clazz.getDeclaredMethod("updateQuiz", Quiz.class));
+        Class<?> MyClass = IQuizDAO.class;
+        assertNotNull(MyClass.getDeclaredMethod("updateQuiz", Quiz.class));
     }
 
     // Test if method to delete an existing quiz exists
     @Test
     void deleteQuiz_MethodExists() throws Exception {
-        Class<?> clazz = IQuizDAO.class;
-        assertNotNull(clazz.getDeclaredMethod("deleteQuiz", int.class));
+        Class<?> MyClass = IQuizDAO.class;
+        assertNotNull(MyClass.getDeclaredMethod("deleteQuiz", int.class));
     }
 
     // Class loads

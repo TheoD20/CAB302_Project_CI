@@ -33,13 +33,12 @@ public class QuestionTest {
         assertNotNull(MyClass.getDeclaredConstructor(int.class, int.class, String.class, String.class, String.class, String.class, String.class, String.class, int.class));
     }
 
-    // Full constructor: Test for null inputs -> should raise error
+    // Full constructor: Test for null inputs and negative values -> should raise error
     @Test
-    void FullConstructor_NullArgs_Throws() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
+    void FullConstructor_Negatives_NullArgs_Throws() {
+        assertThrows(Exception.class, () -> new Question(-1, 1, "S", "1", "2", "3", "4", "5", 2));
+        assertThrows(Exception.class, () -> new Question(1, -1, "S", "1", "2", "3", "4", "5", 2));
+        assertThrows(Exception.class, () -> new Question(1, 1, "S", "1", "2", "3", "4", "5", -2));
         assertThrows(Exception.class, () -> new Question(0, 0, null, null, null, null, null, null, 0));
     }
 
@@ -140,10 +139,6 @@ public class QuestionTest {
     // Validate setters behaviour when passing null/default arguments
     @Test
     void setQuestionId_DefaultArgs_DoesNotThrow() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         try {
             question.setQuestionId(0);
             Assertions.assertTrue(true);
@@ -153,10 +148,6 @@ public class QuestionTest {
     }
     @Test
     void setQuizId_DefaultArgs_DoesNotThrow() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         try {
             question.setQuizId(0);
             Assertions.assertTrue(true);
@@ -166,68 +157,36 @@ public class QuestionTest {
     }
     @Test
     void setQuestion_NullArgs_ThrowsException() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         assertThrows(Exception.class, () -> question.setQuestion(null));
     }
     @Test
     void setOption1_NullArgs_ThrowsException() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         assertThrows(Exception.class, () -> question.setOption1(null));
     }
     @Test
     void setOption2_NullArgs_ThrowsException() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         assertThrows(Exception.class, () -> question.setOption2(null));
     }
     @Test
     void setOption3_NullArgs_ThrowsException() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         assertThrows(Exception.class, () -> question.setOption3(null));
     }
     @Test
     void setOption4_NullArgs_ThrowsException() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         assertThrows(Exception.class, () -> question.setOption4(null));
     }
     @Test
     void setOption5_NullArgs_ThrowsException() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         assertThrows(Exception.class, () -> question.setOption5(null));
     }
     @Test
     void setCorrectOption_NullArgs_ThrowsException() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         assertThrows(Exception.class, () -> question.setCorrectOption(null));
     }
 
     // Full constructor sets all fields correctly for valid, non-null inputs
     @Test
     void FullConstructor_SetsAllFields_Correctly() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         Question q = new Question(
                 11,
                 22,
@@ -250,10 +209,6 @@ public class QuestionTest {
     // Default constructor produces default values (primitives zero, refs null)
     @Test
     void DefaultConstructor_InitialValues_AreDefaults() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         assertEquals(0, question.getQuestionId());
         assertEquals(0, question.getQuizId());
         assertNull(question.getQuestion());
@@ -268,10 +223,6 @@ public class QuestionTest {
     // Getters should return recently setter assigned values
     @Test
     void Setters_Getters_RoundTrip_Values() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         question.setQuestionId(7);
         question.setQuizId(9);
         question.setQuestion("Choose the correct answer");
@@ -296,10 +247,6 @@ public class QuestionTest {
     // Setting large IDs and long strings should not break getters
     @Test
     void LargeValues_AndLongStrings_DoNotBreak() {
-        if (question == null) {
-            Assertions.assertTrue(true);
-            return;
-        }
         String longText = "x".repeat(500);
         question.setQuestionId(Integer.MAX_VALUE);
         question.setQuizId(Integer.MAX_VALUE);
