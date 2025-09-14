@@ -1,5 +1,6 @@
 package com.app.studysnap.controllers;
 import com.app.studysnap.Navigator;
+import com.app.studysnap.Popup;
 import com.app.studysnap.auth.AuthService;
 import com.app.studysnap.auth.GoogleAuthService;
 import com.app.studysnap.auth.Session;
@@ -30,13 +31,12 @@ public class LoginController {
             Navigator.goTo(loginButton, "dashboard.fxml");
         } catch (IllegalArgumentException ex) {
             String message = ex.getMessage();
-            showError(message);
+            Popup.error(message);
             if (Objects.equals(message, "This account uses Google Sign-In. Use 'Sign in with Google'.")) {
                 handleGoogleLogin();
             }
         } catch (Exception ex) {
-            showError("Unexpected error. Please try again.");
-            ex.printStackTrace();
+            Popup.error("Unexpected error. Please try again.");
         }
     }
 
@@ -47,22 +47,17 @@ public class LoginController {
             var userInfo = googleAuth.login();
             User u = auth.loginWithGoogle(userInfo.getId(), userInfo.getEmail(), userInfo.getName());
             Session.setCurrentUser(u);
-            new Alert(Alert.AlertType.INFORMATION, "Welcome, " + u.getUsername(), ButtonType.OK).showAndWait();
+            Popup.info("Welcome, " + u.getUsername());
             Navigator.goTo(googleLoginButton, "dashboard.fxml");
         } catch (IllegalArgumentException ex) {
             String message = ex.getMessage();
-            showError(message);
+            Popup.error(message);
             if (Objects.equals(message, "An account with this email uses a password. Use email login.")) {
                 Navigator.goTo(googleLoginButton, "login.fxml");
             }
         } catch (Exception e) {
-            showError("Google login failed: " + e.getMessage());
-            e.printStackTrace();
+            Popup.error("Google login failed: " + e.getMessage());
         }
-    }
-
-    private void showError(String msg) {
-        new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK).showAndWait();
     }
 
     @FXML

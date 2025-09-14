@@ -1,9 +1,17 @@
 package com.app.studysnap.controllers;
 
+import com.app.studysnap.Popup;
+import com.app.studysnap.auth.Session;
+import com.app.studysnap.model.IQuizDAO;
+import com.app.studysnap.model.Quiz;
+import com.app.studysnap.model.SqliteQuizDAO;
+import com.app.studysnap.services.PdfExporter;
+import com.app.studysnap.services.QuizRenderer;
+import com.app.studysnap.services.QuizService;
+import com.app.studysnap.services.QuizTextParser;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.DragEvent;
@@ -48,20 +56,20 @@ public class QuizGeneratorController {
     @FXML private CheckBox exportWithAnswersCheck;
 
     // Services
-    @FXML private final com.app.studysnap.services.QuizService genGateway = new com.app.studysnap.services.QuizService();
-    @FXML private final com.app.studysnap.services.QuizTextParser parser = new com.app.studysnap.services.QuizTextParser();
-    @FXML private final com.app.studysnap.services.QuizRenderer renderer = new com.app.studysnap.services.QuizRenderer();
-    @FXML private final com.app.studysnap.services.PdfExporter pdfExporter = new com.app.studysnap.services.PdfExporter();
-    @FXML private final com.app.studysnap.model.IQuizDAO quizDao = new com.app.studysnap.model.SqliteQuizDAO();
+    private final QuizService genGateway = new QuizService();
+    private final QuizTextParser parser = new QuizTextParser();
+    private final QuizRenderer renderer = new QuizRenderer();
+    private final PdfExporter pdfExporter = new PdfExporter();
+    private final IQuizDAO quizDao = new SqliteQuizDAO();
 
-    // Display
-    @FXML private java.util.List<com.app.studysnap.model.Question> lastGeneratedQuestions = java.util.Collections.emptyList();
-    @FXML private String lastGeneratedWithAnswers = null;
+    // Display state
+    private List<com.app.studysnap.model.Question> lastGeneratedQuestions = List.of();
+    private String lastGeneratedWithAnswers = null;
 
 
     @FXML
     public void initialize() {
-        // Drag & drop setup for file area
+        // Drag and drop setup for file area
         if (fileDropZone != null) {
             fileDropZone.setOnDragOver(this::onDragOver);
             fileDropZone.setOnDragDropped(this::onDragDropped);
@@ -91,7 +99,8 @@ public class QuizGeneratorController {
         }
     }
 
-    // ---------------- Upload ----------------
+    // Upload
+    // Handle file chooser for file uploading
     @FXML private void onChooseFile() {
         FileChooser fc = new FileChooser();
         fc.getExtensionFilters().addAll(
@@ -104,12 +113,14 @@ public class QuizGeneratorController {
         }
     }
 
+    // Handle simple drag file to upload field
     private void onDragOver(DragEvent e) {
         Dragboard db = e.getDragboard();
         if (db.hasFiles()) e.acceptTransferModes(TransferMode.COPY);
         e.consume();
     }
 
+    // Handle file dropped on upload field
     private void onDragDropped(DragEvent e) {
         Dragboard db = e.getDragboard();
         if (db.hasFiles()) {
@@ -122,18 +133,20 @@ public class QuizGeneratorController {
         e.consume();
     }
 
+    // Handle call to generate from upload
     @FXML private void onGenerateFromUpload() {
         if (selectedFile == null) {
-            alert(Alert.AlertType.WARNING, "No file selected", "Choose a PDF/TXT first.");
+            Popup.warn("No file selected. Choose a PDF/TXT first.");
             return;
         }
         disableAll(true);
         runAsync(
-                () -> genGateway.generateFromUpload(selectedFile, true), // force includeAnswers=true
+                () -> genGateway.generateFromUpload(selectedFile, true),
                 txt -> {
                     lastGeneratedWithAnswers = txt;
-                    lastGeneratedQuestions = parser.parse(txt); // has correct_option set
-                    // Show or hide answers purely in the preview
+                    lastGeneratedQuestions = parser.parse(txt);
+
+                    // Show or hide answers in the preview
                     String display = includeAnswersUpload.isSelected() ? txt : stripAnswers(txt);
                     previewArea.setText(display);
                     disableAll(false);
@@ -141,11 +154,12 @@ public class QuizGeneratorController {
         );
     }
 
-    // ---------------- Paste ----------------
+    // Paste
+    // Handle call to generate from paste text
     @FXML private void onGenerateFromPaste() {
         String text = pastedTextArea.getText();
         if (text == null || text.isBlank()) {
-            alert(Alert.AlertType.WARNING, "Nothing to generate", "Paste some content first.");
+            Popup.warn("Nothing to generate. Paste some content first.");
             return;
         }
         disableAll(true);
@@ -161,15 +175,17 @@ public class QuizGeneratorController {
         );
     }
 
+    // Handle clearing paste area
     @FXML private void onResetPaste() {
         pastedTextArea.clear();
     }
 
-    // ---------------- Prompt ----------------
+    // Prompt
+    // Handle call to generate from prompt
     @FXML private void onGenerateFromPrompt() {
         String prompt = promptTextArea.getText();
         if (prompt == null || prompt.isBlank()) {
-            alert(Alert.AlertType.WARNING, "Empty prompt", "Write a short prompt.");
+            Popup.warn("Empty prompt. Write a short prompt.");
             return;
         }
         disableAll(true);
@@ -185,11 +201,13 @@ public class QuizGeneratorController {
         );
     }
 
+    // Handle clearing prompt area
     @FXML private void onResetPrompt() {
         promptTextArea.clear();
     }
 
-    // ---------------- Public ----------------
+    // Public
+    // Refresh public quizzes list
     @FXML private void onRefreshPublic() {
         String q = (searchField.getText() == null) ? "" : searchField.getText().trim();
         disableAll(true);
@@ -206,10 +224,11 @@ public class QuizGeneratorController {
         );
     }
 
+    // Handles download a public quiz to display area
     @FXML private void onDownloadSelected() {
         PublicQuizRow sel = publicTable.getSelectionModel().getSelectedItem();
         if (sel == null) {
-            alert(Alert.AlertType.INFORMATION, "No selection", "Pick a quiz row to download.");
+            Popup.info("No selection. Pick a quiz row to download.");
             return;
         }
         disableAll(true);
@@ -231,6 +250,7 @@ public class QuizGeneratorController {
         );
     }
 
+    // Handles toggling include/remove answers from display
     @FXML private void onPublicIncludeAnswersToggle() {
         if (lastGeneratedWithAnswers == null || lastGeneratedWithAnswers.isBlank()) return;
         boolean showAns = publicIncludeAnswersCheck != null && publicIncludeAnswersCheck.isSelected();
@@ -238,8 +258,11 @@ public class QuizGeneratorController {
         previewArea.setText(display);
     }
 
-    // ---------------- Save & Export ----------------
+    // Save and Export
+    // Handles call to save a new quiz
     @FXML private void onSave() {
+
+        // Handles dialog for quiz name, subject, description and is_public
         Dialog<ButtonType> dlg = new Dialog<>();
         dlg.setTitle("Save Quiz");
         dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -265,7 +288,7 @@ public class QuizGeneratorController {
         boolean is_private = !publicCheck.isSelected();
 
         if (nm == null || nm.isBlank()) {
-            alert(Alert.AlertType.WARNING, "Missing fields", "Name is required.");
+            Popup.warn("Name is required.");
             return;
         }
 
@@ -273,17 +296,16 @@ public class QuizGeneratorController {
             // Fallback: if user typed/edited manually, try parse the displayed text
             var parsed = parser.parse(previewArea.getText());
             if (parsed.isEmpty()) {
-                alert(Alert.AlertType.WARNING, "No questions found",
-                        "Generate a quiz first or use the expected MCQ format (A–E).");
+                Popup.warn("No questions found. Generate a quiz first or use the expected MCQ format (A–E).");
                 return;
             }
             lastGeneratedQuestions = parsed;
         }
 
-        var user = com.app.studysnap.auth.Session.getCurrentUser();
+        var user = Session.getCurrentUser();
         int createdBy = (user != null) ? user.getUserId() : 0;
 
-        var quiz = new com.app.studysnap.model.Quiz(nm, subj, desc, is_private, createdBy);
+        var quiz = new Quiz(nm, subj, desc, is_private, createdBy);
         quiz.setQuestions(lastGeneratedQuestions);
 
         disableAll(true);
@@ -291,21 +313,19 @@ public class QuizGeneratorController {
                 () -> { quizDao.addQuiz(quiz); return null; },
                 ignored -> {
                     disableAll(false);
-                    alert(Alert.AlertType.INFORMATION, "Saved", "Quiz saved successfully.");
+                    Popup.info("Quiz saved successfully.");
                     onRefreshPublic();
                 }
         );
     }
 
+    // Handles call to export quiz as pdf
     @FXML private void onExportPdf() {
         boolean withAnswers = exportWithAnswersCheck != null && exportWithAnswersCheck.isSelected();
-        exportPdfInternal(withAnswers);
-    }
-
-    private void exportPdfInternal(boolean withAnswers) {
         String txt = buildExportText(withAnswers);
+
         if (txt == null || txt.isBlank()) {
-            alert(Alert.AlertType.WARNING, "Nothing to export", "Generate or load a quiz first.");
+            Popup.warn("Nothing to export. Generate or load a quiz first.");
             return;
         }
 
@@ -318,7 +338,7 @@ public class QuizGeneratorController {
         chooser.setInitialFileName(suggested.getName());
 
         var owner = (tabPane != null && tabPane.getScene() != null) ? tabPane.getScene().getWindow() : null;
-        java.io.File dest = chooser.showSaveDialog(owner);
+        File dest = chooser.showSaveDialog(owner);
         if (dest == null) return;
 
         disableAll(true);
@@ -326,12 +346,12 @@ public class QuizGeneratorController {
                 () -> { pdfExporter.export(txt, dest); return dest; },
                 out -> {
                     disableAll(false);
-                    alert(Alert.AlertType.INFORMATION, "Exported", "PDF saved to:\n" + out.getAbsolutePath());
+                    Popup.info("PDF saved to:\n" + out.getAbsolutePath());
                 }
         );
     }
 
-    // ---------------- Helpers ----------------
+    // Helpers
     private void disableAll(boolean busy) {
         progress.setVisible(busy);
         tabPane.setDisable(busy);
@@ -356,13 +376,13 @@ public class QuizGeneratorController {
         return previewArea.getText();
     }
 
-    private java.io.File defaultDownloadsFile(String baseName) {
-        var downloads = new java.io.File(System.getProperty("user.home"), "Downloads");
+    private File defaultDownloadsFile(String baseName) {
+        var downloads = new File(System.getProperty("user.home"), "Downloads");
         if (!downloads.exists() || !downloads.isDirectory()) {
-            downloads = new java.io.File(System.getProperty("user.home"));
+            downloads = new File(System.getProperty("user.home"));
         }
         var ts = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-        return new java.io.File(downloads, baseName + "-" + ts + ".pdf");
+        return new File(downloads, baseName + "-" + ts + ".pdf");
     }
 
     // Hide answers if required
@@ -377,15 +397,20 @@ public class QuizGeneratorController {
         Task<T> task = new Task<>() {
             @Override protected T call() throws Exception { return background.call(); }
         };
-        task.setOnSucceeded(e -> onSuccess.accept(task.getValue()));
-        task.setOnFailed(e -> alert(Alert.AlertType.ERROR, "Error", String.valueOf(task.getException())));
-        new Thread(task, "quiz-bg").start();
-    }
+        task.setOnSucceeded(e -> {
+            try { onSuccess.accept(task.getValue()); }
+            finally { disableAll(false); }
+        });
+        task.setOnFailed(e -> {
+            try {
+                Throwable ex = task.getException();
+                Popup.error("Error: " + (ex == null ? "Unknown failure" : ex.getMessage()));
+            } finally { disableAll(false); }
+        });
 
-    private void alert(Alert.AlertType type, String header, String content) {
-        Alert a = new Alert(type, content, ButtonType.OK);
-        a.setHeaderText(header);
-        a.showAndWait();
+        Thread t = new Thread(task, "quiz-bg");
+        t.setDaemon(true);
+        t.start();
     }
 
     public record PublicQuizRow(int quizId, String name, String subject, String description, String author) {

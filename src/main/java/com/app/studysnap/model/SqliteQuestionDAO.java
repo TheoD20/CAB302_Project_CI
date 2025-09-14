@@ -62,7 +62,7 @@ public class SqliteQuestionDAO implements IQuestionDAO {
     @Override
     public Question getQuestionById(int questionId) {
         final String sql = """
-            SELECT question_id, quiz_id, content, option1, option2, option3, option4, option5, correct_option
+            SELECT *
             FROM Questions WHERE question_id=?
         """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

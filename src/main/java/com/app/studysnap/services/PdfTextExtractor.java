@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
 
 public final class PdfTextExtractor {
+
+    // Handles file types, call extractor and returns raw text
     public String extract(File file) throws Exception {
         String name = file.getName().toLowerCase();
         String raw;
@@ -21,6 +23,7 @@ public final class PdfTextExtractor {
         return normalize(raw); // <-- make PDF behave like paste
     }
 
+    // Extract text from .pdf file
     private String extractPdf(File f) throws Exception {
         try (PDDocument doc = PDDocument.load(f)) {
             PDFTextStripper stripper = new PDFTextStripper();
@@ -32,19 +35,31 @@ public final class PdfTextExtractor {
         }
     }
 
+    // Normalize text
     private static String normalize(String raw) {
+        // Return null input as empty string
         if (raw == null) return "";
+
         String s = raw;
 
+        // New lines to LF
         s = s.replace("\r\n", "\n").replace("\r", "\n");
-        s = s.replace('\u00A0', ' ').replace("\u200B", "");
-        s = s.replace("\u00AD", "");
-        s = s.replaceAll("(?<=\\p{L})-\\n(?=\\p{Ll})", "");
-        s = s.replaceAll("(?<!\\n)\\n(?!\\n)", " ");
-        s = s.replaceAll("[ \\t\\x0B\\f]+", " ");
-        s = s.replaceAll("\\n{3,}", "\n\n");
-        s = s.replace('“', '"').replace('”', '"').replace('’', '\'');
 
+        // Invisible and layout artifacts
+        s = s.replace('\u00A0', ' ');
+        s = s.replace("\u200B", "");
+        s = s.replace("\u00AD", "");
+
+        // Handle hyphen wrappers
+        s = s.replaceAll("(?<=\\p{L})-\\n(?=\\p{Ll})", "");
+
+        // Handle horizontal whitespace
+        s = s.replaceAll("[ \\t\\x0B\\f]+", " ");
+
+        // Normalize tall gaps to blank line
+        s = s.replaceAll("\\n{3,}", "\n\n");
+
+        // Trim leading/trailing whitespace
         return s.trim();
     }
 }
