@@ -12,6 +12,7 @@ module com.example.cab302_project {
     requires jdk.httpserver;
     requires org.apache.pdfbox;
     requires java.net.http;
+    requires java.desktop;
 
 
     opens com.app.studysnap to javafx.fxml;

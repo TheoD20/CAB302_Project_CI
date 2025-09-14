@@ -126,7 +126,6 @@ public class SqliteQuestionDAO implements IQuestionDAO {
         }
     }
 
-
     public void replaceForQuiz(int quizId, List<Question> questions) throws SQLException {
         final String del = "DELETE FROM Questions WHERE quiz_id=?";
         final String ins = """
@@ -179,4 +178,5 @@ public class SqliteQuestionDAO implements IQuestionDAO {
         q.setCorrectOption(rs.wasNull() ? null : co);
         return q;
     }
+
 }

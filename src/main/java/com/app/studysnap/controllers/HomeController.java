@@ -93,7 +93,8 @@ public class HomeController {
         Button deleteBtn = new Button("Delete");
         Button exportBtn = new Button("Export");
 
-        openBtn.setOnAction(e -> openInDashboard("playQuiz.fxml", e));
+//        openBtn.setOnAction(e -> openInDashboard("playQuiz.fxml", e)); replaced with the code one below to this
+        openBtn.setOnAction(e -> openQuizPlayPage(q, e)); // not using openInDashboard as it needs to parse a Quiz object into the fxml page while loading the page.
         editBtn.setOnAction(e -> openInDashboard("editQuiz.fxml", e));
         deleteBtn.setOnAction(e -> handleDeleteQuiz(q));
         exportBtn.setOnAction(e -> exportQuizPdf(q.getQuizId()));
@@ -206,4 +207,27 @@ public class HomeController {
         String base = (s == null || s.isBlank()) ? "quiz" : s.trim();
         return base.replaceAll("[\\\\/:*?\"<>|]", "_");
     }
+
+    //This opens quiz play page where you see all the questions belongs to the selected quiz
+    private void openQuizPlayPage(Quiz quiz, javafx.event.ActionEvent e) {
+        try {
+            Node any = (Node) e.getSource();
+            BorderPane dashRoot = (BorderPane) any.getScene().getRoot();
+            StackPane contentArea = (StackPane) dashRoot.lookup("#contentArea");
+            if (contentArea == null) throw new IllegalStateException("contentArea not found in dashboard.fxml");
+
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("playQuiz.fxml"));
+            Node view = loader.load();
+
+            // Get controller of playQuiz.fxml
+            PlayQuizPageController controller = loader.getController();
+            controller.setQuiz(quiz); // pass the whole quiz (or quizId)
+
+            contentArea.getChildren().setAll(view);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to open quiz play page.").showAndWait();
+        }
+    }
+
 }
