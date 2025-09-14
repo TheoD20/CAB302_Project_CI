@@ -1,7 +1,7 @@
 package com.app.studysnap.controllers;
 
-import com.app.studysnap.Navigator;
-import com.app.studysnap.Popup;
+import com.app.studysnap.services.Navigator;
+import com.app.studysnap.services.Popup;
 import com.app.studysnap.auth.AuthService;
 import com.app.studysnap.auth.GoogleAuthService;
 import com.app.studysnap.auth.Session;

@@ -20,4 +20,6 @@ module com.example.cab302_project {
     opens com.app.studysnap.controllers to javafx.fxml;
     exports com.app.studysnap.model;
     opens com.app.studysnap.model to javafx.fxml;
+    exports com.app.studysnap.services;
+    opens com.app.studysnap.services to javafx.fxml;
 }

@@ -1,7 +1,7 @@
 package com.app.studysnap.controllers;
 
 import com.app.studysnap.Main;
-import com.app.studysnap.Navigator;
+import com.app.studysnap.services.Navigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

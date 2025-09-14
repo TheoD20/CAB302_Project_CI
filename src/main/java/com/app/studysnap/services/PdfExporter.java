@@ -1,5 +1,6 @@
 package com.app.studysnap.services;
 
+import com.app.studysnap.model.Quiz;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -14,6 +15,23 @@ import java.util.List;
 // Writes plain text to a simple multipage PDF.
 public final class PdfExporter {
 
+    // Prepares text for import
+    public static String buildExportText(boolean withAnswers, String currentPreviewText, String lastWithAnswers, List<com.app.studysnap.model.Question> lastQuestions, QuizRenderer renderer) {
+        if (!withAnswers) {
+            return currentPreviewText;
+        }
+        if (lastWithAnswers != null && !lastWithAnswers.isBlank()) {
+            return lastWithAnswers;
+        }
+        if (lastQuestions != null && !lastQuestions.isEmpty()) {
+            var q = new Quiz("Export", null, null, true, 0);
+            q.setQuestions(lastQuestions);
+            return renderer.renderAsText(q, true);
+        }
+        return currentPreviewText;
+    }
+
+    // Handles exporting
     public void export(String content, File destination) throws Exception {
         // ensure parent dirs exist
         File parent = destination.getParentFile();

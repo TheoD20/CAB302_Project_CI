@@ -1,4 +1,4 @@
-package com.app.studysnap;
+package com.app.studysnap.services;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

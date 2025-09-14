@@ -1,7 +1,7 @@
 package com.app.studysnap.controllers;
 
-import com.app.studysnap.Navigator;
-import com.app.studysnap.Popup;
+import com.app.studysnap.services.Navigator;
+import com.app.studysnap.services.Popup;
 import com.app.studysnap.auth.Session;
 import com.app.studysnap.model.IQuizDAO;
 import com.app.studysnap.model.Quiz;
