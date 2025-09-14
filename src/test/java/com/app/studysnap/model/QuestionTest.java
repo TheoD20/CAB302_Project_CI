@@ -22,6 +22,13 @@ public class QuestionTest {
         assertNotNull(MyClass.getDeclaredConstructor());
     }
 
+    // Test if constructor for no Question ID exists
+    @Test
+    void Question_NoIDConstructor_MethodExists() throws Exception {
+        Class<?> MyClass = Question.class;
+        assertNotNull(MyClass.getDeclaredConstructor(int.class, String.class, String.class, String.class, String.class, String.class, String.class, int.class));
+    }
+
     // Test if parameterized constructor exists
     // int questionId, int quizId,
     // String question,

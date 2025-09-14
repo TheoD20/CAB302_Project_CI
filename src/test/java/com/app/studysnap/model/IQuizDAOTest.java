@@ -22,6 +22,13 @@ public class IQuizDAOTest {
         assertNotNull(MyClass.getDeclaredMethod("addQuiz", Quiz.class));
     }
 
+    // Test if method to get all quizzes exist
+    @Test
+    void getAllQuizzes_MethodExists() throws Exception {
+        Class<?> MyClass = IQuizDAO.class;
+        assertNotNull(MyClass.getDeclaredMethod("getQuizById", int.class));
+    }
+    
     // Test if method to get quiz by ID exists
     @Test
     void getQuizById_MethodExists() throws Exception {
