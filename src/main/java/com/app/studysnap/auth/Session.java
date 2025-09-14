@@ -5,7 +5,7 @@ import com.app.studysnap.model.User;
 public final class Session {
     private static User currentUser;
 
-    private Session() {}
+    Session() {}
 
     public static void setCurrentUser(User u) { currentUser = u; }
     public static User getCurrentUser() { return currentUser; }

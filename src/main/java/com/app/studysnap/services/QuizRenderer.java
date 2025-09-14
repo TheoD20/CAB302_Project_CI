@@ -5,11 +5,10 @@ import com.app.studysnap.model.Quiz;
 
 import java.util.List;
 
-/**
- Renders a Quiz back to preview text with up to 5 options (A–E).
- */
+// Renders a Quiz back to preview text with up to 5 options (A–E).
 public final class QuizRenderer {
 
+    // Parse a quiz object to a string for UI display
     public String renderAsText(Quiz quiz, boolean includeAnswers) {
         StringBuilder sb = new StringBuilder();
         if (quiz.getTitle() != null && !quiz.getTitle().isBlank()) {
@@ -50,5 +49,6 @@ public final class QuizRenderer {
         return sb.toString();
     }
 
+    // Handles null strings
     private static String nz(String s) { return s == null ? "" : s; }
 }

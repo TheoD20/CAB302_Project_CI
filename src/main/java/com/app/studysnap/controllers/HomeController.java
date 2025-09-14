@@ -1,6 +1,7 @@
 package com.app.studysnap.controllers;
 
-import com.app.studysnap.Main;
+import com.app.studysnap.Navigator;
+import com.app.studysnap.Popup;
 import com.app.studysnap.auth.Session;
 import com.app.studysnap.model.IQuizDAO;
 import com.app.studysnap.model.Quiz;
@@ -9,7 +10,6 @@ import com.app.studysnap.model.User;
 import com.app.studysnap.services.PdfExporter;
 import com.app.studysnap.services.QuizRenderer;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -19,7 +19,6 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.util.List;
-import java.util.Objects;
 
 public class HomeController {
 
@@ -41,6 +40,7 @@ public class HomeController {
         loadMyQuizzes();
     }
 
+    // Load user quizzes on fxml decks
     private void loadMyQuizzes() {
         deckContainer.getChildren().clear();
 
@@ -62,11 +62,13 @@ public class HomeController {
         }
     }
 
+    // Handle display if user has no quizzes
     private void showEmpty(boolean show) {
         emptyState.setVisible(show);
         emptyState.setManaged(show);
     }
 
+    // Create fxml deck
     private Node buildCard(Quiz q) {
         VBox card = new VBox(8);
         card.setPadding(new Insets(12));
@@ -93,8 +95,8 @@ public class HomeController {
         Button deleteBtn = new Button("Delete");
         Button exportBtn = new Button("Export");
 
-        openBtn.setOnAction(e -> openInDashboard("playQuiz.fxml", e));
-        editBtn.setOnAction(e -> openInDashboard("editQuiz.fxml", e));
+        openBtn.setOnAction(e -> Navigator.showInDashboard((Node) e.getSource(), "playQuiz.fxml"));
+        editBtn.setOnAction(e -> Navigator.showInDashboard((Node) e.getSource(), "editQuiz.fxml"));
         deleteBtn.setOnAction(e -> handleDeleteQuiz(q));
         exportBtn.setOnAction(e -> exportQuizPdf(q.getQuizId()));
         actions.getChildren().addAll(openBtn, editBtn, deleteBtn, exportBtn);
@@ -107,61 +109,32 @@ public class HomeController {
     @FXML
     private void onCreateQuiz() {
         // Load quizGen.fxml into the dashboard content area
-        openInDashboard("quizGen.fxml", deckContainer);
+        Navigator.showInDashboard(deckContainer, "quizGen.fxml");
     }
 
-    /**
-     Inject an FXML into the Dashboard content area without touching Navigator or Stage.
-     Requires dashboard.fxml to set: <StackPane fx:id="contentArea" id="contentArea">
-     */
-    private void openInDashboard(String fxml, Object anyChildNode) {
-        try {
-            // Get any node to walk up to the scene/root
-            Node any = (anyChildNode instanceof Node n) ? n : deckContainer;
-            BorderPane dashRoot = (BorderPane) any.getScene().getRoot();
-            StackPane contentArea = (StackPane) dashRoot.lookup("#contentArea"); // CSS id lookup
-            if (contentArea == null) throw new IllegalStateException("contentArea not found. Did you add id=\"contentArea\" in dashboard.fxml?");
-            Node view = FXMLLoader.load(Objects.requireNonNull(Main.class.getResource(fxml)));
-            contentArea.getChildren().setAll(view);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Failed to open " + fxml + ".").showAndWait();
-        }
-    }
-
-    private void openInDashboard(String fxml, javafx.event.ActionEvent e) {
-        openInDashboard(fxml, e.getSource());
-    }
-
-    private String nz(String s) { return s == null ? "" : s; }
-
+    // Handle btn to delete a quiz
     private void handleDeleteQuiz(Quiz q) {
-        ButtonType delete = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancel = ButtonType.CANCEL;
-
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete quiz");
-        confirm.setHeaderText("Delete \"" + nz(q.getTitle()) + "\"?");
-        confirm.setContentText("This will permanently remove the quiz and all its questions.");
-        confirm.getButtonTypes().setAll(delete, cancel);
-
-        ButtonType choice = confirm.showAndWait().orElse(cancel);
-        if (choice != delete) return;
+        boolean confirmed = Popup.confirm(
+                "Delete quiz",
+                "Delete \"" + nz(q.getTitle()) + "\"?\nThis will permanently remove the quiz and all its questions."
+        );
+        if (!confirmed) return;
 
         try {
             dao.deleteQuiz(q.getQuizId());
             loadMyQuizzes();
-            new Alert(Alert.AlertType.INFORMATION, "Quiz deleted.").showAndWait();
+            Popup.info("Quiz deleted.");
         } catch (Exception ex) {
-            ex.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Could not delete quiz:\n" + ex.getMessage()).showAndWait();
+            Popup.error("Could not delete quiz:\n" + ex.getMessage());
         }
     }
+
+    // handle btn to export quiz as pdf
     private void exportQuizPdf(int quizId) {
         // Load full quiz with questions
         Quiz full = dao.getQuizById(quizId);
         if (full == null) {
-            new Alert(Alert.AlertType.ERROR, "Could not load quiz details.").showAndWait();
+            Popup.error("Could not load quiz details.");
             return;
         }
 
@@ -181,7 +154,7 @@ public class HomeController {
         // Render text
         String txt = renderer.renderAsText(full, includeAnswers);
         if (txt.isBlank()) {
-            new Alert(Alert.AlertType.WARNING, "Nothing to export.").showAndWait();
+            Popup.warn("Nothing to export.");
             return;
         }
 
@@ -196,14 +169,18 @@ public class HomeController {
 
         try {
             pdfExporter.export(txt, pdf);
-            new Alert(Alert.AlertType.INFORMATION, "PDF saved to:\n" + pdf.getAbsolutePath()).showAndWait();
+            Popup.info("PDF saved to:\n" + pdf.getAbsolutePath());
         } catch (Exception ex) {
-            new Alert(Alert.AlertType.ERROR, "Export failed:\n" + ex.getMessage()).showAndWait();
+            Popup.error("Export failed:\n" + ex.getMessage());
         }
     }
 
+    // format pdf file name for download
     private String safeFileName(String s) {
         String base = (s == null || s.isBlank()) ? "quiz" : s.trim();
         return base.replaceAll("[\\\\/:*?\"<>|]", "_");
     }
+
+    // Helper to handle null strings
+    private String nz(String s) { return s == null ? "" : s; }
 }

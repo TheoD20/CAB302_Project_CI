@@ -1,13 +1,12 @@
 package com.app.studysnap.auth;
 
-import com.app.studysnap.Navigator;
 import com.app.studysnap.model.*;
 
 public class AuthService {
     private final IUserDAO users;
-
     public AuthService(IUserDAO users) { this.users = users; }
 
+    // Register a new user given username, email and password
     public User register(String username, String email, String rawPassword) {
         if (isBlank(username) || isBlank(email) || isBlank(rawPassword))
             throw new IllegalArgumentException("Username, email and password are required.");
@@ -15,7 +14,7 @@ public class AuthService {
         if (users.emailExists(email))
             throw new IllegalArgumentException("Email already in use.");
 
-        // For now: store as-is. Later: hash here before saving.
+        // For now: store as-is. Later: hash before saving.
         User u = new User();
         u.setUsername(username.trim());
         u.setEmail(email.trim().toLowerCase());
@@ -26,8 +25,11 @@ public class AuthService {
         return u;
     }
 
+    // Register a new user given name, email and Google sub (ID)
     public User registerGoogleUser(String name, String email, String googleSub) {
         if (isBlank(email)) throw new IllegalArgumentException("Email is required for Google signup.");
+
+        // If name is empty, get first part of email
         if (isBlank(name))  name = email.split("@")[0];
 
         // If email exists as LOCAL → block to avoid password breach
@@ -53,6 +55,7 @@ public class AuthService {
         return u != null ? u : users.getUserByEmail(email);
     }
 
+    // Login existing user given email and password
     public User loginWithEmail(String email, String rawPassword) {
         if (isBlank(email) || isBlank(rawPassword))
             throw new IllegalArgumentException("Email and password are required.");
@@ -64,6 +67,8 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid email or password.");
         return u;
     }
+
+    // login existing user given google ID
     public User loginWithGoogle(String googleSub, String email, String nameFallback) {
         if (!isBlank(googleSub)) {
             User bySub = users.getUserByGoogleSub(googleSub);
@@ -87,5 +92,6 @@ public class AuthService {
         return registerGoogleUser(name, email, googleSub);
     }
 
+    // Test if a string is null or empty
     private boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
 }

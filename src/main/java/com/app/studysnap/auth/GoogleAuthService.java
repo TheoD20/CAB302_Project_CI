@@ -19,14 +19,17 @@ import java.util.Objects;
 public class GoogleAuthService {
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
+    // Logs a Google user by https call and API key
     public Userinfo login() throws Exception {
         var httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 
+        // Get key
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
                 JSON_FACTORY,
                 new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/client_secret.json")))
         );
 
+        // Build call
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, JSON_FACTORY, clientSecrets,
                 Arrays.asList("https://www.googleapis.com/auth/userinfo.email",
@@ -35,8 +38,6 @@ public class GoogleAuthService {
                 .setAccessType("offline")
                 .build();
 
-
-        // NOTE: VM Options must include: --add-modules jdk.httpserver
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
 
         Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");

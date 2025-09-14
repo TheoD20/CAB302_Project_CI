@@ -1,6 +1,7 @@
 package com.app.studysnap.controllers;
 
 import com.app.studysnap.Navigator;
+import com.app.studysnap.Popup;
 import com.app.studysnap.auth.AuthService;
 import com.app.studysnap.auth.GoogleAuthService;
 import com.app.studysnap.auth.Session;
@@ -33,19 +34,19 @@ public class SignupController {
             String confirmPassword = confirmPasswordField.getText();
 
             if (!password.equals(confirmPassword)) {
-                showError("Passwords do not match.");
+                Popup.warn("Passwords do not match.");
                 return; // stop signup
             }
 
             auth.register(username, email, password);
-            new Alert(Alert.AlertType.INFORMATION, "Account created! Please log in.", ButtonType.OK).showAndWait();
-            Navigator.goTo(signButton, "login.fxml");
+            var user = auth.loginWithEmail(email, password);
+            Session.setCurrentUser(user);
+            Navigator.goTo(signButton, "dashboard.fxml");
 
         } catch (IllegalArgumentException ex) {
-            showError(ex.getMessage());
+            Popup.error(ex.getMessage());
         } catch (Exception ex) {
-            showError("Unexpected error. Please try again.");
-            ex.printStackTrace();
+            Popup.error("Unexpected error. Please try again.");
         }
     }
 
@@ -62,23 +63,18 @@ public class SignupController {
 
             User u = auth.loginWithGoogle(userInfo.getId(), userInfo.getEmail(), userInfo.getName());
             Session.setCurrentUser(u);
-            new Alert(Alert.AlertType.INFORMATION, "Welcome, " + u.getUsername(), ButtonType.OK).showAndWait();
+            Popup.info("Welcome, " + u.getUsername());
             Navigator.goTo(googleSignButton, "dashboard.fxml");
 
         } catch (IllegalArgumentException ex) {
             String message = ex.getMessage();
-            showError(message);
+            Popup.error(message);
             if (Objects.equals(message, "An account with this email uses a password. Use email login.")) {
                 goToLogin();
             }
         } catch (Exception e) {
-            showError("Google signup failed: " + e.getMessage());
-            e.printStackTrace();
+            Popup.error("Google signup failed: " + e.getMessage());
         }
-    }
-
-    private void showError(String msg) {
-        new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK).showAndWait();
     }
 
     @FXML

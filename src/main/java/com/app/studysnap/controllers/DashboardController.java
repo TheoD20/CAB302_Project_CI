@@ -22,6 +22,7 @@ public class DashboardController {
         safeLoadCenter("home.fxml");
     }
 
+    // Sidebar navigation
     @FXML
     private void handleNav(ActionEvent event) {
         Object src = event.getSource();
@@ -33,6 +34,7 @@ public class DashboardController {
         }
     }
 
+    // Logout btn click
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
@@ -42,6 +44,7 @@ public class DashboardController {
         }
     }
 
+    // Update dashboard center content
     private void safeLoadCenter(String fxmlName) {
         try {
             Node view = FXMLLoader.load(Objects.requireNonNull(Main.class.getResource(fxmlName)));

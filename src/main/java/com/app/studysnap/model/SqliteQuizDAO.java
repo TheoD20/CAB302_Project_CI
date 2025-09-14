@@ -98,6 +98,27 @@ public class SqliteQuizDAO implements IQuizDAO {
     }
 
     @Override
+    public List<Quiz> getAllQuizzes() {
+        List<Quiz> list = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT * FROM Quizzes ORDER BY quiz_id DESC")) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new Quiz(
+                            rs.getInt("quiz_id"),
+                            rs.getString("title"),
+                            rs.getString("subject"),
+                            rs.getString("description"),
+                            rs.getInt("is_private") == 1,
+                            rs.getInt("created_by")
+                    ));
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
+    }
+
+    @Override
     public Quiz getQuizById(int quizId) {
         Quiz quiz = null;
         try (PreparedStatement ps = connection.prepareStatement(
