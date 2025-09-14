@@ -4,13 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane
-        fx:controller="com.app.studysnap.controllers.PlayQuizPageController"
-        maxHeight="-Infinity" maxWidth="-Infinity"
-        minHeight="-Infinity" minWidth="-Infinity"
-        prefHeight="453.0" prefWidth="722.0"
-        xmlns="http://javafx.com/javafx/17.0.12"
-        xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="627.0" prefWidth="937.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.PlayQuizPageController">
 
    <top>
       <HBox alignment="TOP_RIGHT" prefHeight="34.0" prefWidth="518.0" BorderPane.alignment="CENTER">
