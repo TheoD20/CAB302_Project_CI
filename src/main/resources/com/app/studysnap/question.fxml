@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="273.0" prefWidth="657.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.QuestionController">
+    <Label fx:id="question_content" prefHeight="192.0" prefWidth="702.0" text="Question" />
+    <VBox layoutX="-2.0" layoutY="198.0" prefHeight="219.0" prefWidth="702.0">
+        <children>
+            <RadioButton fx:id="option1" mnemonicParsing="false" text="Option1">
+                <toggleGroup>
+                    <ToggleGroup fx:id="SameGroup" />
+                </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="option2" mnemonicParsing="false" text="Option2" toggleGroup="$SameGroup" />
+            <RadioButton fx:id="option3" mnemonicParsing="false" text="Option3" toggleGroup="$SameGroup" />
+            <RadioButton fx:id="option4" mnemonicParsing="false" text="Option4" toggleGroup="$SameGroup" />
+            <RadioButton fx:id="option5" mnemonicParsing="false" text="Option5" toggleGroup="$SameGroup" />
+        </children>
+    </VBox>
+</AnchorPane>
