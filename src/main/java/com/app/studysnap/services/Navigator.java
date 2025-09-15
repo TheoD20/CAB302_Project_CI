@@ -60,4 +60,20 @@ public class Navigator {
             new Alert(Alert.AlertType.ERROR, "Failed to open " + fxml + ":\n" + ex.getMessage(), ButtonType.OK).showAndWait();
         }
     }
+
+    // Overload to load already loaded scene in dashboard
+    public static void showInDashboard(Node anyChildOnScene, Parent view) {
+        if (anyChildOnScene == null || anyChildOnScene.getScene() == null) {
+            throw new IllegalStateException("Node is not attached to a Scene.");
+        }
+        var root = anyChildOnScene.getScene().getRoot();
+        if (!(root instanceof BorderPane dashRoot)) {
+            throw new IllegalStateException("Root is not a BorderPane (dashboard).");
+        }
+        StackPane contentArea = (StackPane) dashRoot.lookup("#contentArea");
+        if (contentArea == null) {
+            throw new IllegalStateException("contentArea not found. Ensure id=\"contentArea\" in dashboard.fxml.");
+        }
+        contentArea.getChildren().setAll(view);
+    }
 }
