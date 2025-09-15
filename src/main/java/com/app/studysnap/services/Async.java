@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 public final class Async {
     private Async() {}
 
+    // Async to run work off the UI thread and switch back on success
     public static <T> void run(Callable<T> work,
                                Consumer<T> onSuccess,
                                ProgressIndicator progress,
