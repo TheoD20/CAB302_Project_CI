@@ -1,1 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?> <?import javafx.geometry.*?> <?import javafx.scene.control.*?> <?import javafx.scene.effect.*?> <?import javafx.scene.layout.*?> <?import javafx.scene.paint.*?> <?import javafx.scene.text.*?> <AnchorPane prefHeight="350.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.QuestionController" style="-fx-background-color: #f0f8ff;"> <!-- Centered Card --> <VBox layoutX="50.0" layoutY="20.0" prefWidth="600.0" spacing="20" alignment="CENTER" style="-fx-background-color: linear-gradient(to bottom right, #ffffff, #e0f7fa); -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 5); -fx-padding: 20;"> <!-- Question Label --> <Label fx:id="question_content" text="Question goes here" wrapText="true" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #00796b;" alignment="CENTER" textAlignment="CENTER"/> <!-- Options VBox --> <VBox spacing="10" alignment="CENTER"> <RadioButton fx:id="option1" mnemonicParsing="false" text="Option1" toggleGroup="$SameGroup" style="-fx-background-color: #b2ebf2; -fx-background-radius: 10; -fx-padding: 8; -fx-font-size: 16px;" alignment="CENTER"/> <RadioButton fx:id="option2" mnemonicParsing="false" text="Option2" toggleGroup="$SameGroup" style="-fx-background-color: #b2ebf2; -fx-background-radius: 10; -fx-padding: 8; -fx-font-size: 16px;" alignment="CENTER"/> <RadioButton fx:id="option3" mnemonicParsing="false" text="Option3" toggleGroup="$SameGroup" style="-fx-background-color: #b2ebf2; -fx-background-radius: 10; -fx-padding: 8; -fx-font-size: 16px;" alignment="CENTER"/> <RadioButton fx:id="option4" mnemonicParsing="false" text="Option4" toggleGroup="$SameGroup" style="-fx-background-color: #b2ebf2; -fx-background-radius: 10; -fx-padding: 8; -fx-font-size: 16px;" alignment="CENTER"/> <RadioButton fx:id="option5" mnemonicParsing="false" text="Option5" toggleGroup="$SameGroup" style="-fx-background-color: #b2ebf2; -fx-background-radius: 10; -fx-padding: 8; -fx-font-size: 16px;" alignment="CENTER"/> </VBox> </VBox> </AnchorPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="root" prefHeight="273.0" prefWidth="657.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.QuestionController">
+    <Label fx:id="question_content" prefHeight="192.0" prefWidth="702.0" text="Question" />
+    <VBox layoutX="-2.0" layoutY="198.0" prefHeight="219.0" prefWidth="702.0">
+        <children>
+            <RadioButton fx:id="option1" mnemonicParsing="false" text="Option1">
+                <toggleGroup>
+                    <ToggleGroup fx:id="SameGroup" />
+                </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="option2" mnemonicParsing="false" text="Option2" toggleGroup="$SameGroup" />
+            <RadioButton fx:id="option3" mnemonicParsing="false" text="Option3" toggleGroup="$SameGroup" />
+            <RadioButton fx:id="option4" mnemonicParsing="false" text="Option4" toggleGroup="$SameGroup" />
+            <RadioButton fx:id="option5" mnemonicParsing="false" text="Option5" toggleGroup="$SameGroup" />
+        </children>
+    </VBox>
+</AnchorPane>

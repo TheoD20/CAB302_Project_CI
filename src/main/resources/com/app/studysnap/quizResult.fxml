@@ -1,122 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="479.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
-    <top>
-        <HBox alignment="TOP_CENTER" prefHeight="41.0" prefWidth="460.0" BorderPane.alignment="CENTER">
-            <children>
-                <Label prefHeight="38.0" prefWidth="216.0" text="Completed time 00:00:00">
-                    <font>
-                        <Font size="18.0" />
-                    </font>
-                </Label>
-            </children>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-        </HBox>
-    </top>
-    <center>
-        <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-            <content>
-                <VBox prefHeight="200.0" prefWidth="100.0">
-                    <children>
-                        <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0">
-                            <children>
-                                <Label prefHeight="17.0" prefWidth="134.0" text="97/100" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="90.0">
-                           <font>
-                              <Font name="System Bold" size="24.0" />
-                           </font></Label>
-                        <PieChart id="resultChart" layoutX="225.0" layoutY="-2.0" prefHeight="211.0" prefWidth="233.0" title="Quiz Result" />
-                            </children>
-                        </AnchorPane>
-                        <AnchorPane layoutX="10.0" layoutY="224.0" prefHeight="200.0" prefWidth="200.0">
-                            <children>
-                                <Label prefHeight="17.0" prefWidth="134.0" text="Question text" />
-                                <VBox layoutX="28.0" layoutY="14.0" prefHeight="200.0" prefWidth="100.0">
-                                    <children>
-                                        <RadioButton mnemonicParsing="false" text="Option1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="SameGroup11" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton mnemonicParsing="false" text="Option2" toggleGroup="$SameGroup11" />
-                                        <RadioButton mnemonicParsing="false" text="Option3" toggleGroup="$SameGroup11" />
-                                        <RadioButton mnemonicParsing="false" text="Option4" toggleGroup="$SameGroup11" />
-                                        <RadioButton mnemonicParsing="false" text="Option5" toggleGroup="$SameGroup11" />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </AnchorPane>
-                        <AnchorPane layoutX="10.0" layoutY="438.0" prefHeight="200.0" prefWidth="200.0">
-                            <children>
-                                <Label prefHeight="17.0" prefWidth="134.0" text="Question text" />
-                                <VBox layoutX="28.0" layoutY="14.0" prefHeight="200.0" prefWidth="100.0">
-                                    <children>
-                                        <RadioButton mnemonicParsing="false" text="Option1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="SameGroup111" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton mnemonicParsing="false" text="Option2" toggleGroup="$SameGroup111" />
-                                        <RadioButton mnemonicParsing="false" text="Option3" toggleGroup="$SameGroup111" />
-                                        <RadioButton mnemonicParsing="false" text="Option4" toggleGroup="$SameGroup111" />
-                                        <RadioButton mnemonicParsing="false" text="Option5" toggleGroup="$SameGroup111" />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </AnchorPane>
-                        <AnchorPane layoutX="10.0" layoutY="652.0" prefHeight="200.0" prefWidth="200.0">
-                            <children>
-                                <Label prefHeight="17.0" prefWidth="134.0" text="Question text" />
-                                <VBox layoutX="28.0" layoutY="14.0" prefHeight="200.0" prefWidth="100.0">
-                                    <children>
-                                        <RadioButton mnemonicParsing="false" text="Option1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="SameGroup1111" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton mnemonicParsing="false" text="Option2" toggleGroup="$SameGroup1111" />
-                                        <RadioButton mnemonicParsing="false" text="Option3" toggleGroup="$SameGroup1111" />
-                                        <RadioButton mnemonicParsing="false" text="Option4" toggleGroup="$SameGroup1111" />
-                                        <RadioButton mnemonicParsing="false" text="Option5" toggleGroup="$SameGroup1111" />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </AnchorPane>
-                        <AnchorPane layoutX="10.0" layoutY="866.0" prefHeight="200.0" prefWidth="200.0">
-                            <children>
-                                <Label prefHeight="17.0" prefWidth="134.0" text="Question text" />
-                                <VBox layoutX="28.0" layoutY="14.0" prefHeight="200.0" prefWidth="100.0">
-                                    <children>
-                                        <RadioButton mnemonicParsing="false" text="Option1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="SameGroup11111" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton mnemonicParsing="false" text="Option2" toggleGroup="$SameGroup11111" />
-                                        <RadioButton mnemonicParsing="false" text="Option3" toggleGroup="$SameGroup11111" />
-                                        <RadioButton mnemonicParsing="false" text="Option4" toggleGroup="$SameGroup11111" />
-                                        <RadioButton mnemonicParsing="false" text="Option5" toggleGroup="$SameGroup11111" />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </AnchorPane>
-                    </children>
-                </VBox>
-            </content>
-        </ScrollPane>
-    </center>
-    <bottom>
-        <HBox alignment="CENTER" prefHeight="40.0" prefWidth="479.0" BorderPane.alignment="CENTER">
-            <children>
-                <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Submit" />
-            </children>
-        </HBox>
-    </bottom>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="464.0" prefWidth="701.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.ResultPageController">
+   <top>
+      <VBox prefHeight="184.0" prefWidth="701.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox prefHeight="193.0" prefWidth="701.0">
+               <children>
+                  <Label fx:id="timeTaken" prefHeight="74.0" prefWidth="229.0" text="Label" />
+                  <Label fx:id="scoreLabel" prefHeight="184.0" prefWidth="228.0" text="6/9" />
+                  <PieChart fx:id="resultChart" prefHeight="200.0" prefWidth="260.0" title="Performance" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </top>
+   <bottom>
+      <Button fx:id="finishQuiz" mnemonicParsing="false" onAction="#handleFinish" text="Finish Quiz" BorderPane.alignment="CENTER" />
+   </bottom>
+   <center>
+      <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <content>
+            <VBox fx:id="reviewLayout" prefHeight="249.0" prefWidth="698.0" />
+         </content>
+      </ScrollPane>
+   </center>
 </BorderPane>
