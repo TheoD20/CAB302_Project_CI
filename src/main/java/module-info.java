@@ -14,6 +14,7 @@ module com.example.cab302_project {
     requires java.net.http;
     requires com.google.gson;
     requires java.dotenv;
+    requires java.desktop;
 
 
     opens com.app.studysnap to javafx.fxml;
