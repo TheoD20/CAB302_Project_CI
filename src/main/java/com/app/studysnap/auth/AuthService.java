@@ -113,6 +113,17 @@ public class AuthService {
         Session.setCurrentUser(u);
         return u;
     }
+    public void resetPassword(String email, String newPassword) {
+        var user = users.getUserByEmail(email);  // use correct DAO method
+        if (user == null) {
+            throw new IllegalArgumentException("No account found with this email.");
+        }
+        if (user.getGoogleSub() != null) {  // use googleSub (not googleId)
+            throw new IllegalArgumentException("This account uses Google Sign-In. Password reset not available.");
+        }
+        user.setPassword(newPassword);
+        users.updateUser(user); // use correct DAO method
+    }
 
     // Test if a string is null or empty
     private boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }

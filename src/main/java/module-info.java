@@ -12,6 +12,8 @@ module com.example.cab302_project {
     requires jdk.httpserver;
     requires org.apache.pdfbox;
     requires java.net.http;
+    requires com.google.gson;
+    requires java.dotenv;
     requires java.desktop;
 
 
