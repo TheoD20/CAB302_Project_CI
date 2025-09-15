@@ -5,6 +5,7 @@ import com.app.studysnap.auth.Session;
 import com.app.studysnap.model.IQuizDAO;
 import com.app.studysnap.model.Quiz;
 import com.app.studysnap.model.SqliteQuizDAO;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -133,8 +134,12 @@ public class QuizGeneratorController {
             return;
         }
         Async.run(
-            () -> genGateway.generateFromUpload(selectedFile, true),
+            () -> genGateway.generateFromUpload(selectedFile, true), // always with answers; hide later
             txt -> {
+                if (txt == null || txt.isBlank()) {
+                    Popup.error("Nothing was generated from the file. Try a different file or reduce size.");
+                    return;
+                }
                 lastGeneratedWithAnswers = txt;
                 lastGeneratedQuestions = parser.parse(txt);
                 String display = includeAnswersUpload.isSelected() ? txt : stripAnswers(txt);
@@ -155,6 +160,10 @@ public class QuizGeneratorController {
         Async.run(
             () -> genGateway.generateFromPaste(text, true),
             txt -> {
+                if (txt == null || txt.isBlank()) {              // <-- add this
+                    Popup.error("Nothing was generated from the pasted text. Add more detail and try again.");
+                    return;
+                }
                 lastGeneratedWithAnswers = txt;
                 lastGeneratedQuestions = parser.parse(txt);
                 String display = includeAnswersPaste.isSelected() ? txt : stripAnswers(txt);
@@ -177,14 +186,15 @@ public class QuizGeneratorController {
             Popup.warn("Empty prompt. Write a short prompt.");
             return;
         }
-        Async.run(
-                () -> genGateway.generateFromPrompt(promptTextArea.getText(), 10, includeAnswersPrompt.isSelected()),
-                txt -> {
-                    if (txt == null || txt.isBlank()) throw new IllegalStateException("Empty response from generator.");
-                    previewArea.setText(txt);
-                },
-                progress,
-                tabPane
+        Async.run(() -> genGateway.generateFromPrompt(prompt, 10, true),
+            text -> {
+                if (text == null || text.isBlank()) {
+                    Popup.error("Nothing was generated. Try a different prompt or include more context.");
+                    return;
+                }
+                previewArea.setText(text);
+            },
+            progress, tabPane
         );
     }
 
@@ -232,11 +242,22 @@ public class QuizGeneratorController {
     }
 
     // Handles toggling include/remove answers from display
-    @FXML private void onPublicIncludeAnswersToggle() {
+    @FXML private void onIncludeAnswersToggle(ActionEvent e) {
         if (lastGeneratedWithAnswers == null || lastGeneratedWithAnswers.isBlank()) return;
-        boolean showAns = publicIncludeAnswersCheck != null && publicIncludeAnswersCheck.isSelected();
+
+        CheckBox src = (CheckBox) e.getSource();
+        boolean showAns = src != null && src.isSelected();
+
+        syncIncludeAnswerChecks(showAns);
+
         String display = showAns ? lastGeneratedWithAnswers : stripAnswers(lastGeneratedWithAnswers);
         previewArea.setText(display);
+    }
+    private void syncIncludeAnswerChecks(boolean selected) {
+        if (includeAnswersUpload != null) includeAnswersUpload.setSelected(selected);
+        if (includeAnswersPaste  != null) includeAnswersPaste.setSelected(selected);
+        if (includeAnswersPrompt != null) includeAnswersPrompt.setSelected(selected);
+        if (publicIncludeAnswersCheck != null) publicIncludeAnswersCheck.setSelected(selected);
     }
 
     // Save and Export

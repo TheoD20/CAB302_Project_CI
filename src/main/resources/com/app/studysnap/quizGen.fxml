@@ -41,7 +41,10 @@
                             <HBox spacing="8">
                                 <Button text="GENERATE" onAction="#onGenerateFromUpload" styleClass="primary"/>
                                 <Region HBox.hgrow="ALWAYS"/>
-                                <CheckBox fx:id="includeAnswersUpload" text="Include answers in preview" selected="true"/>
+                                <CheckBox fx:id="includeAnswersUpload"
+                                          text="Include answers in preview"
+                                          selected="true"
+                                          onAction="#onIncludeAnswersToggle"/>
                             </HBox>
                         </VBox>
                     </content>
@@ -60,13 +63,13 @@
                                 <Button text="GENERATE" onAction="#onGenerateFromPaste" styleClass="primary"/>
                                 <Button text="RESET" onAction="#onResetPaste"/>
                                 <Region HBox.hgrow="ALWAYS"/>
-                                <CheckBox fx:id="includeAnswersPaste" text="Include answers in preview" selected="true"/>
+                                <CheckBox fx:id="includeAnswersPaste" text="Include answers in preview" selected="true" onAction="#onIncludeAnswersToggle"/>
                             </HBox>
                         </VBox>
                     </content>
                 </Tab>
 
-                <!-- Prompt (MCQ assumed) -->
+                <!-- Prompt -->
                 <Tab text="Enter prompt">
                     <content>
                         <VBox spacing="12">
@@ -79,7 +82,10 @@
 
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Region HBox.hgrow="ALWAYS"/>
-                                <CheckBox fx:id="includeAnswersPrompt" text="Include answers in preview" selected="true"/>
+                                <CheckBox fx:id="includeAnswersPrompt"
+                                          text="Include answers in preview"
+                                          selected="true"
+                                          onAction="#onIncludeAnswersToggle"/>
                             </HBox>
 
                             <HBox spacing="8">
@@ -103,7 +109,7 @@
                                 <Button text="Download Selected" onAction="#onDownloadSelected" styleClass="primary"/>
                                 <CheckBox fx:id="publicIncludeAnswersCheck"
                                           text="Show answers"
-                                          onAction="#onPublicIncludeAnswersToggle"/>
+                                          onAction="#onIncludeAnswersToggle"/>
                             </HBox>
 
                             <TableView fx:id="publicTable" prefHeight="260">

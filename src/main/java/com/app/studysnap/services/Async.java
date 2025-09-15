@@ -19,10 +19,8 @@ public final class Async {
 
         Task<T> task = new Task<>() {
             @Override protected T call() throws Exception {
-                try {
-                    return work.call();
-                } catch (Throwable t) {
-                    // Ensure Task captures it as failure
+                try { return work.call(); }
+                catch (Throwable t) {
                     if (t instanceof Exception e) throw e;
                     throw new RuntimeException(t);
                 }
@@ -31,16 +29,10 @@ public final class Async {
 
         task.setOnSucceeded(e -> {
             try {
-                T value = task.getValue();
-                if (value == null) {
-                    // Don’t let null “succeed” silently
-                    Popup.error("Generation returned no content.");
-                } else if (onSuccess != null) {
-                    onSuccess.accept(value);
-                }
+                if (onSuccess != null) onSuccess.accept(task.getValue()); // may be null; caller handles it
             } catch (Throwable t) {
-                t.printStackTrace(); // console
-                Popup.error(describe(t)); // user-friendly
+                t.printStackTrace();
+                Popup.error(describe(t));
             } finally {
                 setBusy(progress, pane, false);
             }
@@ -49,7 +41,7 @@ public final class Async {
         task.setOnFailed(e -> {
             try {
                 Throwable ex = task.getException();
-                if (ex != null) ex.printStackTrace(); // full trace to console
+                if (ex != null) ex.printStackTrace();
                 Popup.error(describe(ex));
             } finally {
                 setBusy(progress, pane, false);
@@ -58,7 +50,7 @@ public final class Async {
 
         task.setOnCancelled(e -> {
             try {
-                Popup.error("Operation cancelled.");
+                Popup.info("Operation cancelled.");
             } finally {
                 setBusy(progress, pane, false);
             }
@@ -74,7 +66,6 @@ public final class Async {
         if (pane != null) pane.setDisable(busy);
     }
 
-    // Always returns something readable, never "null"
     private static String describe(Throwable ex) {
         if (ex == null) return "Unknown background error (no exception available).";
         Throwable root = ex;
