@@ -3,6 +3,7 @@ package com.app.studysnap.controllers;
 import com.app.studysnap.services.Navigator;
 import com.app.studysnap.auth.AuthService;
 import com.app.studysnap.model.SqliteUserDAO;
+import com.app.studysnap.services.Popup;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -13,7 +14,6 @@ public class ResetPasswordController {
     @FXML private TextField emailField;
     @FXML private PasswordField newPasswordField;
     @FXML private PasswordField confirmPasswordField;
-    @FXML private Label messageLabel;
 
     private final AuthService authService;
 
@@ -28,20 +28,25 @@ public class ResetPasswordController {
         String confirmPass = confirmPasswordField.getText();
 
         if (!newPass.equals(confirmPass)) {
-            messageLabel.setText("Passwords do not match.");
-            messageLabel.setStyle("-fx-text-fill: red;");
+            Popup.error("Passwords do not match.");
             return;
         }
 
         try {
             authService.resetPassword(email, newPass);
 
+            Popup.info("Password reset successfully! Please log in with your new password.");
+
             // Redirect straight to login after successful reset
-            Navigator.goTo(messageLabel, "login.fxml");
+            Navigator.goTo(emailField, "login.fxml");
 
         } catch (IllegalArgumentException e) {
-            messageLabel.setText(e.getMessage());
-            messageLabel.setStyle("-fx-text-fill: red;");
+            Popup.error(e.getMessage());
         }
+    }
+
+    @FXML
+    private void handleBack() throws IOException {
+        Navigator.goTo(emailField, "login.fxml");
     }
 }
