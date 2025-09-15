@@ -1,6 +1,7 @@
 package com.app.studysnap.auth;
 
-import com.app.studysnap.model.*;
+import com.app.studysnap.model.IUserDAO;
+import com.app.studysnap.model.User;
 
 public class AuthService {
     private final IUserDAO users;
@@ -19,9 +20,12 @@ public class AuthService {
         u.setUsername(username.trim());
         u.setEmail(email.trim().toLowerCase());
         u.setPassword(rawPassword);
+        u.setAuthProvider("LOCAL");
 
         int id = users.addUser(u);
         u.setUserId(id);
+
+        Session.setCurrentUser(u);
         return u;
     }
 
@@ -40,19 +44,29 @@ public class AuthService {
 
         // If already a GOOGLE user, ensure sub is set; otherwise return existing
         User bySub = users.getUserByGoogleSub(googleSub);
-        if (bySub != null) return bySub;
+        if (bySub != null) {
+            Session.setCurrentUser(bySub);
+            return bySub;
+        }
 
         if (existing != null && "GOOGLE".equals(existing.getAuthProvider())) {
             if (existing.getGoogleSub() == null && googleSub != null) {
                 existing.setGoogleSub(googleSub);
                 users.updateUser(existing);
             }
+            Session.setCurrentUser(existing);
             return existing;
         }
 
         int id = users.addGoogleUser(name.trim(), email.trim().toLowerCase(), googleSub);
         User u = users.getUserById(id);
-        return u != null ? u : users.getUserByEmail(email);
+        if (u == null) u = users.getUserByEmail(email);
+        if (u != null) {
+            u.setAuthProvider("GOOGLE");
+            u.setGoogleSub(googleSub);
+            Session.setCurrentUser(u);
+        }
+        return u;
     }
 
     // Login existing user given email and password
@@ -65,6 +79,8 @@ public class AuthService {
             throw new IllegalArgumentException("This account uses Google Sign-In. Use 'Sign in with Google'.");
         if (!rawPassword.equals(u.getPassword()))
             throw new IllegalArgumentException("Invalid email or password.");
+
+        Session.setCurrentUser(u);
         return u;
     }
 
@@ -72,7 +88,10 @@ public class AuthService {
     public User loginWithGoogle(String googleSub, String email, String nameFallback) {
         if (!isBlank(googleSub)) {
             User bySub = users.getUserByGoogleSub(googleSub);
-            if (bySub != null) return bySub;
+            if (bySub != null) {
+                Session.setCurrentUser(bySub);
+                return bySub;
+            }
         }
         User byEmail = users.getUserByEmail(email);
         if (byEmail != null) {
@@ -81,6 +100,7 @@ public class AuthService {
                     byEmail.setGoogleSub(googleSub);
                     users.updateUser(byEmail);
                 }
+                Session.setCurrentUser(byEmail);
                 return byEmail;
             }
             // Email is a LOCAL account: do NOT auto-link
@@ -89,7 +109,20 @@ public class AuthService {
 
         // No account exists → auto-provision Google user (smooth UX)
         String name = isBlank(nameFallback) ? email.split("@")[0] : nameFallback;
-        return registerGoogleUser(name, email, googleSub);
+        User u = registerGoogleUser(name, email, googleSub);
+        Session.setCurrentUser(u);
+        return u;
+    }
+    public void resetPassword(String email, String newPassword) {
+        var user = users.getUserByEmail(email);  // use correct DAO method
+        if (user == null) {
+            throw new IllegalArgumentException("No account found with this email.");
+        }
+        if (user.getGoogleSub() != null) {  // use googleSub (not googleId)
+            throw new IllegalArgumentException("This account uses Google Sign-In. Password reset not available.");
+        }
+        user.setPassword(newPassword);
+        users.updateUser(user); // use correct DAO method
     }
 
     // Test if a string is null or empty
