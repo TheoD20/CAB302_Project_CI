@@ -7,7 +7,6 @@ Group Members:
 - Yuta Matsuzaki
 - Nur Syazeera Binti Shatri
 - Nicolas Ruiz Guarin
-- Darshakkumar Dilipkumar Patel
 
 ---
 
@@ -28,7 +27,6 @@ Group Members:
 | GUI (Client)        | JavaFX                  |
 | Auth                | OAuth + simple password |
 | Password encryption | Bcrypt                  |
-| Email sending       | ??                      |
 | Database            | SQLite                  |
 | Caching / Realtime  | ??                      |
 | AI                  | Gemini Java SDK         |
@@ -40,6 +38,7 @@ Group Members:
 ## Project Structure
 ```
 src/
+ └── test/
  └── main/
      ├── java/
      │   ├── module-info.java             # module declarations (requires javafx.controls, javafx.fxml)
@@ -48,6 +47,8 @@ src/
      │       └── controllers              # different controllers bound to FXML
      │       └── auth                     # authentication manager + sessions
      │       └── model                    # object classes
+     │       └── services                 # API, pdf handeling, navigation, Popups, Async
+     │       └── exceptions               # Custom exceptions
      └── resources/
          └── com.app.studysnap/
              ├── content.fxml             # UI layout files
