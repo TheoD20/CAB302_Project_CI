@@ -178,14 +178,13 @@ public class QuizGeneratorController {
             return;
         }
         Async.run(
-            () -> genGateway.generateFromPrompt(prompt, 15, true),
-            txt -> {
-                lastGeneratedWithAnswers = txt;
-                lastGeneratedQuestions = parser.parse(txt);
-                String display = includeAnswersPrompt.isSelected() ? txt : stripAnswers(txt);
-                previewArea.setText(display);
-            },
-            progress, tabPane
+                () -> genGateway.generateFromPrompt(promptTextArea.getText(), 10, includeAnswersPrompt.isSelected()),
+                txt -> {
+                    if (txt == null || txt.isBlank()) throw new IllegalStateException("Empty response from generator.");
+                    previewArea.setText(txt);
+                },
+                progress,
+                tabPane
         );
     }
 

@@ -41,3 +41,4 @@ build/
 ### Secrets ###
 client_secret.json
 src/main/resources/client_secret.json
+.env

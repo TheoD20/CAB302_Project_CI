@@ -4,8 +4,10 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class PdfTextExtractor {
 
@@ -14,7 +16,17 @@ public final class PdfTextExtractor {
         String name = file.getName().toLowerCase();
         String raw;
         if (name.endsWith(".pdf")) {
-            raw = extractPdf(file);
+            if (countPages(file) > 30) {
+                raw = extractPdfMidSample(file);
+            }
+            else {
+                raw = extractPdf(file);
+            }
+
+            if (raw == null || raw.isBlank()) {
+                throw new IllegalArgumentException("No extractable text found in the file (it may be a scanned PDF).");
+                // TODO: add OCR fallback (Tess4).
+            }
         } else if (name.endsWith(".txt")) {
             raw = Files.readString(file.toPath(), StandardCharsets.UTF_8);
         } else {
@@ -31,6 +43,38 @@ public final class PdfTextExtractor {
             stripper.setSuppressDuplicateOverlappingText(true);
             stripper.setWordSeparator(" ");
             stripper.setLineSeparator("\n");
+            return stripper.getText(doc);
+        }
+    }
+
+    // Count pdf pages
+    private int countPages(File f) throws IOException {
+        try (PDDocument doc = PDDocument.load(f)) {
+            return doc.getNumberOfPages();
+        }
+    }
+
+    // Extract content from middle of pdf so quiz is not about summary, dedications etc
+    public String extractPdfMidSample(File f) throws Exception {
+        try (PDDocument doc = PDDocument.load(f)) {
+            int pages = doc.getNumberOfPages();
+
+            // pick a middle window
+            int window = Math.min(40, Math.max(12, pages / 6));
+
+            // random start so quizzes vary on each run
+            int maxStart = pages - window + 1;
+            int start = ThreadLocalRandom.current().nextInt(1, maxStart + 1);
+            int end = Math.min(pages, start + window - 1);
+
+            PDFTextStripper stripper = new PDFTextStripper();
+            stripper.setSortByPosition(true);
+            stripper.setSuppressDuplicateOverlappingText(true);
+            stripper.setWordSeparator(" ");
+            stripper.setLineSeparator("\n");
+            stripper.setStartPage(start);
+            stripper.setEndPage(end);
+
             return stripper.getText(doc);
         }
     }
