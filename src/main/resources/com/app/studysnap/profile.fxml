@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            stylesheets="@styles/profile.css"
+            fx:controller="com.app.studysnap.controllers.ProfileController">
+
+    <StackPane prefWidth="900" prefHeight="600"
+               AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+               AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+        <VBox spacing="25" styleClass="page">
+            <Label text="My Profile" styleClass="title"/>
+
+            <HBox spacing="25">
+                <!-- Avatar / Lado izquierdo -->
+                <VBox spacing="10" alignment="CENTER" prefWidth="220" styleClass="card">
+                    <ImageView fitWidth="96" fitHeight="96" preserveRatio="true" styleClass="avatar"/>
+                    <Label fx:id="displayName" text="User" styleClass="display-name"/>
+                    <Label fx:id="providerLabel" text="Local account" styleClass="provider"/>
+                </VBox>
+
+                <!-- Formulario / Lado derecho -->
+                <VBox spacing="18" HBox.hgrow="ALWAYS" styleClass="card">
+                    <GridPane hgap="12" vgap="14">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="28"/>
+                            <ColumnConstraints percentWidth="72"/>
+                        </columnConstraints>
+
+                        <Label text="Username:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="field-label"/>
+                        <TextField fx:id="usernameField" promptText="Enter your username"
+                                   GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="profile-field"/>
+
+                        <Label text="Email:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="field-label"/>
+                        <TextField fx:id="emailField" promptText="you@example.com"
+                                   GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="profile-field"/>
+
+                        <Label text="Provider:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="field-label"/>
+                        <Label fx:id="providerValue" text="LOCAL"
+                               GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="provider-value"/>
+                    </GridPane>
+
+                    <HBox spacing="10" alignment="CENTER_RIGHT">
+                        <Label fx:id="statusLabel" text="" styleClass="status"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="saveButton"
+                                text="Save Changes"
+                                defaultButton="true"
+                                styleClass="primary-btn"
+                                onAction="#handleSave"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+        </VBox>
+    </StackPane>
+</AnchorPane>
