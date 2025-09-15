@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="273.0" prefWidth="657.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.QuestionController">
+<AnchorPane fx:id="root" prefHeight="273.0" prefWidth="657.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.QuestionController">
     <Label fx:id="question_content" prefHeight="192.0" prefWidth="702.0" text="Question" />
     <VBox layoutX="-2.0" layoutY="198.0" prefHeight="219.0" prefWidth="702.0">
         <children>

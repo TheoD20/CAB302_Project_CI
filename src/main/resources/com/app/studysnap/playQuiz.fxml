@@ -26,7 +26,7 @@
    <bottom>
       <HBox alignment="CENTER" prefHeight="40.0" prefWidth="479.0" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="67.0" text="Submit" />
+            <Button mnemonicParsing="false" onAction="#handleSubmit" prefHeight="26.0" prefWidth="67.0" text="Submit" />
          </children>
       </HBox>
    </bottom>
