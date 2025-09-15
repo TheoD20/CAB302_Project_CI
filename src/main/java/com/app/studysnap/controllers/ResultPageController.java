@@ -17,11 +17,12 @@ public class ResultPageController {
     @FXML private Label scoreLabel;
     @FXML private PieChart resultChart;
     @FXML private VBox reviewLayout;
+    @FXML private Label timeTaken;
 
-    public void setResult(int score, int total, List<QuestionController> questionControllers) {
+    public void setResult(int score, int total, List<QuestionController> questionControllers, int elapsedSeconds) {
         // Show score
         scoreLabel.setText(score + "/" + total);
-
+        timeTaken.setText("Time Taken" + formatTime(elapsedSeconds));
         // Donut chart (correct vs wrong)
         resultChart.getData().clear();
         resultChart.getData().add(new PieChart.Data("Correct", score));
@@ -33,11 +34,18 @@ public class ResultPageController {
         }
     }
 
+    private String formatTime(int seconds) {
+        int h = seconds / 3600;
+        int m = (seconds % 3600) / 60;
+        int s = seconds % 60;
+        return String.format("%02d:%02d:%02d", h, m, s);
+    }
+
     @FXML
     private void handleFinish() {
         try {
             // Load the main dashboard/home page
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource("home.fxml"));
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("dashboard.fxml"));
             Parent homeRoot = loader.load();
 
             // Replace the current scene with dashboard

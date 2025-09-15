@@ -10,7 +10,7 @@
          <children>
             <HBox prefHeight="193.0" prefWidth="701.0">
                <children>
-                  <TextField fx:id="timer" prefHeight="45.0" prefWidth="215.0" text="time eleapsed" />
+                  <Label fx:id="timeTaken" prefHeight="74.0" prefWidth="229.0" text="Label" />
                   <Label fx:id="scoreLabel" prefHeight="184.0" prefWidth="228.0" text="6/9" />
                   <PieChart fx:id="resultChart" prefHeight="200.0" prefWidth="260.0" title="Performance" />
                </children>
@@ -19,7 +19,7 @@
       </VBox>
    </top>
    <bottom>
-      <Button fx:id="finidhQuiz" mnemonicParsing="false" onAction="#handleFinish" text="Finish Quiz" BorderPane.alignment="CENTER" />
+      <Button fx:id="finishQuiz" mnemonicParsing="false" onAction="#handleFinish" text="Finish Quiz" BorderPane.alignment="CENTER" />
    </bottom>
    <center>
       <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
