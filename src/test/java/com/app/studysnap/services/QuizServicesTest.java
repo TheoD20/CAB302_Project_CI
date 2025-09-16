@@ -18,7 +18,7 @@ class QuizServiceTest {
     }
 
     @Test
-    void testGenerateFromPasteIncludesAnswers() {
+    void testGenerateFromPasteIncludesAnswers() throws Exception {
         String pasted = "Question text\nA) 1\nB) 2\nC) 3\nD) 4\nE) 5\nAnswer: A";
         String result = service.generateFromPaste(pasted, true);
 
@@ -27,7 +27,7 @@ class QuizServiceTest {
     }
 
     @Test
-    void testGenerateFromPasteExcludesAnswers() {
+    void testGenerateFromPasteExcludesAnswers() throws Exception {
         String pasted = "Question text\nA) 1\nB) 2\nC) 3\nD) 4\nE) 5\nAnswer: A";
         String result = service.generateFromPaste(pasted, false);
 
@@ -36,7 +36,7 @@ class QuizServiceTest {
     }
 
     @Test
-    void testGenerateFromPrompt() {
+    void testGenerateFromPrompt() throws Exception {
         String prompt = "Generate 2 MCQs about Java.";
         String result = service.generateFromPrompt(prompt, 2, true);
 
@@ -63,6 +63,7 @@ class QuizServiceTest {
 
     @Test
     void testGenerateFromUploadUnsupportedFile() throws Exception {
+        // Create temporary unsupported file
         File temp = File.createTempFile("quiztest", ".docx");
 
         Exception ex = assertThrows(Exception.class, () -> service.generateFromUpload(temp, true));
@@ -71,4 +72,3 @@ class QuizServiceTest {
         temp.delete();
     }
 }
-
