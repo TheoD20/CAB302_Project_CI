@@ -98,8 +98,8 @@ public class HomeController {
         Button deleteBtn = new Button("Delete");
         Button exportBtn = new Button("Export");
 
-        openBtn.setOnAction(e -> openQuizPlayPage(q, (Node) e.getSource(), "playQuiz.fxml"));
-        editBtn.setOnAction(e -> Navigator.showInDashboard( (Node) e.getSource(), "editQuiz.fxml"));
+        openBtn.setOnAction(e -> openQuizPlayPage(q, "playQuiz.fxml"));
+        editBtn.setOnAction(e -> openEditQuiz(q, "editQuiz.fxml"));
         deleteBtn.setOnAction(e -> handleDeleteQuiz(q));
         exportBtn.setOnAction(e -> exportQuizPdf(q.getQuizId()));
         actions.getChildren().addAll(openBtn, editBtn, deleteBtn, exportBtn);
@@ -179,7 +179,13 @@ public class HomeController {
     }
 
     //This opens quiz play page where you see all the questions belongs to the selected quiz
-    private void openQuizPlayPage(Quiz quiz, Node anyChildOnScene, String fxml) {
+    private void openQuizPlayPage(Quiz quiz, String fxml) {
+        if(!Popup.confirm(
+                "Play Quiz",
+                "Are you ready to attempt" + quiz.getTitle()
+        )) {
+            return;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxml));
             Parent view = loader.load();
@@ -190,10 +196,33 @@ public class HomeController {
                 controller.setQuiz(quiz);
             }
 
-            // Show the already-loaded view inside the dashboard
-            Navigator.showInDashboard(anyChildOnScene, view);
+            emptyState.getScene().setRoot(view);
         } catch (Exception ex) {
             Popup.error("Failed to open quiz play page:\n" + ex.getMessage());
+        }
+    }
+
+    private void openEditQuiz(Quiz quiz, String fxml) {
+        if(!Popup.confirm(
+                "Edit Quiz",
+                "Do you want to make changes to: " + quiz.getTitle()
+        )) {
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxml));
+            Parent view = loader.load();
+
+            // Get controller from the loaded FXML and pass the quiz
+            PlayQuizPageController controller = loader.getController();
+            if (controller != null) {
+                controller.setQuiz(quiz);
+            }
+
+            emptyState.getScene().setRoot(view);
+        } catch (Exception ex) {
+            Popup.error("Failed to open quiz edit page:\n" + ex.getMessage());
         }
     }
 

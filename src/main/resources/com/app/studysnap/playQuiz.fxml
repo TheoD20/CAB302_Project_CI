@@ -1,33 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="627.0" prefWidth="937.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.PlayQuizPageController">
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.app.studysnap.controllers.PlayQuizPageController"
+            stylesheets="@styles/quizPlay.css"
+            prefWidth="1100.0" prefHeight="760.0">
 
    <top>
-      <HBox alignment="TOP_RIGHT" prefHeight="34.0" prefWidth="518.0" BorderPane.alignment="CENTER">
+      <HBox spacing="12" alignment="CENTER_LEFT" BorderPane.alignment="CENTER" styleClass="topbar">
          <children>
-            <Label fx:id="quizTimer" prefHeight="38.0" prefWidth="88.0" text="00:00:00">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Label>
+            <VBox>
+               <Label fx:id="quizTitle" text="Quiz Title" styleClass="title"/>
+               <Label fx:id="quizSubtitle" text="Quiz Subtitle" styleClass="subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="quizTimer" text="00:00:00" styleClass="counter timer-badge"/>
          </children>
+         <padding>
+            <Insets top="12" right="16" bottom="12" left="16"/>
+         </padding>
       </HBox>
    </top>
+
    <center>
-      <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ScrollPane fitToWidth="true" BorderPane.alignment="CENTER">
          <content>
-            <VBox fx:id="questionLayout" prefHeight="377.0" prefWidth="720.0" />
-         </content></ScrollPane>
+            <VBox fx:id="questionLayout" spacing="14" styleClass="q-list"/>
+         </content>
+      </ScrollPane>
    </center>
+
    <bottom>
-      <HBox alignment="CENTER" prefHeight="40.0" prefWidth="479.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER" spacing="8" BorderPane.alignment="CENTER" styleClass="bottom">
          <children>
-            <Button fx:id="submitButton" mnemonicParsing="false" onAction="#handleSubmit" prefHeight="26.0" prefWidth="67.0" text="Submit" />
+            <Button text="Submit" onAction="#handleSubmit" styleClass="primary-btn"/>
+            <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" styleClass="cancel-btn"/>
          </children>
+         <padding>
+            <Insets top="12" right="16" bottom="16" left="16"/>
+         </padding>
       </HBox>
    </bottom>
+
 </BorderPane>

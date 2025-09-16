@@ -1,0 +1,51 @@
+.q-card {
+-fx-background-color: #fff;
+-fx-background-radius: 12px;
+-fx-padding: 12 14 14 14;
+-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 12, 0.2, 0, 3);
+-fx-border-color: #ececf1;
+-fx-border-width: 1px;
+-fx-border-radius: 12px;
+}
+.review-q {
+-fx-font-size: 15px;
+-fx-font-weight: 700;
+-fx-text-fill: #1f2328;
+-fx-padding: 0 0 6 0;
+}
+.opt-line {
+-fx-padding: 7 10 7 10;
+-fx-background-radius: 10px;
+-fx-border-radius: 10px;
+-fx-background-color: #fafbfc;
+-fx-text-fill: #111;
+-fx-border-color: transparent;
+}
+.opt-selected-correct {
+-fx-background-color: linear-gradient(to bottom, #e8f8ef, #d9f2e5);
+-fx-border-color: #a6dfc1;
+-fx-text-fill: #0e5a36;
+}
+.opt-selected-wrong {
+-fx-background-color: linear-gradient(to bottom, #ffecec, #ffe2e2);
+-fx-border-color: #ffb4b4;
+-fx-text-fill: #6f0e0e;
+}
+.opt-blank {
+-fx-background-color: #f7f8fa;
+-fx-text-fill: #222;
+}
+.opt-correct-answer {
+-fx-border-color: #63c28b;
+-fx-border-width: 1px;
+}
+.correct-footer {
+-fx-padding: 8 10 4 10;
+-fx-text-fill: #146c43;
+-fx-font-size: 12px;
+-fx-background-color: #eefaf3;
+-fx-background-radius: 10px;
+-fx-border-color: #bfe8d2;
+-fx-border-width: 1px;
+-fx-border-radius: 10px;
+}

@@ -35,18 +35,18 @@
 .dropzone-title { -fx-font-weight: bold; }
 
 .tab-pane {
-    -fx-background-color: transparent;
+-fx-background-color: transparent;
 }
 
 .tab-pane > .tab-header-area > .tab-header-background {
-    -fx-background-color: transparent;
+-fx-background-color: transparent;
 }
 
 .tab-pane > .tab-content-area {
-    -fx-background-color: white;
-    -fx-background-insets: 0;
-    -fx-background-radius: 8;
-    -fx-padding: 12;
+-fx-background-color: white;
+-fx-background-insets: 0;
+-fx-background-radius: 8;
+-fx-padding: 12;
 }
 
 .text-area {

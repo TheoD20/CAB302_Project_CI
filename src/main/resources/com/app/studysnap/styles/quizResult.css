@@ -1,0 +1,82 @@
+.info-area {
+-fx-padding: 12 16 8 16;
+}
+
+.topbar {
+-fx-background-color: #ffffff;
+-fx-background-radius: 12px;
+-fx-padding: 12 16 12 16;
+-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0.2, 0, 2);
+-fx-border-color: #ececf1;
+-fx-border-width: 1px;
+-fx-border-radius: 12px;
+}
+
+.section-title {
+-fx-font-size: 12px;
+-fx-text-fill: #6a6f76;
+-fx-font-weight: 600;
+}
+
+.score-big {
+-fx-font-size: 28px;
+-fx-font-weight: 800;
+-fx-text-fill: #222;
+}
+
+.time-val {
+-fx-font-family: "Consolas", "Menlo", "Monaco", monospace;
+-fx-font-size: 16px;
+-fx-text-fill: #222;
+}
+.card.soft {
+-fx-background-color: #fff;
+-fx-background-radius: 12px;
+-fx-padding: 8 12 12 12;
+-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 12, 0.18, 0, 3);
+-fx-border-color: #ececf1;
+-fx-border-width: 1px;
+-fx-border-radius: 12px;
+}
+.charts-row {
+-fx-padding: 0 16 0 16;
+}
+.review-list {
+-fx-padding: 10 16 18 16;
+}
+.review-item {
+-fx-background-color: #ffffff;
+-fx-background-radius: 12px;
+-fx-padding: 12 14 12 14;
+-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 12, 0.18, 0, 3);
+-fx-border-color: #ececf1;
+-fx-border-width: 1px;
+-fx-border-radius: 12px;
+}
+
+.review-q {
+-fx-font-size: 15px;
+-fx-font-weight: 700;
+-fx-text-fill: #1f2328;
+-fx-padding: 0 0 6 0;
+}
+.primary-btn {
+-fx-background-color: linear-gradient(to bottom, #4f8cff, #3d79ef);
+-fx-text-fill: white;
+-fx-font-weight: bold;
+-fx-padding: 10 18 10 18;
+-fx-background-radius: 10px;
+-fx-cursor: hand;
+}
+.primary-btn:hover {
+-fx-background-color: linear-gradient(to bottom, #5a97ff, #4985ff);
+}
+.primary-btn:pressed {
+-fx-background-color: linear-gradient(to bottom, #3a76ea, #356fe0);
+}
+.button:focused {
+-fx-effect: dropshadow(gaussian, rgba(77,144,254,0.45), 10, 0.3, 0, 0);
+-fx-border-color: #4d90fe;
+-fx-border-width: 1px;
+-fx-border-radius: 10px;
+}

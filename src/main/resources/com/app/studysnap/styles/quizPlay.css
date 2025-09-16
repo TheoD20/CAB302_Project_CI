@@ -1,0 +1,90 @@
+.topbar {
+-fx-background-color: -fx-base, #ffffff;
+-fx-background-insets: 0, 0 0 1 0;
+-fx-background-radius: 0;
+-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0.2, 0, 2);
+}
+
+.title {
+-fx-font-size: 20px;
+-fx-font-weight: bold;
+-fx-text-fill: -fx-text-base-color;
+}
+.subtitle {
+-fx-font-size: 12px;
+-fx-text-fill: -fx-text-base-color;
+}
+
+.counter {
+-fx-font-family: "Consolas", "Menlo", "Monaco", monospace;
+-fx-font-size: 14px;
+-fx-text-fill: #111;
+}
+.timer-badge {
+-fx-background-color: linear-gradient(to bottom, #f7f7f8, #efeff0);
+-fx-background-radius: 8px;
+-fx-border-color: #e3e3e6;
+-fx-border-width: 1px;
+-fx-border-radius: 8px;
+}
+
+.timer-warning {
+-fx-background-color: linear-gradient(to bottom, #fff6e5, #ffefd2);
+-fx-border-color: #ffd18a;
+}
+.timer-danger {
+-fx-background-color: linear-gradient(to bottom, #ffe9e9, #ffdcdc);
+-fx-border-color: #ffb0b0;
+}
+
+.q-list {
+-fx-padding: 14 16 18 16;
+}
+
+.q-list .card,
+.q-card {
+-fx-background-color: #fff;
+-fx-background-radius: 12px;
+-fx-padding: 12 14 14 14;
+-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 12, 0.2, 0, 3);
+-fx-border-color: #ececf1;
+-fx-border-width: 1px;
+-fx-border-radius: 12px;
+}
+
+/* Bottom actions */
+.bottom {
+-fx-background-color: transparent;
+}
+
+.primary-btn {
+-fx-background-color: linear-gradient(to bottom, #4f8cff, #3d79ef);
+-fx-text-fill: white;
+-fx-font-weight: bold;
+-fx-padding: 10 18 10 18;
+-fx-background-radius: 10px;
+-fx-cursor: hand;
+}
+.primary-btn:hover {
+-fx-background-color: linear-gradient(to bottom, #5a97ff, #4985ff);
+}
+.primary-btn:pressed {
+-fx-background-color: linear-gradient(to bottom, #3a76ea, #356fe0);
+}
+
+.cancel-btn {
+-fx-background-color: #f6f7f9;
+-fx-text-fill: #333;
+-fx-padding: 10 18 10 18;
+-fx-background-radius: 10px;
+-fx-border-color: #e4e6eb;
+-fx-border-width: 1px;
+-fx-border-radius: 10px;
+-fx-cursor: hand;
+}
+.cancel-btn:hover {
+-fx-background-color: #eef0f3;
+}
+.cancel-btn:pressed {
+-fx-background-color: #e8eaee;
+}

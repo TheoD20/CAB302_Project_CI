@@ -4,7 +4,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -18,19 +20,52 @@ public class ResultPageController {
     @FXML private PieChart resultChart;
     @FXML private VBox reviewLayout;
     @FXML private Label timeTaken;
+    @FXML private BarChart<String, Number> resultBar;
+
+    @FXML
+    private void initialize() {
+        if (scoreLabel != null) scoreLabel.setText("--/--");
+        if (timeTaken != null) timeTaken.setText("00:00");
+        if (resultChart != null) {
+            resultChart.setLegendVisible(false);
+            resultChart.setLabelsVisible(true);
+            resultChart.getData().clear();
+        }
+        if (reviewLayout != null) {
+            reviewLayout.getChildren().clear();
+        }
+    }
 
     public void setResult(int score, int total, List<QuestionController> questionControllers, int elapsedSeconds) {
         // Show score
         scoreLabel.setText(score + "/" + total);
-        timeTaken.setText("Time Taken" + formatTime(elapsedSeconds));
+        timeTaken.setText(formatTime(elapsedSeconds));
         // Donut chart (correct vs wrong)
         resultChart.getData().clear();
         resultChart.getData().add(new PieChart.Data("Correct", score));
         resultChart.getData().add(new PieChart.Data("Wrong", total - score));
 
+        if (resultBar != null) {
+            resultBar.getData().clear();
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.getData().add(new XYChart.Data<>("Correct", score));
+            series.getData().add(new XYChart.Data<>("Wrong", Math.max(0, total - score)));
+            resultBar.getData().add(series);
+        }
+
+        // Build review list (ensure clean state)
+        reviewLayout.getChildren().clear();
+
         // Show questions with correct/wrong highlights
         for (QuestionController qc : questionControllers) {
-            reviewLayout.getChildren().add(qc.getRootNode()); // qc.getRootNode() = UI of the question
+            int selectedIndex = (qc == null) ? -1 : qc.getSelectedOptionIndex();
+            int correctIndex  = (qc == null || qc.getQuestion() == null) ? -1 : qc.getQuestion().getCorrectOption();
+
+            // Style the existing question card according to result
+            if (qc != null) {
+                qc.showResult(selectedIndex, correctIndex);
+                reviewLayout.getChildren().add(qc.getRootNode());
+            }
         }
     }
 

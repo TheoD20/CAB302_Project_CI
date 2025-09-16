@@ -3,7 +3,10 @@ package com.app.studysnap.controllers;
 import com.app.studysnap.Main;
 import com.app.studysnap.model.Question;
 import com.app.studysnap.model.Quiz;
+
 import com.app.studysnap.model.SqliteQuestionDAO;
+import com.app.studysnap.services.Navigator;
+import com.app.studysnap.services.Popup;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
@@ -17,82 +20,98 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.util.Duration;
-import java.time.LocalTime;
 
 public class PlayQuizPageController {
     private Quiz quiz;
 
     @FXML
     private VBox questionLayout;
-
+    @FXML
+    private Label quizTitle;
+    @FXML
+    private Label quizSubtitle;
     @FXML
     private Label quizTimer;
+    @FXML
+    private Button cancelButton;
+
     private Timeline timeline;// this is for displaying the time elapse
     private int elapsedSecond = 0;
     List<QuestionController> questionControllers = new ArrayList<>();
 
+    @FXML
+    private void initialize() {
+        if (quizTimer != null) {
+            quizTimer.setText("00:00:00");
+        }
+    }
+
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
         loadQuestions();  // display questions after quiz is injected
+
+        if (quizTitle != null) {
+            String t = (quiz != null && quiz.getTitle() != null && !quiz.getTitle().isBlank())
+                    ? quiz.getTitle() : "Untitled Quiz";
+            quizTitle.setText(t);
+        }
+        if (quizSubtitle != null) {
+            String t = (quiz != null && quiz.getSubject() != null && !quiz.getSubject().isBlank())
+                    ? quiz.getSubject() : "-";
+            quizSubtitle.setText("Subject: " + t);
+        }
+
         startTimer(); // start timer as soon as quiz is loaded.
     }
 
     private void loadQuestions() {
+        questionLayout.getChildren().clear();
+        questionControllers.clear();
         SqliteQuestionDAO questionDAO = new SqliteQuestionDAO();
         List<Question> questions = questionDAO.getQuestionsForQuiz(quiz.getQuizId());
 
         for (Question question : questions) {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("question.fxml"));
-                Node questionNode = fxmlLoader.load();
+                Parent card = fxmlLoader.load();
 
                 // Pass each question into its controller
                 QuestionController controller = fxmlLoader.getController();
                 controller.setData(question);
                 questionControllers.add(controller);
+                card.setUserData(controller);
 
-                questionNode.setUserData(controller);
-
-                questionLayout.getChildren().add(questionNode);
-            } catch (IOException e) {
-                e.printStackTrace();
+                questionLayout.getChildren().add(card);
+            } catch (Exception e) {
+                Popup.error("Could not load a question card: " + e.getMessage());
             }
         }
     }
 
     @FXML
-    public void initialize() {
-        // Leave empty, or do static UI setup (not dependent on quiz)
-    }
-
-    @FXML
     private void handleSubmit() {
-//        System.out.println("Submit button clicked!"); for testing if the button is clickable
-        boolean hasUnanswered = false;
+        long unanswered = questionControllers.stream()
+                .filter(qc -> qc.getSelectedOptionIndex() == -1)
+                .count();
+
+        String prompt = (unanswered > 0)
+                ? "You have " + unanswered + " unanswered question" + (unanswered > 1 ? "s" : "") + ". Submit anyway?"
+                : "Submit your answers?";
+
+        if (!Popup.confirm("Submit quiz", prompt)) {
+            return;
+        }
+
+        timeline.stop();
+
         int score = 0;
         int total = questionControllers.size();
 
         for (Node node : questionLayout.getChildren()) {
             QuestionController controller = (QuestionController) node.getUserData();
-            int selected = controller.getSelectedOptionIndex();
-            int correct = controller.getQuestion().getCorrectOption(); // get the correct option(int) of the question
 
-            if (selected == -1) {
-                hasUnanswered = true;
-            } else if (selected == correct) {
+            if (controller.isCorrect()) {
                 score++;
-            }
-        }
-
-        if(hasUnanswered){
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Unanswered Questions");
-            alert.setHeaderText("Some questions are unanswered");
-            alert.setContentText("Are you sure you want to submit?");
-            ButtonType response = alert.showAndWait().orElse(ButtonType.CANCEL);
-
-            if(response != ButtonType.OK){
-                return; // this means user canceled -> goes back to the quiz play
             }
         }
 
@@ -103,8 +122,6 @@ public class PlayQuizPageController {
             controller.showResult(selected, correct);
         }
 
-
-        timeline.stop();
         goToResultPage(score, total, elapsedSecond);
     }
 
@@ -121,8 +138,15 @@ public class PlayQuizPageController {
             questionLayout.getScene().setRoot(resultRoot);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Popup.error(e.getMessage());
         }
+    }
+
+    @FXML
+    private void handleCancel() throws IOException {
+        if (!Popup.confirm("Cancel quiz", "Are you sure you want to cancel and return to Home?")) return;
+        timeline.stop();
+        Navigator.goTo(cancelButton, "dashboard.fxml");
     }
 
     public void startTimer(){

@@ -1,31 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="464.0" prefWidth="701.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.ResultPageController">
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.app.studysnap.controllers.ResultPageController"
+            stylesheets="@styles/quizResult.css"
+            prefWidth="1100.0" prefHeight="760.0">
+
    <top>
-      <VBox prefHeight="184.0" prefWidth="701.0" BorderPane.alignment="CENTER">
+      <VBox spacing="10" BorderPane.alignment="CENTER" styleClass="info-area">
          <children>
-            <HBox prefHeight="193.0" prefWidth="701.0">
+            <HBox spacing="12" alignment="CENTER_LEFT" styleClass="topbar">
                <children>
-                  <Label fx:id="timeTaken" prefHeight="74.0" prefWidth="229.0" text="Label" />
-                  <Label fx:id="scoreLabel" prefHeight="184.0" prefWidth="228.0" text="6/9" />
-                  <PieChart fx:id="resultChart" prefHeight="200.0" prefWidth="260.0" title="Performance" />
+                  <VBox spacing="2">
+                     <Label text="Your Score" styleClass="section-title"/>
+                     <Label fx:id="scoreLabel" styleClass="score-big" text="--/--"/>
+                  </VBox>
+                  <Region HBox.hgrow="ALWAYS"/>
+                  <VBox spacing="2" alignment="CENTER_RIGHT">
+                     <Label text="Time Taken" styleClass="section-title"/>
+                     <Label fx:id="timeTaken" styleClass="time-val" text="00:00"/>
+                  </VBox>
                </children>
             </HBox>
+
+            <HBox spacing="12" styleClass="charts-row">
+               <StackPane styleClass="card soft" HBox.hgrow="ALWAYS">
+                  <PieChart fx:id="resultChart" prefHeight="220.0" prefWidth="420.0"/>
+               </StackPane>
+
+               <StackPane styleClass="card soft" HBox.hgrow="ALWAYS">
+                  <BarChart fx:id="resultBar" prefHeight="220.0" prefWidth="420.0">
+                     <xAxis>
+                        <CategoryAxis side="BOTTOM" />
+                     </xAxis>
+                     <yAxis>
+                        <NumberAxis side="LEFT" />
+                     </yAxis>
+                     <!-- We’ll populate data from the controller -->
+                     <animated>false</animated>
+                     <legendVisible>false</legendVisible>
+                     <verticalGridLinesVisible>false</verticalGridLinesVisible>
+                  </BarChart>
+               </StackPane>
+            </HBox>
          </children>
+         <padding>
+            <Insets top="12" right="16" bottom="8" left="16"/>
+         </padding>
       </VBox>
    </top>
-   <bottom>
-      <Button fx:id="finishQuiz" mnemonicParsing="false" onAction="#handleFinish" text="Finish Quiz" BorderPane.alignment="CENTER" />
-   </bottom>
+
    <center>
-      <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ScrollPane fitToWidth="true" BorderPane.alignment="CENTER">
          <content>
-            <VBox fx:id="reviewLayout" prefHeight="249.0" prefWidth="698.0" />
+            <VBox fx:id="reviewLayout" spacing="10" styleClass="review-list"/>
          </content>
       </ScrollPane>
    </center>
+
+   <bottom>
+      <HBox alignment="CENTER" spacing="8" BorderPane.alignment="CENTER">
+         <children>
+            <Button text="Finish" onAction="#handleFinish" styleClass="primary-btn"/>
+         </children>
+         <padding>
+            <Insets top="10" right="16" bottom="16" left="16"/>
+         </padding>
+      </HBox>
+   </bottom>
+
 </BorderPane>

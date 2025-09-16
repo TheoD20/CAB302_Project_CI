@@ -1,9 +1,9 @@
 @import "style.css";
 
 .section-title {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-padding: 8 0 4 0;
+-fx-font-size: 16px;
+-fx-font-weight: bold;
+-fx-padding: 8 0 4 0;
 }
 .button.primary {
 -fx-background-color: #5b8cff;
@@ -12,38 +12,38 @@
 }
 .button.primary:hover { -fx-opacity: 0.9; }
 .muted {
-    -fx-text-fill: #666;
+-fx-text-fill: #666;
 }
 .card {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-padding: 12;
-    -fx-pref-width: 280;
-    -fx-spacing: 8;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);
+-fx-background-color: white;
+-fx-background-radius: 12;
+-fx-padding: 12;
+-fx-pref-width: 280;
+-fx-spacing: 8;
+-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);
 }
 .card:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.14), 14, 0, 0, 4);
-    -fx-translate-y: -1;
+-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.14), 14, 0, 0, 4);
+-fx-translate-y: -1;
 }
 .card-title { -fx-font-size: 14px; -fx-font-weight: bold; }
 .card-meta  { -fx-text-fill: #444; -fx-font-size: 12px; }
 .card-desc  { -fx-fill: #333; -fx-font-size: 12px; }
 .card .button {
-    -fx-background-color: transparent;
-    -fx-border-color: #ccc;
-    -fx-border-radius: 6;
-    -fx-background-radius: 6;
-    -fx-padding: 4 10 4 10;
-    -fx-cursor: hand;
+-fx-background-color: transparent;
+-fx-border-color: #ccc;
+-fx-border-radius: 6;
+-fx-background-radius: 6;
+-fx-padding: 4 10 4 10;
+-fx-cursor: hand;
 }
 .card .button:hover  { -fx-background-color: #f0f0f0; }
 .card .button:pressed{ -fx-background-color: #e0e0e0; }
 .empty-state {
-    -fx-background-color: #f7f7f9;
-    -fx-background-radius: 10;
-    -fx-border-color: #e6e6ea;
-    -fx-border-radius: 10;
-    -fx-padding: 16;
+-fx-background-color: #f7f7f9;
+-fx-background-radius: 10;
+-fx-border-color: #e6e6ea;
+-fx-border-radius: 10;
+-fx-padding: 16;
 }
 .empty-state .label { -fx-text-fill: #555; -fx-font-size: 13px; }

@@ -1,24 +1,24 @@
 .root {
-    -fx-font-family: "Segoe UI", sans-serif;
-    -fx-background-color: #ecf0f1;
+-fx-font-family: "Segoe UI", sans-serif;
+-fx-background-color: #ecf0f1;
 }
 .button {
-    -fx-background-radius: 5;
-    -fx-padding: 8 16;
-    -fx-font-size: 14px;
+-fx-background-radius: 5;
+-fx-padding: 8 16;
+-fx-font-size: 14px;
 }
 .primary-btn {
-    -fx-background-color: #3498db;
-    -fx-text-fill: white;
+-fx-background-color: #3498db;
+-fx-text-fill: white;
 }
 .primary-btn:hover {
-    -fx-background-color: #2980b9;
+-fx-background-color: #2980b9;
 }
 .title {
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
+-fx-font-size: 20px;
+-fx-font-weight: bold;
 }
 .subtitle {
-    -fx-text-fill: #666;
-    -fx-font-size: 13px;
+-fx-text-fill: #666;
+-fx-font-size: 13px;
 }
