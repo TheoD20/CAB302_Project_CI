@@ -215,12 +215,12 @@ public class HomeController {
             Parent view = loader.load();
 
             // Get controller from the loaded FXML and pass the quiz
-            PlayQuizPageController controller = loader.getController();
+            EditQuizController controller = loader.getController();
             if (controller != null) {
                 controller.setQuiz(quiz);
             }
 
-            emptyState.getScene().setRoot(view);
+            welcomeLabel.getScene().setRoot(view);
         } catch (Exception ex) {
             Popup.error("Failed to open quiz edit page:\n" + ex.getMessage());
         }

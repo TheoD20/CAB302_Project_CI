@@ -1,0 +1,95 @@
+/* ======= Edit Quiz Styles ======= */
+
+.page {
+  -fx-padding: 14 16 18 16;
+}
+
+.topbar {
+  -fx-background-color: #ffffff;
+  -fx-background-radius: 12px;
+  -fx-padding: 12 16 12 16;
+  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 10, 0.2, 0, 2);
+  -fx-border-color: #ececf1;
+  -fx-border-width: 1px;
+  -fx-border-radius: 12px;
+}
+
+.title {
+  -fx-font-size: 20px;
+  -fx-font-weight: 800;
+  -fx-text-fill: #222;
+}
+.subtitle {
+  -fx-font-size: 12px;
+  -fx-text-fill: #6a6f76;
+}
+
+.section-title {
+  -fx-font-size: 13px;
+  -fx-font-weight: 700;
+  -fx-text-fill: #1f2328;
+}
+
+.card.soft {
+  -fx-background-color: #fff;
+  -fx-background-radius: 12px;
+  -fx-padding: 8 12 12 12;
+  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 12, 0.18, 0, 3);
+  -fx-border-color: #ececf1;
+  -fx-border-width: 1px;
+  -fx-border-radius: 12px;
+}
+
+.form .text-field,
+.form .text-area,
+.form .check-box {
+  -fx-background-radius: 8px;
+}
+.text-area {
+  -fx-padding: 8;
+}
+
+.primary-btn {
+  -fx-background-color: linear-gradient(to bottom, #4f8cff, #3d79ef);
+  -fx-text-fill: white;
+  -fx-font-weight: bold;
+  -fx-padding: 10 18 10 18;
+  -fx-background-radius: 10px;
+  -fx-cursor: hand;
+}
+.primary-btn:hover {
+  -fx-background-color: linear-gradient(to bottom, #5a97ff, #4985ff);
+}
+.primary-btn:pressed {
+  -fx-background-color: linear-gradient(to bottom, #3a76ea, #356fe0);
+}
+
+.cancel-btn {
+  -fx-background-color: #f6f7f9;
+  -fx-text-fill: #333;
+  -fx-padding: 10 18 10 18;
+  -fx-background-radius: 10px;
+  -fx-border-color: #e4e6eb;
+  -fx-border-width: 1px;
+  -fx-border-radius: 10px;
+  -fx-cursor: hand;
+}
+.cancel-btn:hover {
+  -fx-background-color: #eef0f3;
+}
+.cancel-btn:pressed {
+  -fx-background-color: #e8eaee;
+}
+
+/* Table tweaks */
+.table-view .column-header-background {
+  -fx-background-color: #fafbfc;
+}
+.table-view {
+  -fx-background-radius: 8px;
+  -fx-border-radius: 8px;
+  -fx-border-color: #ececf1;
+  -fx-border-width: 1px;
+}
+.table-row-cell { -fx-padding: 6 0 6 0; }
+.table-cell     { -fx-padding: 8 12 8 12; }

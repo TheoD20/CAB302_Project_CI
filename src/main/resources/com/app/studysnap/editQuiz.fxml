@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.app.studysnap.controllers.EditQuizController"
+            stylesheets="@styles/editQuiz.css"
+            prefWidth="1100.0" prefHeight="760.0">
+
+    <!-- TOP: title bar -->
+    <top>
+        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="topbar">
+            <children>
+                <Label text="Edit Quiz" styleClass="title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="quizIdLabel" styleClass="subtitle" text="#"/>
+            </children>
+            <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+        </HBox>
+    </top>
+
+    <!-- CENTER: form + questions list -->
+    <center>
+        <ScrollPane fitToWidth="true" BorderPane.alignment="CENTER">
+            <content>
+                <VBox spacing="14" fillWidth="true" styleClass="page">
+                    <!-- Quiz meta form -->
+                    <StackPane styleClass="card soft">
+                        <VBox spacing="10" fillWidth="true">
+                            <Label text="Quiz Details" styleClass="section-title"/>
+                            <GridPane hgap="10" vgap="10" styleClass="form">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="24"/>
+                                    <ColumnConstraints percentWidth="76"/>
+                                </columnConstraints>
+
+                                <!-- FIX: RowConstraints must be inside <rowConstraints> -->
+                                <rowConstraints>
+                                    <RowConstraints vgrow="NEVER"/>
+                                    <RowConstraints vgrow="NEVER"/>
+                                    <RowConstraints vgrow="NEVER"/>
+                                    <RowConstraints vgrow="ALWAYS"/>
+                                </rowConstraints>
+
+                                <children>
+                                    <Label text="Title"/>
+                                    <TextField fx:id="titleField" GridPane.columnIndex="1"/>
+
+                                    <Label text="Subject" GridPane.rowIndex="1"/>
+                                    <TextField fx:id="subjectField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                                    <Label text="Private" GridPane.rowIndex="2"/>
+                                    <CheckBox fx:id="privateCheck" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                                    <Label text="Description" GridPane.rowIndex="3"/>
+                                    <TextArea fx:id="descriptionArea"
+                                              GridPane.columnIndex="1" GridPane.rowIndex="3"
+                                              wrapText="true" prefRowCount="4" />
+                                </children>
+                            </GridPane>
+                        </VBox>
+                        <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                    </StackPane>
+
+                    <!-- Questions table -->
+                    <StackPane styleClass="card soft">
+                        <VBox spacing="10" fillWidth="true">
+                            <HBox alignment="CENTER_LEFT" spacing="8">
+                                <Label text="Questions" styleClass="section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="addBtn" text="Add" onAction="#handleAddQuestion" />
+                                <Button fx:id="editBtn" text="Edit" onAction="#handleEditQuestion" />
+                                <Button fx:id="deleteBtn" text="Delete" onAction="#handleDeleteQuestion" />
+                            </HBox>
+
+                            <TableView fx:id="questionTable" prefHeight="360.0">
+                                <columns>
+                                    <TableColumn fx:id="colIndex" text="#" prefWidth="50.0"/>
+                                    <TableColumn fx:id="colQuestion" text="Question" prefWidth="700.0"/>
+                                    <TableColumn fx:id="colCorrect" text="Correct" prefWidth="180.0"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                        <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+                    </StackPane>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+    <!-- BOTTOM: actions -->
+    <bottom>
+        <HBox alignment="CENTER" spacing="8" BorderPane.alignment="CENTER">
+            <children>
+                <Button fx:id="saveBtn" text="Save Changes" onAction="#handleSave" styleClass="primary-btn"/>
+                <Button fx:id="cancelBtn" text="Cancel" onAction="#handleCancel" styleClass="cancel-btn"/>
+            </children>
+            <padding><Insets top="10" right="16" bottom="16" left="16"/></padding>
+        </HBox>
+    </bottom>
+
+</BorderPane>
