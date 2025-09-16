@@ -60,3 +60,13 @@
 .primary-btn:disabled {
   -fx-opacity: 0.6;
 }
+.delete-btn {
+  -fx-background-color: #db4437;
+  -fx-text-fill: white;
+  -fx-font-weight: 700;
+  -fx-background-radius: 10;
+  -fx-padding: 8 16;
+}
+.delete-btn:disabled {
+  -fx-opacity: 0.6;
+}

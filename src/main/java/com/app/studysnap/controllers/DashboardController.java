@@ -1,6 +1,7 @@
 package com.app.studysnap.controllers;
 
 import com.app.studysnap.Main;
+import com.app.studysnap.auth.Session;
 import com.app.studysnap.services.Navigator;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,8 +15,7 @@ import java.util.Objects;
 
 public class DashboardController {
 
-    @FXML private BorderPane root;          // root of dashboard.fxml
-    @FXML private StackPane contentArea;    // where we inject pages
+    @FXML private StackPane contentArea;
 
     @FXML
     private void initialize() {
@@ -38,6 +38,7 @@ public class DashboardController {
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
+            Session.clear();
             Navigator.goTo((Node) event.getSource(), "login.fxml");
         } catch (Exception ex) {
             ex.printStackTrace();
