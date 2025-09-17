@@ -27,6 +27,12 @@ public class SqliteConnectionTest {
         assertNotNull(clazz.getDeclaredMethod("getInstance"));
     }
 
+    @Test
+    void testConnection() {
+        Connection conn = SqliteConnection.getInstance();
+        assertNotNull(conn);
+    }
+
     // Test if different instances point to the same connection
     @Test
     void getInstance_ReturnsSameSingletonAcrossCalls() {
