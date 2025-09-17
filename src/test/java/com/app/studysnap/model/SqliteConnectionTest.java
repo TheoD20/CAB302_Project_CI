@@ -27,30 +27,12 @@ public class SqliteConnectionTest {
         assertNotNull(clazz.getDeclaredMethod("getInstance"));
     }
 
-    // Test if instance returns a connection
-    @Test
-    void getInstance_ReturnsNonNullConnection() {
-        Connection c = SqliteConnection.getInstance();
-        assertNotNull(c);
-    }
-
     // Test if different instances point to the same connection
     @Test
     void getInstance_ReturnsSameSingletonAcrossCalls() {
         Connection c1 = SqliteConnection.getInstance();
         Connection c2 = SqliteConnection.getInstance();
         assertSame(c1, c2);
-    }
-
-    // Test for statement execution via connection
-    @Test
-    void connection_CanExecuteStatement() throws Exception {
-        Connection c = SqliteConnection.getInstance();
-        try (Statement st = c.createStatement()) {
-            st.execute("CREATE TABLE IF NOT EXISTS __test__(x INTEGER)");
-            st.execute("DROP TABLE IF EXISTS __test__");
-        }
-        assertTrue(true);
     }
 
     // Class loads

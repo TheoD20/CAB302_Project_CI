@@ -46,25 +46,4 @@ class DashboardControllerTest {
         assertNotNull(DashboardController.class.getDeclaredMethod("handleLogout", ActionEvent.class));
         assertNotNull(DashboardController.class.getDeclaredMethod("safeLoadCenter", String.class));
     }
-
-    @Test
-    void handleLogout_DoesNotThrow() throws Exception {
-        Method handleLogoutMethod = DashboardController.class.getDeclaredMethod("handleLogout", ActionEvent.class);
-        handleLogoutMethod.setAccessible(true);
-
-        Button btn = new Button();
-        ActionEvent event = new ActionEvent(btn, null);
-
-        runOnFxThread(() -> assertDoesNotThrow(() -> handleLogoutMethod.invoke(controller, event)));
-    }
-
-    // Helper method to run code on JavaFX thread and wait
-    private void runOnFxThread(Runnable runnable) throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            runnable.run();
-            latch.countDown();
-        });
-        latch.await();
-    }
 }

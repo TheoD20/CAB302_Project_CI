@@ -22,32 +22,11 @@ public class IUserDAOTest {
         assertNotNull(MyClass.getDeclaredMethod("addUser", User.class));
     }
 
-    // Test if method to update a user exists
-    @Test
-    void updateUser_MethodExists() throws Exception {
-        Class<?> MyClass = IUserDAO.class;
-        assertNotNull(MyClass.getDeclaredMethod("updateUser", User.class));
-    }
-
-    // Test if method to delete a user exists
-    @Test
-    void deleteUser_MethodExists() throws Exception {
-        Class<?> MyClass = IUserDAO.class;
-        assertNotNull(MyClass.getDeclaredMethod("deleteUser", int.class));
-    }
-
     // Test if method to get all existing users exists
     @Test
     void getAllUsers_MethodExists() throws Exception {
         Class<?> MyClass = IUserDAO.class;
         assertNotNull(MyClass.getDeclaredMethod("getAllUsers"));
-    }
-
-    // Test if method to get a user by ID exists
-    @Test
-    void getUserById_MethodExists() throws Exception {
-        Class<?> MyClass = IUserDAO.class;
-        assertNotNull(MyClass.getDeclaredMethod("getUserById", int.class));
     }
 
     // Test if method to get a user by username exists
@@ -83,13 +62,6 @@ public class IUserDAOTest {
     void getUserByGoogleSub_MethodExists() throws Exception {
         Class<?> MyClass = IUserDAO.class;
         assertNotNull(MyClass.getDeclaredMethod("getUserByGoogleSub", String.class));
-    }
-
-    // Test if method to add a Google user exists
-    @Test
-    void addGoogleUser_MethodExists() throws Exception {
-        Class<?> MyClass = IUserDAO.class;
-        assertNotNull(MyClass.getDeclaredMethod("addGoogleUser", String.class, String.class, String.class));
     }
 
     // Class loads

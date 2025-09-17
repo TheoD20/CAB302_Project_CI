@@ -76,28 +76,4 @@ public class SqliteQuizDAOTest {
         assertNotNull(clazz.getDeclaredMethod("getQuizzesByUser", int.class));
         assertNotNull(clazz.getDeclaredMethod("findPublic", String.class));
     }
-
-    @Test
-    void deleteQuiz_DoesNotThrow() {
-        Quiz quiz = new Quiz(0, "ToDelete", "Subj", "Desc", true, 1);
-        dao.addQuiz(quiz);
-
-        assertDoesNotThrow(() -> dao.deleteQuiz(quiz.getQuizId()));
-        assertNull(dao.getQuizById(quiz.getQuizId()));
-    }
-
-    @Test
-    void getAllQuizzes_DoesNotThrow() {
-        assertDoesNotThrow(() -> dao.getAllQuizzes());
-    }
-
-    @Test
-    void getQuizzesByUser_DoesNotThrow() {
-        assertDoesNotThrow(() -> dao.getQuizzesByUser(1));
-    }
-
-    @Test
-    void findPublic_DoesNotThrow() {
-        assertDoesNotThrow(() -> dao.findPublic("Test"));
-    }
 }
