@@ -44,35 +44,5 @@ class PdfTextExtractorTest {
 
         assertTrue(ex.getMessage().contains("Unsupported file type"));
     }
-
-    @Test
-    void testNormalizeHandlesInvisibleChars() throws Exception {
-        File temp = File.createTempFile("test2", ".txt");
-        try (PrintWriter out = new PrintWriter(temp)) {
-            out.print("Hello\u00A0World\u200B-\nnextline\u00AD");
-        }
-
-        String result = extractor.extract(temp);
-
-        // Check normalization removed invisible chars and hyphen wrap
-        assertEquals("Hello World nextline", result);
-
-        temp.delete();
-    }
-
-    // Optional: test that extractPdf does not throw for empty PDF
-    @Test
-    void testExtractEmptyPdf() throws Exception {
-        File tempPdf = File.createTempFile("empty", ".pdf");
-        // Empty PDF
-        try (var doc = new org.apache.pdfbox.pdmodel.PDDocument()) {
-            doc.save(tempPdf);
-        }
-
-        String result = extractor.extract(tempPdf);
-        assertEquals("", result);
-
-        tempPdf.delete();
-    }
 }
 

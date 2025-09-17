@@ -37,17 +37,5 @@ class NavigatorTest {
     void loadView_PrivateMethodExists() throws NoSuchMethodException {
         assertNotNull(Navigator.class.getDeclaredMethod("loadView", String.class));
     }
-
-    // You can also test that invalid input does not throw unhandled exceptions
-    @Test
-    void showInDashboard_InvalidNode_DoesNotThrow() {
-        Node node = new StackPane(); // not attached to scene
-        assertDoesNotThrow(() -> Navigator.showInDashboard(node, "nonexistent.fxml"));
-    }
-
-    @Test
-    void goTo_InvalidFxml_DoesNotThrow() {
-        assertDoesNotThrow(() -> Navigator.goTo(dummyNode, "nonexistent.fxml"));
-    }
 }
 

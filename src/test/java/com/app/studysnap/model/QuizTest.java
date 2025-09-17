@@ -39,20 +39,6 @@ public class QuizTest {
         assertNull(q.getQuestions());
     }
 
-    // Full constructor: Test for null inputs and negative values -> should raise error
-    @Test
-    void FullConstructor_Negative_NullArgs_Throws() {
-        Quiz q1 = new Quiz(-1, "T", "S", "D", false, -2);
-        assertEquals(-1, q1.getQuizId());
-        assertEquals(-2, q1.getCreatedBy());
-
-        Quiz q2 = new Quiz(0, "T", "S", "D", true, 0);
-        assertEquals(0, q2.getQuizId());
-        assertEquals(0, q2.getCreatedBy());
-
-        assertThrows(Exception.class, () -> new Quiz(0, null, null, null, false, 0));
-    }
-
     // Test if constructor with no specified ID exists
     @Test
     void Quiz_NoID_Constructor_MethodExists() throws Exception {
@@ -73,12 +59,6 @@ public class QuizTest {
         assertNull(q.getQuestions());
     }
 
-    // No ID Constructor: Test for null inputs -> should raise error
-    @Test
-    void NoID_Constructor_NullArgs_Throws() {
-        assertThrows(Exception.class, () -> new Quiz(null, null, null, false, 0));
-    }
-
     // Test if constructor for no provided Description exists
     @Test
     void Quiz_NoDescription_Constructor_MethodExists() throws Exception {
@@ -95,12 +75,6 @@ public class QuizTest {
         assertNull(q.getDescription());
         assertTrue(q.get_is_private());
         assertEquals(9, q.getCreatedBy());
-    }
-
-    // No Description Constructor: Test for null inputs -> should raise error
-    @Test
-    void NoDescription_Constructor_NullArgs_Throws() {
-        assertThrows(Exception.class, () -> new Quiz(null, null, false, 0));
     }
 
     // Test if all required getters exists

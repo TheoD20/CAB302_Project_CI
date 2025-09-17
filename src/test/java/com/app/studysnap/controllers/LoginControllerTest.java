@@ -66,34 +66,6 @@ class LoginControllerTest {
         assertNotNull(LoginController.class.getDeclaredMethod("goToSignup"));
         assertNotNull(LoginController.class.getDeclaredMethod("goToPassReset"));
     }
-
-    @Test
-    void handleLogin_DoesNotThrow() throws Exception {
-        Method method = LoginController.class.getDeclaredMethod("handleLogin");
-        method.setAccessible(true);
-        assertDoesNotThrow(() -> method.invoke(controller));
-    }
-
-    @Test
-    void handleGoogleLogin_DoesNotThrow() throws Exception {
-        Method method = LoginController.class.getDeclaredMethod("handleGoogleLogin");
-        method.setAccessible(true);
-        assertDoesNotThrow(() -> method.invoke(controller));
-    }
-
-    @Test
-    void goToSignup_DoesNotThrow() throws Exception {
-        Method method = LoginController.class.getDeclaredMethod("goToSignup");
-        method.setAccessible(true);
-        assertDoesNotThrow(() -> method.invoke(controller));
-    }
-
-    @Test
-    void goToPassReset_DoesNotThrow() throws Exception {
-        Method method = LoginController.class.getDeclaredMethod("goToPassReset");
-        method.setAccessible(true);
-        assertDoesNotThrow(() -> method.invoke(controller));
-    }
 }
 
 

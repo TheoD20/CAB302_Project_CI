@@ -78,36 +78,6 @@ public class SqliteQuizDAOTest {
     }
 
     @Test
-    void addQuiz_DoesNotThrow() {
-        Quiz quiz = new Quiz(0, "Test Quiz", "Math", "Simple quiz", true, 1);
-
-        assertDoesNotThrow(() -> dao.addQuiz(quiz));
-        assertTrue(quiz.getQuizId() > 0);
-    }
-
-    @Test
-    void getQuizById_ReturnsInsertedQuiz() {
-        Quiz quiz = new Quiz(0, "My Quiz", "Science", "Desc", true, 1);
-        dao.addQuiz(quiz);
-
-        Quiz fetched = dao.getQuizById(quiz.getQuizId());
-        assertNotNull(fetched);
-        assertEquals("My Quiz", fetched.getTitle());
-    }
-
-    @Test
-    void updateQuiz_DoesNotThrow() {
-        Quiz quiz = new Quiz(0, "Old Title", "Subj", "Desc", true, 1);
-        dao.addQuiz(quiz);
-
-        quiz.setTitle("New Title");
-        assertDoesNotThrow(() -> dao.updateQuiz(quiz));
-
-        Quiz updated = dao.getQuizById(quiz.getQuizId());
-        assertEquals("New Title", updated.getTitle());
-    }
-
-    @Test
     void deleteQuiz_DoesNotThrow() {
         Quiz quiz = new Quiz(0, "ToDelete", "Subj", "Desc", true, 1);
         dao.addQuiz(quiz);

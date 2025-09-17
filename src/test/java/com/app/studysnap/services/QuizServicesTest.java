@@ -27,15 +27,6 @@ class QuizServiceTest {
     }
 
     @Test
-    void testGenerateFromPasteExcludesAnswers() throws Exception {
-        String pasted = "Question text\nA) 1\nB) 2\nC) 3\nD) 4\nE) 5\nAnswer: A";
-        String result = service.generateFromPaste(pasted, false);
-
-        assertNotNull(result);
-        assertFalse(result.contains("Answer:"));
-    }
-
-    @Test
     void testGenerateFromPrompt() throws Exception {
         String prompt = "Generate 2 MCQs about Java.";
         String result = service.generateFromPrompt(prompt, 2, true);

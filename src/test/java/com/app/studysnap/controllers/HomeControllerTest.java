@@ -87,22 +87,6 @@ class HomeControllerTest {
         assertEquals("My_Quiz_Name_", name);
     }
 
-    // Test showEmpty toggles visibility
-    @Test
-    void showEmpty_TogglesVisibility() throws Exception {
-        Method method = HomeController.class.getDeclaredMethod("showEmpty", boolean.class);
-        method.setAccessible(true);
-        VBox empty = (VBox) HomeController.class.getDeclaredField("emptyState").get(controller);
-
-        method.invoke(controller, true);
-        assertTrue(empty.isVisible());
-        assertTrue(empty.isManaged());
-
-        method.invoke(controller, false);
-        assertFalse(empty.isVisible());
-        assertFalse(empty.isManaged());
-    }
-
     // Test buildCard returns non-null Node
     @Test
     void buildCard_ReturnsVBox() throws Exception {

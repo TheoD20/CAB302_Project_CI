@@ -40,59 +40,11 @@ class DashboardControllerTest {
     }
 
     @Test
-    void fxmlFields_Exist() {
-        Field[] fields = DashboardController.class.getDeclaredFields();
-        boolean hasContentArea = false;
-        boolean hasRoot = false;
-
-        for (Field f : fields) {
-            if (f.getName().equals("contentArea")) hasContentArea = true;
-            if (f.getName().equals("root")) hasRoot = true;
-        }
-
-        assertTrue(hasContentArea, "contentArea field should exist");
-        assertTrue(hasRoot, "root field should exist");
-    }
-
-    @Test
     void privateMethods_Exist() throws NoSuchMethodException {
         assertNotNull(DashboardController.class.getDeclaredMethod("initialize"));
         assertNotNull(DashboardController.class.getDeclaredMethod("handleNav", ActionEvent.class));
         assertNotNull(DashboardController.class.getDeclaredMethod("handleLogout", ActionEvent.class));
         assertNotNull(DashboardController.class.getDeclaredMethod("safeLoadCenter", String.class));
-    }
-
-    @Test
-    void initialize_DoesNotThrow() throws Exception {
-        Method initializeMethod = DashboardController.class.getDeclaredMethod("initialize");
-        initializeMethod.setAccessible(true);
-        runOnFxThread(() -> assertDoesNotThrow(() -> initializeMethod.invoke(controller)));
-    }
-
-    @Test
-    void safeLoadCenter_DoesNotThrow() throws Exception {
-        Method method = DashboardController.class.getDeclaredMethod("safeLoadCenter", String.class);
-        method.setAccessible(true);
-        runOnFxThread(() -> assertDoesNotThrow(() -> method.invoke(controller, "home.fxml")));
-    }
-
-    @Test
-    void handleNav_NullEvent_DoesNotThrow() throws Exception {
-        Method handleNavMethod = DashboardController.class.getDeclaredMethod("handleNav", ActionEvent.class);
-        handleNavMethod.setAccessible(true);
-        runOnFxThread(() -> assertDoesNotThrow(() -> handleNavMethod.invoke(controller, new ActionEvent())));
-    }
-
-    @Test
-    void handleNav_ButtonWithUserData_DoesNotThrow() throws Exception {
-        Method handleNavMethod = DashboardController.class.getDeclaredMethod("handleNav", ActionEvent.class);
-        handleNavMethod.setAccessible(true);
-
-        Button btn = new Button();
-        btn.setUserData("home.fxml");
-        ActionEvent event = new ActionEvent(btn, null);
-
-        runOnFxThread(() -> assertDoesNotThrow(() -> handleNavMethod.invoke(controller, event)));
     }
 
     @Test

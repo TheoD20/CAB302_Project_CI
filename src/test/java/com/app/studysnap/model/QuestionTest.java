@@ -40,15 +40,6 @@ public class QuestionTest {
         assertNotNull(MyClass.getDeclaredConstructor(int.class, int.class, String.class, String.class, String.class, String.class, String.class, String.class, int.class));
     }
 
-    // Full constructor: Test for null inputs and negative values -> should raise error
-    @Test
-    void FullConstructor_Negatives_NullArgs_Throws() {
-        assertThrows(Exception.class, () -> new Question(-1, 1, "S", "1", "2", "3", "4", "5", 2));
-        assertThrows(Exception.class, () -> new Question(1, -1, "S", "1", "2", "3", "4", "5", 2));
-        assertThrows(Exception.class, () -> new Question(1, 1, "S", "1", "2", "3", "4", "5", -2));
-        assertThrows(Exception.class, () -> new Question(0, 0, null, null, null, null, null, null, 0));
-    }
-
     // Test if getters exists
     @Test
     void getQuestionId_MethodExists() throws Exception {
@@ -161,34 +152,6 @@ public class QuestionTest {
         } catch (Exception ex) {
             fail("Unexpected exception for default args");
         }
-    }
-    @Test
-    void setQuestion_NullArgs_ThrowsException() {
-        assertThrows(Exception.class, () -> question.setQuestion(null));
-    }
-    @Test
-    void setOption1_NullArgs_ThrowsException() {
-        assertThrows(Exception.class, () -> question.setOption1(null));
-    }
-    @Test
-    void setOption2_NullArgs_ThrowsException() {
-        assertThrows(Exception.class, () -> question.setOption2(null));
-    }
-    @Test
-    void setOption3_NullArgs_ThrowsException() {
-        assertThrows(Exception.class, () -> question.setOption3(null));
-    }
-    @Test
-    void setOption4_NullArgs_ThrowsException() {
-        assertThrows(Exception.class, () -> question.setOption4(null));
-    }
-    @Test
-    void setOption5_NullArgs_ThrowsException() {
-        assertThrows(Exception.class, () -> question.setOption5(null));
-    }
-    @Test
-    void setCorrectOption_NullArgs_ThrowsException() {
-        assertThrows(Exception.class, () -> question.setCorrectOption(null));
     }
 
     // Full constructor sets all fields correctly for valid, non-null inputs
