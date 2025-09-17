@@ -5,7 +5,9 @@ import com.app.studysnap.model.User;
 
 public class AuthService {
     private final IUserDAO users;
-    public AuthService(IUserDAO users) { this.users = users; }
+    public AuthService(IUserDAO users) {
+        if (users == null) throw new IllegalArgumentException();
+        this.users = users; }
 
     // Register a new user given username, email and password
     public User register(String username, String email, String rawPassword) {
