@@ -118,7 +118,7 @@ public class QuizGeneratorController {
     private void onDragDropped(DragEvent e) {
         Dragboard db = e.getDragboard();
         if (db.hasFiles()) {
-            selectedFile = db.getFiles().getFirst();
+            selectedFile = db.getFiles().get(0);
             chosenFileLabel.setText(selectedFile.getName());
             e.setDropCompleted(true);
         } else {
