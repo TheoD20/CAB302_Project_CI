@@ -18,6 +18,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      STUDYSNAP_GOOGLE_CLIENT_ID: ${{ secrets.STUDYSNAP_GOOGLE_CLIENT_ID }}
+      STUDYSNAP_GOOGLE_CLIENT_SECRET: ${{ secrets.STUDYSNAP_GOOGLE_CLIENT_SECRET }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      STUDYSNAP_GOOGLE_OAUTH_PORT: "8888"
 
     steps:
     - uses: actions/checkout@v4
@@ -28,4 +33,9 @@ jobs:
         distribution: 'corretto'
         cache: maven
     - name: Build with Maven
+      env:
+        STUDYSNAP_GOOGLE_CLIENT_ID: ${{ secrets.STUDYSNAP_GOOGLE_CLIENT_ID }}
+        STUDYSNAP_GOOGLE_CLIENT_SECRET: ${{ secrets.STUDYSNAP_GOOGLE_CLIENT_SECRET }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        STUDYSNAP_GOOGLE_OAUTH_PORT: "8888"
       run: mvn -B package --file pom.xml

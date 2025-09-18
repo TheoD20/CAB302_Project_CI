@@ -11,10 +11,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.oauth2.Oauth2;
 import com.google.api.services.oauth2.model.Userinfo;
-
-import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Objects;
 
 public class GoogleAuthService {
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
@@ -24,10 +21,26 @@ public class GoogleAuthService {
         var httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 
         // Get key
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
-                JSON_FACTORY,
-                new InputStreamReader(Objects.requireNonNull(getClass().getResourceAsStream("/client_secret.json")))
-        );
+        String clientId = System.getenv("STUDYSNAP_GOOGLE_CLIENT_ID");
+        String clientSecret = System.getenv("STUDYSNAP_GOOGLE_CLIENT_SECRET");
+
+        GoogleClientSecrets clientSecrets;
+        if (clientId != null && !clientId.isBlank() && clientSecret != null && !clientSecret.isBlank()) {
+            var details = new GoogleClientSecrets.Details();
+            details.setClientId(clientId);
+            details.setClientSecret(clientSecret);
+
+            // Optional: if you want to set a redirect explicitly via ENV (usually not needed for Desktop)
+            String redirect = "http://localhost";
+            details.setRedirectUris(java.util.List.of(redirect));
+
+            clientSecrets = new GoogleClientSecrets().setInstalled(details);
+        } else {
+            throw new IllegalStateException("Missing STUDYSNAP_GOOGLE_CLIENT_ID/STUDYSNAP_GOOGLE_CLIENT_SECRET environment variables.");
+        }
+
+        int port = parsePort(System.getenv("STUDYSNAP_GOOGLE_OAUTH_PORT"), 8888);
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(port).build();
 
         // Build call
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
@@ -38,8 +51,6 @@ public class GoogleAuthService {
                 .setAccessType("offline")
                 .build();
 
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-
         Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
         // Get user info
@@ -48,5 +59,10 @@ public class GoogleAuthService {
                 .build();
 
         return oauth2.userinfo().get().execute();
+    }
+
+    private static int parsePort(String s, int def) {
+        try { return (s == null || s.isBlank()) ? def : Integer.parseInt(s); }
+        catch (NumberFormatException e) { return def; }
     }
 }

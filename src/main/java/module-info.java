@@ -1,7 +1,6 @@
 module com.example.cab302_project {
     requires javafx.controls;
     requires javafx.fxml;
-    requires java.sql;
     requires com.google.api.client.auth;
     requires com.google.api.client.extensions.java6.auth;
     requires com.google.api.client.extensions.jetty.auth;
@@ -13,8 +12,8 @@ module com.example.cab302_project {
     requires org.apache.pdfbox;
     requires java.net.http;
     requires com.google.gson;
-    requires java.dotenv;
     requires java.desktop;
+    requires java.sql;
 
 
     opens com.app.studysnap to javafx.fxml;

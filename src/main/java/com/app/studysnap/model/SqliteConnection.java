@@ -11,14 +11,20 @@ public class SqliteConnection {
         String url = "jdbc:sqlite:StudySnap.db";
         try {
             instance = DriverManager.getConnection(url);
+            if (instance == null) {
+                throw new SQLException("DriverManager returned null for URL: " + url);
+            }
         } catch (SQLException sqlEx) {
-            System.err.println(sqlEx);
+            throw new RuntimeException("Error opening SQLite connection to " + url, sqlEx);
         }
     }
 
     public static Connection getInstance() {
         if (instance == null) {
             new SqliteConnection();
+            if (instance == null) {
+                throw new IllegalStateException("SQLite connection is null.");
+            }
         }
         return instance;
     }

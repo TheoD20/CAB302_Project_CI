@@ -77,7 +77,7 @@
 
                             <Label text="Describe the topic" styleClass="muted"/>
                             <TextArea fx:id="promptTextArea" prefRowCount="8"
-                                      promptText="e.g., “Generate quiz on Java basics for beginners.”"
+                                      promptText="e.g., “Java basics for beginners.”"
                                       wrapText="true"/>
 
                             <HBox spacing="10" alignment="CENTER_LEFT">

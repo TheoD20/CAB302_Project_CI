@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.File;
 import java.net.URI;
@@ -29,20 +28,9 @@ import java.time.Duration;
 public final class QuizService {
     private final PdfTextExtractor extractor = new PdfTextExtractor();
 
-    // env variables (API Keys)
-    private static final Dotenv DOTENV =
-            Dotenv.configure()
-                    .ignoreIfMalformed()
-                    .ignoreIfMissing()
-                    .load();
-
     private static String env(String... names) {
         for (String n : names) {
             String v = System.getenv(n);
-            if (v != null && !v.isBlank()) return v;
-            v = DOTENV.get(n);
-            if (v != null && !v.isBlank()) return v;
-            v = System.getProperty(n);
             if (v != null && !v.isBlank()) return v;
         }
         return null;
