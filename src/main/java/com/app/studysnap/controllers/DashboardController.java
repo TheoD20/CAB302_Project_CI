@@ -16,10 +16,13 @@ import java.util.Objects;
 public class DashboardController {
 
     @FXML private StackPane contentArea;
+    private static String pendingCenterFxml;
 
     @FXML
     private void initialize() {
-        safeLoadCenter("home.fxml");
+        String target = (pendingCenterFxml != null) ? pendingCenterFxml : "home.fxml";
+        pendingCenterFxml = null;
+        safeLoadCenter(target);
     }
 
     // Sidebar navigation
@@ -32,6 +35,11 @@ public class DashboardController {
                 safeLoadCenter(ud.toString());
             }
         }
+    }
+
+    // Call to set up an alternative window to open in initialization rather than home.fxml
+    public static void openOn(String centerFxml) {
+        pendingCenterFxml = centerFxml;
     }
 
     // Logout btn click
