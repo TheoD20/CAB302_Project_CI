@@ -2,6 +2,7 @@ package com.app.studysnap.auth;
 
 import com.app.studysnap.model.IUserDAO;
 import com.app.studysnap.model.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class AuthService {
     private final IUserDAO users;
@@ -17,11 +18,10 @@ public class AuthService {
         if (users.emailExists(email))
             throw new IllegalArgumentException("Email already in use.");
 
-        // For now: store as-is. Later: hash before saving.
         User u = new User();
         u.setUsername(username.trim());
         u.setEmail(email.trim().toLowerCase());
-        u.setPassword(rawPassword);
+        u.setPassword(BCrypt.hashpw(rawPassword, BCrypt.gensalt()));
         u.setAuthProvider("LOCAL");
 
         int id = users.addUser(u);
@@ -79,7 +79,8 @@ public class AuthService {
         if (u == null) throw new IllegalArgumentException("Invalid email or password.");
         if (!"LOCAL".equals(u.getAuthProvider()))
             throw new IllegalArgumentException("This account uses Google Sign-In. Use 'Sign in with Google'.");
-        if (!rawPassword.equals(u.getPassword()))
+
+        if (!BCrypt.checkpw(rawPassword, u.getPassword()))
             throw new IllegalArgumentException("Invalid email or password.");
 
         Session.setCurrentUser(u);
@@ -123,7 +124,7 @@ public class AuthService {
         if (user.getGoogleSub() != null) {  // use googleSub (not googleId)
             throw new IllegalArgumentException("This account uses Google Sign-In. Password reset not available.");
         }
-        user.setPassword(newPassword);
+        user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
         users.updateUser(user); // use correct DAO method
     }
 

@@ -14,6 +14,7 @@ module com.example.cab302_project {
     requires com.google.gson;
     requires java.desktop;
     requires java.sql;
+    requires jbcrypt;
 
 
     opens com.app.studysnap to javafx.fxml;

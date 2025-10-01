@@ -1,5 +1,7 @@
 package com.app.studysnap.model;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -171,11 +173,11 @@ public class SqliteUserDAO implements IUserDAO {
     }
 
     // DEBUGGING
-    // Add 3 user mock data for testing purposes *use the same email once, as it has a unique constraint
+    // Add 3 user mock data for testing purposes
     public void seedMockUsers(){
-        addUser(new User("test1", "email1@gmail.com", "password1", "LOCAL", null));
-        addUser(new User("test2", "email2@gmail.com", "password2", "LOCAL", null));
-        addUser(new User("test3", "email3@gmail.com", "password3", "LOCAL", null));
+        addUser(new User("test1", "email1@gmail.com", BCrypt.hashpw("password1", BCrypt.gensalt()), "LOCAL", null));
+        addUser(new User("test2", "email2@gmail.com", BCrypt.hashpw("password2", BCrypt.gensalt()), "LOCAL", null));
+        addUser(new User("test3", "email3@gmail.com", BCrypt.hashpw("password3", BCrypt.gensalt()), "LOCAL", null));
     }
 
     //Reset the Users table by deleting all the data in the table and reset the autoincrement at the same time
