@@ -1,5 +1,6 @@
 package com.app.studysnap;
 
+import com.app.studysnap.model.SqliteQuizDAO;
 import com.app.studysnap.model.SqliteUserDAO;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -25,6 +26,10 @@ public class Main extends Application {
 
         //Database logic
         SqliteUserDAO userDAO = new SqliteUserDAO();
+        //SqliteQuizDAO quizDAO = new SqliteQuizDAO();
+        //userDAO.resetUsersTable();
+        //quizDAO.resetQuizzesTable();
+        //userDAO.seedMockUsers();
 
         //DEBUGGING REASONS: Print users from DB
         for (User user : userDAO.getAllUsers()) {

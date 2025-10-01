@@ -201,4 +201,15 @@ public class SqliteQuizDAO implements IQuizDAO {
         } catch (Exception e) { e.printStackTrace(); }
         return out;
     }
+
+    //Reset the Quizzes table by deleting all the data in the table and reset the autoincrement at the same time
+    public void resetQuizzesTable() {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("DELETE FROM Quizzes");
+            statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='Quizzes'"); //reset autoincrement
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
