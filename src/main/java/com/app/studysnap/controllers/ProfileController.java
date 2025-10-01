@@ -5,8 +5,12 @@ import com.app.studysnap.model.*;
 import com.app.studysnap.services.Navigator;
 import com.app.studysnap.services.Popup;
 import javafx.fxml.FXML;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,16 +24,28 @@ public class ProfileController {
     private Label providerValue;
     @FXML
     private Label statusLabel;
-
     @FXML
     private TextField usernameField;
     @FXML
     private TextField emailField;
-
     @FXML
     private Button saveButton;
     @FXML
     private Button deleteButton;
+    @FXML
+    private Label decksCount, quizzesCount, correctCount, streakCount;
+    @FXML
+    private PieChart accuracyChart;
+    @FXML
+    private BarChart<String, Number> weeklyActivityChart;
+    @FXML
+    private LineChart<String, Number> streakLineChart;
+    @FXML
+    private StackedBarChart<String, Number> decksByTopicChart;
+    @FXML
+    private FlowPane badgesGrid;
+    @FXML
+    private Button changePasswordButton;
 
     private IUserDAO userDAO;
     private IQuizDAO quizDAO;
@@ -85,6 +101,25 @@ public class ProfileController {
         saveButton.setDisable(true);
         usernameField.textProperty().addListener((obs, a, b) -> validateDirty());
         emailField.textProperty().addListener((obs, a, b) -> validateDirty());
+
+        // Disable change-password for Google accounts
+        boolean isGoogle = "GOOGLE".equalsIgnoreCase(providerValue.getText());
+        changePasswordButton.setDisable(isGoogle);
+
+        //TODO: change default values for DB fetching
+        int decks = 12;
+        int quizzes = 31;
+        int correct = 211;
+        int streak = 5;
+        decksCount.setText(String.valueOf(decks));
+        quizzesCount.setText(String.valueOf(quizzes));
+        correctCount.setText(String.valueOf(correct));
+        streakCount.setText(String.valueOf(streak));
+        setupAccuracyChart(correct, Math.max(0, quizzes * 10 - correct)); // placeholder total answers
+        setupWeeklyActivityChart();
+        setupStreakLineChart();
+        setupDecksByTopicChart();
+        renderBadges();
     }
 
     private void validateDirty() {
@@ -192,6 +227,84 @@ public class ProfileController {
         } finally {
             if (deleteButton != null) deleteButton.setDisable(false);
         }
+    }
+
+    @FXML
+    private void handleChangePassword() throws IOException {
+        Navigator.goTo(changePasswordButton, "resetPassword.fxml");
+    }
+
+    @FXML
+    private void handleSeeAllBadges() {
+        // Open a simple window listing all possible badges
+        Dialog<Void> dlg = new Dialog<>();
+        dlg.setTitle("All Badges");
+        dlg.setHeaderText("Browse all available badges");
+        FlowPane grid = new FlowPane(12, 12);
+        grid.setPrefWrapLength(480);
+
+        //TODO: Inject badges
+    }
+
+    // Progress Section:
+    // TODO: Wire up real data
+
+    private void setupAccuracyChart(int correct, int incorrect) {
+        accuracyChart.getData().clear();
+        accuracyChart.getData().addAll(
+                new PieChart.Data("Correct", correct),
+                new PieChart.Data("Incorrect", Math.max(incorrect, 0))
+        );
+        accuracyChart.setLegendVisible(false);
+    }
+
+    private void setupWeeklyActivityChart() {
+        weeklyActivityChart.getData().clear();
+        XYChart.Series<String, Number> s = new XYChart.Series<>();
+        s.setName("Quizzes");
+        // TODO: Replace with last-7-days actual
+        s.getData().add(new XYChart.Data<>("Mon", 2));
+        s.getData().add(new XYChart.Data<>("Tue", 4));
+        s.getData().add(new XYChart.Data<>("Wed", 1));
+        s.getData().add(new XYChart.Data<>("Thu", 3));
+        s.getData().add(new XYChart.Data<>("Fri", 5));
+        s.getData().add(new XYChart.Data<>("Sat", 2));
+        s.getData().add(new XYChart.Data<>("Sun", 6));
+        weeklyActivityChart.getData().add(s);
+    }
+
+    private void setupStreakLineChart() {
+        streakLineChart.getData().clear();
+        XYChart.Series<String, Number> s = new XYChart.Series<>();
+        s.setName("Streak");
+        // TODO: Replace with real streak series
+        s.getData().add(new XYChart.Data<>("W-4", 1));
+        s.getData().add(new XYChart.Data<>("W-3", 2));
+        s.getData().add(new XYChart.Data<>("W-2", 4));
+        s.getData().add(new XYChart.Data<>("W-1", 3));
+        s.getData().add(new XYChart.Data<>("Now", 5));
+        streakLineChart.getData().add(s);
+    }
+
+    private void setupDecksByTopicChart() {
+        decksByTopicChart.getData().clear();
+        XYChart.Series<String, Number> math = new XYChart.Series<>();
+        math.setName("Math");
+        math.getData().add(new XYChart.Data<>("Algebra", 3));
+        math.getData().add(new XYChart.Data<>("Calculus", 2));
+
+        XYChart.Series<String, Number> cs = new XYChart.Series<>();
+        cs.setName("CS");
+        cs.getData().add(new XYChart.Data<>("OOP", 4));
+        cs.getData().add(new XYChart.Data<>("Networks", 1));
+
+        decksByTopicChart.getData().addAll(math, cs);
+    }
+
+    private void renderBadges() {
+        badgesGrid.getChildren().clear();
+
+        //TODO: get all badges from user and display
     }
 
     /* ------------ helpers ------------ */

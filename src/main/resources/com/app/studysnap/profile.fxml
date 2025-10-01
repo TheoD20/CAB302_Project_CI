@@ -4,52 +4,147 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.StackedBarChart?>
+
 <AnchorPane stylesheets="@styles/profile.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.ProfileController">
+    <StackPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+            <VBox spacing="25" styleClass="page" maxWidth="Infinity">
+                <Label styleClass="title" text="My Profile" />
 
-    <StackPane prefHeight="600" prefWidth="900" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+                <HBox spacing="25">
+                    <!-- Avatar / Lado izquierdo -->
+                    <VBox alignment="CENTER" prefWidth="220" spacing="10" styleClass="card">
+                        <ImageView fitHeight="96" fitWidth="96" preserveRatio="true" styleClass="avatar" />
+                        <Label fx:id="displayName" styleClass="display-name" text="User" />
+                        <Label fx:id="providerLabel" styleClass="provider" text="Local account" />
+                    </VBox>
 
-        <VBox spacing="25" styleClass="page">
-            <Label styleClass="title" text="My Profile" />
+                    <!-- Formulario / Lado derecho -->
+                    <VBox spacing="18" styleClass="card" HBox.hgrow="ALWAYS">
+                        <GridPane hgap="12" vgap="14">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="28" />
+                                <ColumnConstraints percentWidth="72" />
+                            </columnConstraints>
 
-            <HBox spacing="25">
-                <!-- Avatar / Lado izquierdo -->
-                <VBox alignment="CENTER" prefWidth="220" spacing="10" styleClass="card">
-                    <ImageView fitHeight="96" fitWidth="96" preserveRatio="true" styleClass="avatar" />
-                    <Label fx:id="displayName" styleClass="display-name" text="User" />
-                    <Label fx:id="providerLabel" styleClass="provider" text="Local account" />
-                </VBox>
+                            <Label styleClass="field-label" text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <TextField fx:id="usernameField" promptText="Enter your username" styleClass="profile-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <!-- Formulario / Lado derecho -->
-                <VBox spacing="18" styleClass="card" HBox.hgrow="ALWAYS">
-                    <GridPane hgap="12" vgap="14">
+                            <Label styleClass="field-label" text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <TextField fx:id="emailField" promptText="you@example.com" styleClass="profile-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                            <Label styleClass="field-label" text="Provider:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <Label fx:id="providerValue" styleClass="provider-value" text="LOCAL" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                      <rowConstraints>
+                         <RowConstraints />
+                         <RowConstraints />
+                         <RowConstraints />
+                      </rowConstraints>
+                        </GridPane>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="10">
+                            <Label fx:id="statusLabel" styleClass="status" text="" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button fx:id="changePasswordButton" onAction="#handleChangePassword" styleClass="secondary-btn" text="Change Password" />
+                            <Button fx:id="deleteButton" onAction="#handleDeleteProfile" styleClass="delete-btn" text="Delete Profile" />
+                            <Button fx:id="saveButton" defaultButton="true" onAction="#handleSave" styleClass="primary-btn" text="Save Changes" />
+                        </HBox>
+                    </VBox>
+                </HBox>
+
+                <VBox spacing="18" styleClass="card section">
+                    <Label text="Your StudySnap Progress" styleClass="section-title" />
+                    <HBox spacing="14">
+                        <VBox alignment="CENTER" spacing="6" styleClass="kpi-card">
+                            <Label text="Decks Generated" styleClass="kpi-label" />
+                            <Label fx:id="decksCount" text="0" styleClass="kpi-value" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="6" styleClass="kpi-card">
+                            <Label text="Quizzes Played" styleClass="kpi-label" />
+                            <Label fx:id="quizzesCount" text="0" styleClass="kpi-value" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="6" styleClass="kpi-card">
+                            <Label text="Correct Answers" styleClass="kpi-label" />
+                            <Label fx:id="correctCount" text="0" styleClass="kpi-value" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="6" styleClass="kpi-card">
+                            <Label text="Current Streak (days)" styleClass="kpi-label" />
+                            <Label fx:id="streakCount" text="0" styleClass="kpi-value" />
+                        </VBox>
+                    </HBox>
+
+                    <!-- Charts grid -->
+                    <GridPane hgap="18" vgap="18">
                         <columnConstraints>
-                            <ColumnConstraints percentWidth="28" />
-                            <ColumnConstraints percentWidth="72" />
+                            <ColumnConstraints percentWidth="50" />
+                            <ColumnConstraints percentWidth="50" />
                         </columnConstraints>
 
-                        <Label styleClass="field-label" text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <TextField fx:id="usernameField" promptText="Enter your username" styleClass="profile-field" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <!-- Accuracy donut -->
+                        <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="Accuracy" styleClass="chart-title" />
+                            <PieChart fx:id="accuracyChart" prefHeight="240" />
+                        </VBox>
 
-                        <Label styleClass="field-label" text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <TextField fx:id="emailField" promptText="you@example.com" styleClass="profile-field" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <!-- Weekly activity -->
+                        <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label text="Activity by Day (last 7 days)" styleClass="chart-title" />
+                            <BarChart fx:id="weeklyActivityChart" prefHeight="240">
+                                <xAxis>
+                                    <CategoryAxis />
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis />
+                                </yAxis>
+                            </BarChart>
+                        </VBox>
 
-                        <Label styleClass="field-label" text="Provider:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <Label fx:id="providerValue" styleClass="provider-value" text="LOCAL" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <rowConstraints>
-                     <RowConstraints />
-                     <RowConstraints />
-                     <RowConstraints />
-                  </rowConstraints>
+                        <!-- Streak trend -->
+                        <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="Streak Over Time" styleClass="chart-title" />
+                            <LineChart fx:id="streakLineChart" prefHeight="240">
+                                <xAxis>
+                                    <CategoryAxis />
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis />
+                                </yAxis>
+                            </LineChart>
+                        </VBox>
+
+                        <!-- Decks per topic -->
+                        <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label text="Decks by Topic" styleClass="chart-title" />
+                            <StackedBarChart fx:id="decksByTopicChart" prefHeight="240">
+                                <xAxis>
+                                    <CategoryAxis />
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis />
+                                </yAxis>
+                            </StackedBarChart>
+                        </VBox>
                     </GridPane>
-
-                    <HBox alignment="CENTER_RIGHT" spacing="10">
-                        <Label fx:id="statusLabel" styleClass="status" text="" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Button fx:id="deleteButton" defaultButton="true" onAction="#handleDeleteProfile" styleClass="delete-btn" text="Delete Profile" />
-                        <Button fx:id="saveButton" defaultButton="true" onAction="#handleSave" styleClass="primary-btn" text="Save Changes" />
-                    </HBox>
                 </VBox>
-            </HBox>
-        </VBox>
+
+                <VBox spacing="12" styleClass="card section">
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label text="My Badges" styleClass="section-title" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="See all badges" onAction="#handleSeeAllBadges" styleClass="secondary-btn" />
+                    </HBox>
+
+                    <FlowPane fx:id="badgesGrid" hgap="12" vgap="12">
+                        <!-- badges rendered from controller -->
+                    </FlowPane>
+                </VBox>
+            </VBox>
+        </ScrollPane>
     </StackPane>
 </AnchorPane>
