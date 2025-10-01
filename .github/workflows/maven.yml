@@ -39,3 +39,13 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         STUDYSNAP_GOOGLE_OAUTH_PORT: "8888"
       run: mvn -B package --file pom.xml
+    - name: Test
+      run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+    - name: Report
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+        name: Maven Tests
+        path: target/surefire-reports/*.xml
+        reporter: java-junit
+        fail-on-error: true
