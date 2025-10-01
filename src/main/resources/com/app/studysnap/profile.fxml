@@ -11,6 +11,7 @@
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.StackedBarChart?>
 
+<?import javafx.geometry.Insets?>
 <AnchorPane stylesheets="@styles/profile.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.app.studysnap.controllers.ProfileController">
     <StackPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
@@ -20,7 +21,33 @@
                 <HBox spacing="25">
                     <!-- Avatar / Lado izquierdo -->
                     <VBox alignment="CENTER" prefWidth="220" spacing="10" styleClass="card">
-                        <ImageView fitHeight="96" fitWidth="96" preserveRatio="true" styleClass="avatar" />
+                        <StackPane prefWidth="96" prefHeight="96">
+                            <ImageView fx:id="avatarView"
+                                       fitHeight="96" fitWidth="96" preserveRatio="true"
+                                       styleClass="avatar">
+                                <image>
+                                    <Image url="@images/default_avatar.png"/>
+                                </image>
+                            </ImageView>
+
+                            <Button text="✏"
+                                    onAction="#handleUploadAvatar"
+                                    styleClass="avatar-upload-btn"
+                                    StackPane.alignment="BOTTOM_RIGHT">
+                                <StackPane.margin>
+                                    <Insets right="4" bottom="4"/>
+                                </StackPane.margin>
+                            </Button>
+                            <Button fx:id="deleteAvatarBtn"
+                                    text="⛔"
+                                    onAction="#handleDeleteAvatar"
+                                    styleClass="avatar-delete-btn"
+                                    StackPane.alignment="BOTTOM_LEFT">
+                                <StackPane.margin>
+                                    <Insets right="4" bottom="4"/>
+                                </StackPane.margin>
+                            </Button>
+                        </StackPane>
                         <Label fx:id="displayName" styleClass="display-name" text="User" />
                         <Label fx:id="providerLabel" styleClass="provider" text="Local account" />
                     </VBox>

@@ -7,10 +7,17 @@ import com.app.studysnap.services.Popup;
 import javafx.fxml.FXML;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,11 +53,19 @@ public class ProfileController {
     private FlowPane badgesGrid;
     @FXML
     private Button changePasswordButton;
+    @FXML
+    private ImageView avatarView;
+    @FXML
+    private Button deleteAvatarBtn;
+
 
     private IUserDAO userDAO;
     private IQuizDAO quizDAO;
     private List<Quiz> myQuizzes;
     private User currentUser;
+    private static final String[] avatar_format = {".png", ".jpg", ".jpeg", ".gif"};
+    private Image defaultAvatar;
+    private static final String DEFAULT_AVATAR_PATH = "/images/default_avatar.png";
 
     @FXML
     private void initialize() {
@@ -85,7 +100,7 @@ public class ProfileController {
             setStatus("Couldn’t load your quizzes right now.");
         }
 
-        // Prefill
+        // Profile info
         usernameField.setText(safe(currentUser.getUsername()));
         emailField.setText(safe(currentUser.getEmail()));
 
@@ -94,10 +109,10 @@ public class ProfileController {
         providerLabel.setText(provider.equalsIgnoreCase("GOOGLE") ? "Google account" : "Local account");
         displayName.setText(safe(currentUser.getUsername()).isBlank() ? "User" : currentUser.getUsername());
 
-        // Para GOOGLE, email sólo lectura
+        // block email change for Google account
         emailField.setEditable(!provider.equalsIgnoreCase("GOOGLE"));
 
-        // Habilitar guardar sólo si hay cambios válidos
+        // handle disable save btn
         saveButton.setDisable(true);
         usernameField.textProperty().addListener((obs, a, b) -> validateDirty());
         emailField.textProperty().addListener((obs, a, b) -> validateDirty());
@@ -105,6 +120,19 @@ public class ProfileController {
         // Disable change-password for Google accounts
         boolean isGoogle = "GOOGLE".equalsIgnoreCase(providerValue.getText());
         changePasswordButton.setDisable(isGoogle);
+
+        // Load avatar image
+        defaultAvatar = avatarView.getImage();
+        if (defaultAvatar == null) {
+            defaultAvatar = loadResourceImage(DEFAULT_AVATAR_PATH);
+            if (defaultAvatar != null) avatarView.setImage(defaultAvatar);
+        }
+
+        boolean hasCustom = loadAvatarFromDisk();
+        if (!hasCustom && defaultAvatar != null) {
+            avatarView.setImage(defaultAvatar);
+        }
+        updateAvatarButtons();
 
         //TODO: change default values for DB fetching
         int decks = 12;
@@ -235,6 +263,43 @@ public class ProfileController {
     }
 
     @FXML
+    private void handleUploadAvatar() {
+        if (currentUser == null) return;
+
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Choose Avatar");
+        fc.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        File chosen = fc.showOpenDialog(avatarView.getScene().getWindow());
+        if (chosen == null) return;
+
+        try {
+            Path saved = saveAvatarForUser(currentUser, chosen);
+            avatarView.setImage(new Image(saved.toUri().toString(), 96, 96, true, true));
+            setStatus("Avatar updated ✓");
+            updateAvatarButtons(); // <— show delete
+        } catch (Exception e) {
+            setStatus("Could not save avatar.");
+        }
+    }
+
+    @FXML
+    private void handleDeleteAvatar() {
+        if (currentUser == null) return;
+        if (!Popup.confirm("Remove avatar?", "Revert to the default icon.")) return;
+
+        try {
+            deleteAvatarFilesForUser(currentUser);
+            resetAvatarToDefault();
+            setStatus("Avatar removed ✓");
+            updateAvatarButtons();
+        } catch (Exception ex) {
+            Popup.error("Couldn't remove avatar: " + ex.getMessage());
+        }
+    }
+
+    @FXML
     private void handleSeeAllBadges() {
         // Open a simple window listing all possible badges
         Dialog<Void> dlg = new Dialog<>();
@@ -303,8 +368,16 @@ public class ProfileController {
 
     private void renderBadges() {
         badgesGrid.getChildren().clear();
+        List<String> userBadges = List.of(); // TODO: fetch from DB
 
-        //TODO: get all badges from user and display
+        if (userBadges.isEmpty()) {
+            Label empty = new Label("No badges achieved yet");
+            empty.getStyleClass().add("empty-label");
+            badgesGrid.getChildren().add(empty);
+            return;
+        }
+
+        //TODO: otherwise render badges
     }
 
     /* ------------ helpers ------------ */
@@ -320,5 +393,76 @@ public class ProfileController {
         if (s == null) return false;
         String v = s.trim().toLowerCase();
         return v.contains("@") && v.indexOf('@') > 0 && v.indexOf('@') < v.length() - 3 && v.contains(".");
+    }
+
+    /* ------------ avatar helpers ------------ */
+    private void updateAvatarButtons() {
+        boolean hasCustom = findAvatarFile(currentUser) != null;
+        if (deleteAvatarBtn != null) {
+            deleteAvatarBtn.setVisible(hasCustom);
+            deleteAvatarBtn.setManaged(hasCustom);
+        }
+    }
+    private boolean loadAvatarFromDisk() {
+        Path p = findAvatarFile(currentUser);
+        if (p != null && Files.exists(p)) {
+            String uri = p.toUri().toString();
+            avatarView.setImage(new Image(uri, 96, 96, true, true));
+            return true;
+        }
+        return false;
+    }
+    private Path saveAvatarForUser(User u, File chosen) throws Exception {
+        Path dir = getAvatarsDir();
+        Files.createDirectories(dir);
+
+        String base = baseAvatarName(u);
+        String ext = extLower(chosen.getName());
+        if (!ext.matches("\\.(png|jpg|jpeg|gif)")) ext = ".png";
+        for (String e : avatar_format) Files.deleteIfExists(dir.resolve(base + e));
+
+        Path target = dir.resolve(base + ext);
+        Files.copy(chosen.toPath(), target, StandardCopyOption.REPLACE_EXISTING);
+        return target;
+    }
+    private Path findAvatarFile(User u) {
+        Path dir = getAvatarsDir();
+        String base = baseAvatarName(u);
+        for (String e : avatar_format) {
+            Path p = dir.resolve(base + e);
+            if (Files.exists(p)) return p;
+        }
+        return null;
+    }
+    private Path getAvatarsDir() {
+        return Paths.get(System.getProperty("user.home"), ".studysnap", "avatars");
+    }
+    private String baseAvatarName(User u) {
+        if (u != null && u.getUserId() > 0) return "u" + u.getUserId();
+        String email = safe(u == null ? null : u.getEmail());
+        return email.isBlank() ? "anonymous" : email.replaceAll("[^a-zA-Z0-9]", "_");
+    }
+    private static String extLower(String name) {
+        int i = name.lastIndexOf('.');
+        return (i >= 0) ? name.substring(i).toLowerCase() : "";
+    }
+    private void resetAvatarToDefault() {
+        if (defaultAvatar == null) defaultAvatar = loadResourceImage(DEFAULT_AVATAR_PATH);
+        if (defaultAvatar != null) avatarView.setImage(defaultAvatar);
+    }
+    private void deleteAvatarFilesForUser(User u) throws Exception {
+        Path dir = getAvatarsDir();
+        String base = baseAvatarName(u);
+        for (String e : avatar_format) {
+            Files.deleteIfExists(dir.resolve(base + e));
+        }
+    }
+    private Image loadResourceImage(String path) {
+        var url = ProfileController.class.getResource(path);
+        if (url == null) {
+            var cl = Thread.currentThread().getContextClassLoader();
+            url = cl.getResource(path.startsWith("/") ? path.substring(1) : path);
+        }
+        return (url != null) ? new Image(url.toExternalForm(), 96, 96, true, true) : null;
     }
 }
