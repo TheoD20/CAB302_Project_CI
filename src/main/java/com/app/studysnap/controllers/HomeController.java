@@ -182,7 +182,7 @@ public class HomeController {
     private void openQuizPlayPage(Quiz quiz, String fxml) {
         if(!Popup.confirm(
                 "Play Quiz",
-                "Are you ready to attempt" + quiz.getTitle()
+                "Are you ready to attempt: " + quiz.getTitle()
         )) {
             return;
         }

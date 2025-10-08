@@ -132,7 +132,10 @@ public class PlayQuizPageController {
 
             // Pass data to result page
             ResultPageController controller = loader.getController();
-            controller.setResult(score, total, questionControllers, elapsedSeconds);
+            if (controller != null) {
+                controller.setResult(score, total, questionControllers, elapsedSeconds);
+                controller.setQuiz(quiz);
+            }
 
             // Replace current view with result page
             questionLayout.getScene().setRoot(resultRoot);

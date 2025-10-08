@@ -1,5 +1,7 @@
 package com.app.studysnap.controllers;
 import com.app.studysnap.Main;
+import com.app.studysnap.model.Quiz;
+import com.app.studysnap.services.Popup;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,6 +24,8 @@ public class ResultPageController {
     @FXML private Label timeTaken;
     @FXML private BarChart<String, Number> resultBar;
 
+    Quiz quiz;
+
     @FXML
     private void initialize() {
         if (scoreLabel != null) scoreLabel.setText("--/--");
@@ -34,6 +38,10 @@ public class ResultPageController {
         if (reviewLayout != null) {
             reviewLayout.getChildren().clear();
         }
+    }
+
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
     }
 
     public void setResult(int score, int total, List<QuestionController> questionControllers, int elapsedSeconds) {
@@ -78,6 +86,12 @@ public class ResultPageController {
 
     @FXML
     private void handleFinish() {
+        if(!Popup.confirm(
+                "Finish Quiz",
+                "Are you sure you want to close your attempt?"
+        )) {
+            return;
+        }
         try {
             // Load the main dashboard/home page
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("dashboard.fxml"));
@@ -91,6 +105,30 @@ public class ResultPageController {
             e.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR, "Could not return to Home page.");
             alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleRestart() {
+        if(!Popup.confirm(
+                "Play Quiz",
+                "Are you ready to attempt: " + quiz.getTitle()
+        )) {
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("playQuiz.fxml"));
+            Parent view = loader.load();
+
+            // Get controller from the loaded FXML and pass the quiz
+            PlayQuizPageController controller = loader.getController();
+            if (controller != null) {
+                controller.setQuiz(quiz);
+            }
+
+            reviewLayout.getScene().setRoot(view);
+        } catch (Exception ex) {
+            Popup.error("Failed to open quiz play page:\n" + ex.getMessage());
         }
     }
 }
