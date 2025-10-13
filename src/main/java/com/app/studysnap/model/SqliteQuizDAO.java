@@ -2,7 +2,9 @@ package com.app.studysnap.model;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SqliteQuizDAO implements IQuizDAO {
 
@@ -167,6 +169,29 @@ public class SqliteQuizDAO implements IQuizDAO {
             }
         } catch (Exception e) { e.printStackTrace(); }
         return list;
+    }
+
+    // Map all user quizzes by topic
+    @Override
+    public Map<String, Integer> getDeckCountsByTopic(int userId) {
+        Map<String, Integer> out = new HashMap<>();
+        String sql = "SELECT subject, COUNT(*) AS c " +
+                "FROM Quizzes WHERE created_by = ? " +
+                "GROUP BY subject " +
+                "ORDER BY c DESC";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String subject = rs.getString("subject");
+                if (subject == null || subject.isBlank()) subject = "(No subject)";
+                out.put(subject, rs.getInt("c"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return out;
     }
 
     @Override

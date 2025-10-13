@@ -18,8 +18,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class ProfileController {
 
@@ -330,14 +332,20 @@ public class ProfileController {
         weeklyActivityChart.getData().clear();
         XYChart.Series<String, Number> s = new XYChart.Series<>();
         s.setName("Quizzes");
-        // TODO: Replace with last-7-days actual
-        s.getData().add(new XYChart.Data<>("Mon", 2));
-        s.getData().add(new XYChart.Data<>("Tue", 4));
-        s.getData().add(new XYChart.Data<>("Wed", 1));
-        s.getData().add(new XYChart.Data<>("Thu", 3));
-        s.getData().add(new XYChart.Data<>("Fri", 5));
-        s.getData().add(new XYChart.Data<>("Sat", 2));
-        s.getData().add(new XYChart.Data<>("Sun", 6));
+
+        // Get date range
+        LocalDate end = LocalDate.now();
+        LocalDate start = end.minusDays(6);
+
+        Map<LocalDate, Integer> counts = attemptDAO.getAttemptsByDateRange(currentUser.getUserId(), start, end);
+
+        LocalDate d = start;
+        while (!d.isAfter(end)) {
+            String label = d.getDayOfWeek().name().substring(0, 3);
+            s.getData().add(new XYChart.Data<>(label, counts.getOrDefault(d, 0)));
+            d = d.plusDays(1);
+        }
+
         weeklyActivityChart.getData().add(s);
     }
 
@@ -345,28 +353,46 @@ public class ProfileController {
         streakLineChart.getData().clear();
         XYChart.Series<String, Number> s = new XYChart.Series<>();
         s.setName("Streak");
-        // TODO: Replace with real streak series
-        s.getData().add(new XYChart.Data<>("W-4", 1));
-        s.getData().add(new XYChart.Data<>("W-3", 2));
-        s.getData().add(new XYChart.Data<>("W-2", 4));
-        s.getData().add(new XYChart.Data<>("W-1", 3));
-        s.getData().add(new XYChart.Data<>("Now", 5));
+
+        // User ID
+        int userId = currentUser.getUserId();
+
+        // Get date
+        LocalDate today = LocalDate.now();
+
+        // Define week endpoints (Sunday as end of the week)
+        LocalDate thisWeekEnd = today.plusDays(7 - today.getDayOfWeek().getValue());
+        if (today.getDayOfWeek().getValue() == 7) thisWeekEnd = today;
+
+        // Labels + dates
+        LocalDate w4 = thisWeekEnd.minusWeeks(4);
+        LocalDate w3 = thisWeekEnd.minusWeeks(3);
+        LocalDate w2 = thisWeekEnd.minusWeeks(2);
+        LocalDate w1 = thisWeekEnd.minusWeeks(1);
+
+        s.getData().add(new XYChart.Data<>("W-4", attemptDAO.getStreakAsOf(userId, w4)));
+        s.getData().add(new XYChart.Data<>("W-3", attemptDAO.getStreakAsOf(userId, w3)));
+        s.getData().add(new XYChart.Data<>("W-2", attemptDAO.getStreakAsOf(userId, w2)));
+        s.getData().add(new XYChart.Data<>("W-1", attemptDAO.getStreakAsOf(userId, w1)));
+        s.getData().add(new XYChart.Data<>("Now",  attemptDAO.getStreakAsOf(userId, today)));
+
         streakLineChart.getData().add(s);
     }
 
     private void setupDecksByTopicChart() {
         decksByTopicChart.getData().clear();
-        XYChart.Series<String, Number> math = new XYChart.Series<>();
-        math.setName("Math");
-        math.getData().add(new XYChart.Data<>("Algebra", 3));
-        math.getData().add(new XYChart.Data<>("Calculus", 2));
 
-        XYChart.Series<String, Number> cs = new XYChart.Series<>();
-        cs.setName("CS");
-        cs.getData().add(new XYChart.Data<>("OOP", 4));
-        cs.getData().add(new XYChart.Data<>("Networks", 1));
+        int userId = currentUser.getUserId();
+        Map<String, Integer> data = quizDAO.getDeckCountsByTopic(userId);
 
-        decksByTopicChart.getData().addAll(math, cs);
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Quizzes");
+
+        for (Map.Entry<String, Integer> e : data.entrySet()) {
+            series.getData().add(new XYChart.Data<>(e.getKey(), e.getValue()));
+        }
+
+        decksByTopicChart.getData().add(series);
     }
 
     private void renderBadges() {

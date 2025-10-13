@@ -2,7 +2,10 @@ package com.app.studysnap.model;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 public class SqliteAttemptDAO implements IAttemptDAO {
     private final Connection connection;
     public SqliteAttemptDAO() {
@@ -129,6 +132,7 @@ public class SqliteAttemptDAO implements IAttemptDAO {
     }
 
     // Returns the amount of correct answers logged for a user (derives from score)
+    @Override
     public int getCorrectAnswersByUser(int userId) {
         String sql = "SELECT score FROM QuizAttempts WHERE user_id = ?";
         int totalCorrect = 0;
@@ -157,6 +161,7 @@ public class SqliteAttemptDAO implements IAttemptDAO {
     }
 
     // Return streak for user by analysing date entries and testing for consecutive days
+    @Override
     public int getCurrentStreakByUser(int userId) {
         String sql = "SELECT attempt_at FROM QuizAttempts WHERE user_id = ? ORDER BY attempt_at DESC";
         List<LocalDate> days = new ArrayList<>();
@@ -178,19 +183,23 @@ public class SqliteAttemptDAO implements IAttemptDAO {
 
         if (days.isEmpty()) return 0;
 
-        // start from yesterday as they can still hold the streak today
-        LocalDate checkDay = LocalDate.now().minusDays(1);
-        int streak = 0;
+        LocalDate today = LocalDate.now();
 
-        while (days.contains(checkDay)) {
+        // If played today, start from today; else start from yesterday
+        // they can still play today and maintain streak so it's not zero
+        LocalDate anchor = days.contains(today) ? today : today.minusDays(1);
+
+        int streak = 0;
+        while (days.contains(anchor)) {
             streak++;
-            checkDay = checkDay.minusDays(1);
+            anchor = anchor.minusDays(1);
         }
 
         return streak;
     }
 
     // Return best streak ever recorded for user
+    @Override
     public int getBestStreakByUser(int userId) {
         String sql = "SELECT attempt_at FROM QuizAttempts WHERE user_id = ? ORDER BY attempt_at ASC";
         List<LocalDate> days = new ArrayList<>();
@@ -225,5 +234,62 @@ public class SqliteAttemptDAO implements IAttemptDAO {
         }
 
         return best;
+    }
+
+    // Get user streak on a specific date
+    @Override
+    public int getStreakAsOf(int userId, LocalDate asOfDate) {
+        // collect unique attempt days
+        List<LocalDate> days = new ArrayList<>();
+        String sql = "SELECT attempt_at FROM QuizAttempts WHERE user_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String ts = rs.getString("attempt_at");
+                if (ts != null && ts.length() >= 10) {
+                    days.add(LocalDate.parse(ts.substring(0, 10)));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (days.isEmpty()) return 0;
+
+        // If played on start date, start there; else start from the previous day
+        LocalDate anchor = days.contains(asOfDate) ? asOfDate : asOfDate.minusDays(1);
+
+        int streak = 0;
+        while (days.contains(anchor)) {
+            streak++;
+            anchor = anchor.minusDays(1);
+        }
+        return streak;
+    }
+
+    // map all attempts for a user in each day throughout a specific date range
+    @Override
+    public Map<LocalDate, Integer> getAttemptsByDateRange(int userId, LocalDate start, LocalDate end) {
+        Map<LocalDate, Integer> map = new HashMap<>();
+        String sql = "SELECT attempt_at FROM QuizAttempts WHERE user_id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String ts = rs.getString("attempt_at");
+                if (ts != null && ts.length() >= 10) {
+                    LocalDate d = LocalDate.parse(ts.substring(0, 10));
+                    if ((d.isEqual(start) || d.isAfter(start)) && (d.isEqual(end) || d.isBefore(end))) {
+                        map.put(d, map.getOrDefault(d, 0) + 1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 }
