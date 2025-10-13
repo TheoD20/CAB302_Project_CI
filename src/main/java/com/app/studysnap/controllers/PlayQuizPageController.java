@@ -1,10 +1,8 @@
 package com.app.studysnap.controllers;
 
 import com.app.studysnap.Main;
-import com.app.studysnap.model.Question;
-import com.app.studysnap.model.Quiz;
+import com.app.studysnap.model.*;
 
-import com.app.studysnap.model.SqliteQuestionDAO;
 import com.app.studysnap.services.Navigator;
 import com.app.studysnap.services.Popup;
 import javafx.animation.KeyFrame;
@@ -20,6 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.util.Duration;
+
+import static com.app.studysnap.auth.Session.getCurrentUser;
 
 public class PlayQuizPageController {
     private Quiz quiz;
@@ -68,6 +68,8 @@ public class PlayQuizPageController {
         questionLayout.getChildren().clear();
         questionControllers.clear();
         SqliteQuestionDAO questionDAO = new SqliteQuestionDAO();
+        SqliteQuestionProgressDAO progressDAO = new SqliteQuestionProgressDAO(); // New for
+
         List<Question> questions = questionDAO.getQuestionsForQuiz(quiz.getQuizId());
 
         for (Question question : questions) {
@@ -116,10 +118,29 @@ public class PlayQuizPageController {
         }
 
         for (Node node : questionLayout.getChildren()){
-            QuestionController controller =(QuestionController) node.getUserData();
+            QuestionController controller = (QuestionController) node.getUserData();
             int selected = controller.getSelectedOptionIndex();
             int correct = controller.getQuestion().getCorrectOption();
             controller.showResult(selected, correct);
+        }
+
+        //stores the quiz result to attempt table in database.
+        try {
+            SqliteAttemptDAO attemptDAO = new SqliteAttemptDAO();
+            String scoreText = score + "/" + total;
+            String timestamp = java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            Attempt attempt = new Attempt(
+                    getCurrentUser().getUserId(),
+                    quiz.getQuizId(),
+                    scoreText,
+                    elapsedSecond,
+                    timestamp
+            );
+
+            attemptDAO.addAttempt(attempt);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         goToResultPage(score, total, elapsedSecond);
