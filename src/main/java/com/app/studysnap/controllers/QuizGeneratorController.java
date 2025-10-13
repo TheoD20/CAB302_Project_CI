@@ -142,7 +142,9 @@ public class QuizGeneratorController {
                 }
                 lastGeneratedWithAnswers = txt;
                 lastGeneratedQuestions = parser.parse(txt);
-                String display = includeAnswersUpload.isSelected() ? txt : stripAnswers(txt);
+
+                boolean showAns = includeAnswersUpload != null && includeAnswersUpload.isSelected();
+                String display = showAns ? lastGeneratedWithAnswers : stripAnswers(lastGeneratedWithAnswers);
                 previewArea.setText(display);
             },
             progress, tabPane
@@ -166,7 +168,10 @@ public class QuizGeneratorController {
                 }
                 lastGeneratedWithAnswers = txt;
                 lastGeneratedQuestions = parser.parse(txt);
-                String display = includeAnswersPaste.isSelected() ? txt : stripAnswers(txt);
+
+
+                boolean showAns = includeAnswersPaste != null && includeAnswersPaste.isSelected();
+                String display = showAns ? lastGeneratedWithAnswers : stripAnswers(lastGeneratedWithAnswers);
                 previewArea.setText(display);
             },
             progress, tabPane
@@ -194,9 +199,10 @@ public class QuizGeneratorController {
                 }
                 lastGeneratedWithAnswers = txt;
                 lastGeneratedQuestions = parser.parse(txt);
-                String display = includeAnswersPaste.isSelected() ? txt : stripAnswers(txt);
+
+                boolean showAns = includeAnswersPrompt != null && includeAnswersPrompt.isSelected();
+                String display = showAns ? lastGeneratedWithAnswers : stripAnswers(lastGeneratedWithAnswers);
                 previewArea.setText(display);
-                previewArea.setText(txt);
             },
             progress, tabPane
         );
