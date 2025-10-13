@@ -13,6 +13,7 @@ import com.app.studysnap.services.QuizRenderer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -92,7 +93,11 @@ public class HomeController {
         desc.setWrappingWidth(256);
         desc.getStyleClass().add("card-desc");
 
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
         HBox actions = new HBox(8);
+        actions.setAlignment(Pos.BOTTOM_LEFT);
         Button openBtn = new Button("Play");
         Button editBtn = new Button("Edit");
         Button deleteBtn = new Button("Delete");
@@ -104,7 +109,7 @@ public class HomeController {
         exportBtn.setOnAction(e -> exportQuizPdf(q.getQuizId()));
         actions.getChildren().addAll(openBtn, editBtn, deleteBtn, exportBtn);
 
-        card.getChildren().addAll(title, meta, desc, actions);
+        card.getChildren().addAll(title, meta, desc, spacer, actions);
         return card;
     }
 
