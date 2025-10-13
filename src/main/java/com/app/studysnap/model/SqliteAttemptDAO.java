@@ -11,15 +11,15 @@ public class SqliteAttemptDAO implements IAttemptDAO {
 
     private void createTable() {
         String sql = """
-            CREATE TABLE IF NOT EXISTS quiz_attempts (
+            CREATE TABLE IF NOT EXISTS QuizAttempts (
                 attempt_id   INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id      INTEGER NOT NULL,
                 quiz_id      INTEGER NOT NULL,
                 score        TEXT,
                 time_taken   INTEGER,
                 attempt_at   TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                FOREIGN KEY (quiz_id) REFERENCES Quizzes(quiz_id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
             );
         """;
 
@@ -33,7 +33,7 @@ public class SqliteAttemptDAO implements IAttemptDAO {
 
     @Override
     public void addAttempt(Attempt attempt) {
-        String sql = "INSERT INTO quiz_attempts(user_id, quiz_id, score, time_taken, attempt_at) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO QuizAttempts(user_id, quiz_id, score, time_taken, attempt_at) VALUES (?, ?, ?, ?, ?)";
 
         try(PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, attempt.getUserId());
@@ -51,7 +51,7 @@ public class SqliteAttemptDAO implements IAttemptDAO {
     @Override
     public List<Attempt> getAttemptsByUser(int userId) {
         List<Attempt> attempts = new ArrayList<>();
-        String sql = "SELECT * FROM quiz_attempts WHERE user_id = ? ORDER BY attempt_at DESC";
+        String sql = "SELECT * FROM QuizAttempts WHERE user_id = ? ORDER BY attempt_at DESC";
 
         try(PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setInt(1, userId);
@@ -75,7 +75,7 @@ public class SqliteAttemptDAO implements IAttemptDAO {
     @Override
     public List<Attempt> getAttemptsByQuiz(int quizId) {
         List<Attempt> attempts = new ArrayList<>();
-        String sql = "SELECT * FROM quiz_attempts WHERE quiz_id = ? ORDER BY attempt_at DESC";
+        String sql = "SELECT * FROM QuizAttempts WHERE quiz_id = ? ORDER BY attempt_at DESC";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, quizId);
@@ -99,7 +99,7 @@ public class SqliteAttemptDAO implements IAttemptDAO {
 
     @Override
     public Attempt getLastAttempt(int userId, int quizId) {
-        String sql = "SELECT * FROM quiz_attempts WHERE user_id = ? AND quiz_id = ? ORDER BY attempt_at DESC LIMIT 1";
+        String sql = "SELECT * FROM QuizAttempts WHERE user_id = ? AND quiz_id = ? ORDER BY attempt_at DESC LIMIT 1";
 
         try(PreparedStatement ps = connection.prepareStatement(sql)){
             ps.setInt(1, userId);

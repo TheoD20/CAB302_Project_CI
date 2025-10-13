@@ -12,7 +12,7 @@ public class SqliteQuestionProgressDAO implements IQuestionProgressDAO{
 
     public SqliteQuestionProgressDAO() {
         this.connection = SqliteConnection.getInstance();
-//        createTables();
+        //createTables();
     }
 
     // Use this to add or update the date when the question is last seen. (keep track of when the users last attempted date).
