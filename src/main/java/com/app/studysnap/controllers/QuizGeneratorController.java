@@ -187,12 +187,16 @@ public class QuizGeneratorController {
             return;
         }
         Async.run(() -> genGateway.generateFromPrompt(prompt, 10, true),
-            text -> {
-                if (text == null || text.isBlank()) {
+            txt -> {
+                if (txt == null || txt.isBlank()) {
                     Popup.error("Nothing was generated. Try a different prompt or include more context.");
                     return;
                 }
-                previewArea.setText(text);
+                lastGeneratedWithAnswers = txt;
+                lastGeneratedQuestions = parser.parse(txt);
+                String display = includeAnswersPaste.isSelected() ? txt : stripAnswers(txt);
+                previewArea.setText(display);
+                previewArea.setText(txt);
             },
             progress, tabPane
         );
