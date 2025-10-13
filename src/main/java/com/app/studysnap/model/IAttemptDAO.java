@@ -8,4 +8,7 @@ public interface IAttemptDAO {
     List<Attempt> getAttemptsByQuiz(int quizId);
     Attempt getLastAttempt(int userId, int quizId);
     void deleteAttemptsByQuiz(int quizId);
+    int getCorrectAnswersByUser(int userId);
+    int getCurrentStreakByUser(int userId);
+    int getBestStreakByUser(int userId);
 }

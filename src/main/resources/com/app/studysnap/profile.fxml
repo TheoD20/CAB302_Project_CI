@@ -104,6 +104,10 @@
                             <Label text="Current Streak (days)" styleClass="kpi-label" />
                             <Label fx:id="streakCount" text="0" styleClass="kpi-value" />
                         </VBox>
+                        <VBox alignment="CENTER" spacing="6" styleClass="kpi-card">
+                            <Label text="Best Streak (days)" styleClass="kpi-label" />
+                            <Label fx:id="bestStreakCount" text="0" styleClass="kpi-value" />
+                        </VBox>
                     </HBox>
 
                     <!-- Charts grid -->

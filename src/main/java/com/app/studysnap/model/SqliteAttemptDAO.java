@@ -1,5 +1,6 @@
 package com.app.studysnap.model;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 public class SqliteAttemptDAO implements IAttemptDAO {
@@ -125,5 +126,104 @@ public class SqliteAttemptDAO implements IAttemptDAO {
     @Override
     public void deleteAttemptsByQuiz(int quizId) {
 
+    }
+
+    // Returns the amount of correct answers logged for a user (derives from score)
+    public int getCorrectAnswersByUser(int userId) {
+        String sql = "SELECT score FROM QuizAttempts WHERE user_id = ?";
+        int totalCorrect = 0;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String score = rs.getString("score");
+                if (score != null && score.contains("/")) {
+                    try {
+                        String[] parts = score.split("/");
+                        int correct = Integer.parseInt(parts[0].trim());
+                        totalCorrect += correct;
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid score format: " + score);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return totalCorrect;
+    }
+
+    // Return streak for user by analysing date entries and testing for consecutive days
+    public int getCurrentStreakByUser(int userId) {
+        String sql = "SELECT attempt_at FROM QuizAttempts WHERE user_id = ? ORDER BY attempt_at DESC";
+        List<LocalDate> days = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String ts = rs.getString("attempt_at");
+                if (ts != null && ts.length() >= 10) {
+                    LocalDate date = LocalDate.parse(ts.substring(0, 10));
+                    if (!days.contains(date)) days.add(date); // keep only one per day
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (days.isEmpty()) return 0;
+
+        // start from yesterday as they can still hold the streak today
+        LocalDate checkDay = LocalDate.now().minusDays(1);
+        int streak = 0;
+
+        while (days.contains(checkDay)) {
+            streak++;
+            checkDay = checkDay.minusDays(1);
+        }
+
+        return streak;
+    }
+
+    // Return best streak ever recorded for user
+    public int getBestStreakByUser(int userId) {
+        String sql = "SELECT attempt_at FROM QuizAttempts WHERE user_id = ? ORDER BY attempt_at ASC";
+        List<LocalDate> days = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String ts = rs.getString("attempt_at");
+                if (ts != null && ts.length() >= 10) {
+                    LocalDate date = LocalDate.parse(ts.substring(0, 10));
+                    if (!days.contains(date)) days.add(date); // remove duplicates manually
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (days.isEmpty()) return 0;
+
+        int best = 1;
+        int current = 1;
+
+        for (int i = 1; i < days.size(); i++) {
+            if (days.get(i).equals(days.get(i - 1).plusDays(1))) {
+                current++;
+                if (current > best) best = current;
+            } else {
+                current = 1;
+            }
+        }
+
+        return best;
     }
 }

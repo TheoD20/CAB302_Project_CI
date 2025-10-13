@@ -40,7 +40,7 @@ public class ProfileController {
     @FXML
     private Button deleteButton;
     @FXML
-    private Label decksCount, quizzesCount, correctCount, streakCount;
+    private Label decksCount, quizzesCount, correctCount, streakCount, bestStreakCount;
     @FXML
     private PieChart accuracyChart;
     @FXML
@@ -61,6 +61,7 @@ public class ProfileController {
 
     private IUserDAO userDAO;
     private IQuizDAO quizDAO;
+    private IAttemptDAO attemptDAO;
     private List<Quiz> myQuizzes;
     private User currentUser;
     private static final String[] avatar_format = {".png", ".jpg", ".jpeg", ".gif"};
@@ -71,13 +72,13 @@ public class ProfileController {
     private void initialize() {
         try {
             userDAO = new SqliteUserDAO();
+            quizDAO = new SqliteQuizDAO();
+            attemptDAO = new SqliteAttemptDAO();
+
         } catch (Throwable t) {
             userDAO = null;
-        }
-        try {
-            quizDAO = new SqliteQuizDAO();
-        } catch (Throwable t) {
             quizDAO = null;
+            attemptDAO = null;
         }
 
         currentUser = Session.getCurrentUser();
@@ -134,16 +135,20 @@ public class ProfileController {
         }
         updateAvatarButtons();
 
-        //TODO: change default values for DB fetching
-        int decks = 12;
-        int quizzes = 31;
-        int correct = 211;
-        int streak = 5;
+        // Get all users attempts
+        List<Attempt> userAttempts = attemptDAO.getAttemptsByUser(currentUser.getUserId());
+
+        int decks = quizDAO.getQuizzesByUser(currentUser.getUserId()).size();
+        int attempts = userAttempts.size();
+        int correct = attemptDAO.getCorrectAnswersByUser(currentUser.getUserId());
+        int streak = attemptDAO.getCurrentStreakByUser(currentUser.getUserId());
+        int bestStreak = attemptDAO.getBestStreakByUser(currentUser.getUserId());
         decksCount.setText(String.valueOf(decks));
-        quizzesCount.setText(String.valueOf(quizzes));
+        quizzesCount.setText(String.valueOf(attempts));
         correctCount.setText(String.valueOf(correct));
         streakCount.setText(String.valueOf(streak));
-        setupAccuracyChart(correct, Math.max(0, quizzes * 10 - correct)); // placeholder total answers
+        bestStreakCount.setText(String.valueOf(bestStreak));
+        setupAccuracyChart(correct, Math.max(0, attempts * 10 - correct));
         setupWeeklyActivityChart();
         setupStreakLineChart();
         setupDecksByTopicChart();
@@ -163,7 +168,7 @@ public class ProfileController {
                 || !newEmail.equals(safe(currentUser.getEmail()));
 
         boolean valid = validateUsername(newUsername)
-                && (emailField.isEditable() ? validateEmail(newEmail) : true);
+                && (!emailField.isEditable() || validateEmail(newEmail));
 
         saveButton.setDisable(!(changed && valid));
         statusLabel.setText(changed && !valid ? "Fix validation errors to continue." : "");
@@ -312,8 +317,6 @@ public class ProfileController {
     }
 
     // Progress Section:
-    // TODO: Wire up real data
-
     private void setupAccuracyChart(int correct, int incorrect) {
         accuracyChart.getData().clear();
         accuracyChart.getData().addAll(
