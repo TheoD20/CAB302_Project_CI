@@ -36,7 +36,6 @@ build/
 
 ### DB ###
 *.sqbpro
-*.db
 
 ### Secrets ###
 client_secret.json

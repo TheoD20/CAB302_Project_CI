@@ -16,12 +16,12 @@ public class SqliteAttemptDAO implements IAttemptDAO {
     private void createTable() {
         String sql = """
             CREATE TABLE IF NOT EXISTS QuizAttempts (
-                attempt_id   INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id      INTEGER NOT NULL,
-                quiz_id      INTEGER NOT NULL,
-                score        TEXT,
-                time_taken   INTEGER,
-                attempt_at   TEXT DEFAULT CURRENT_TIMESTAMP,
+                attempt_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                quiz_id INTEGER NOT NULL,
+                score TEXT,
+                time_taken INTEGER,
+                attempt_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (quiz_id) REFERENCES Quizzes(quiz_id) ON DELETE CASCADE,
                 FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
             );
@@ -124,11 +124,6 @@ public class SqliteAttemptDAO implements IAttemptDAO {
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    public void deleteAttemptsByQuiz(int quizId) {
-
     }
 
     // Returns the amount of correct answers logged for a user (derives from score)

@@ -22,12 +22,12 @@ public class SqliteQuizDAO implements IQuizDAO {
             st.execute("PRAGMA foreign_keys = ON");
             st.execute("""
                 CREATE TABLE IF NOT EXISTS Quizzes (
-                    quiz_id     INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title       TEXT NOT NULL,
-                    subject     TEXT,
+                    quiz_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    subject TEXT,
                     description TEXT,
-                    is_private  INTEGER NOT NULL DEFAULT 1,
-                    created_by  INTEGER NOT NULL,
+                    is_private INTEGER NOT NULL DEFAULT 1,
+                    created_by INTEGER NOT NULL,
                     FOREIGN KEY(created_by) REFERENCES Users(user_id)
                 )
             """);
@@ -232,7 +232,10 @@ public class SqliteQuizDAO implements IQuizDAO {
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate("DELETE FROM Quizzes");
-            statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='Quizzes'"); //reset autoincrement
+
+            //reset autoincrement
+            statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='Quizzes'");
+            statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='QuizAttempts'");
         } catch (Exception e) {
             e.printStackTrace();
         }

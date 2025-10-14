@@ -2,10 +2,7 @@ package com.app.studysnap.model;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,18 +38,43 @@ public class SqliteUserDAO implements IUserDAO {
         String provider = (user.getAuthProvider() == null || user.getAuthProvider().isBlank())
                 ? "LOCAL" : user.getAuthProvider();
 
-        String sql = "INSERT INTO Users(username, email, password, auth_provider, google_sub) VALUES (?,?,?,?,?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, user.getUsername());
-            ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPassword()); // add encryption
-            ps.setString(4, provider);
-            ps.setString(5, user.getGoogleSub());
-            ps.executeUpdate();
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) return rs.getInt(1);
+        String insertUser = "INSERT INTO Users(username, email, password, auth_provider, google_sub) VALUES (?,?,?,?,?)";
+        final String seedUserBadges = """
+            INSERT OR IGNORE INTO BadgeProgress(user_id, badge_id, is_earned, progress, progress_goal)
+            SELECT ?, b.badge_id, 0, 0, b.goal
+            FROM Badges b
+        """;
+
+        try {
+            connection.setAutoCommit(false);
+
+            int newUserId;
+            try (PreparedStatement ps = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, user.getUsername());
+                ps.setString(2, user.getEmail());
+                ps.setString(3, user.getPassword());
+                ps.setString(4, provider);
+                ps.setString(5, user.getGoogleSub());
+                ps.executeUpdate();
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (!rs.next()) throw new SQLException("Failed to get user_id");
+                    newUserId = rs.getInt(1);
+                }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+
+            try (PreparedStatement ps = connection.prepareStatement(seedUserBadges)) {
+                ps.setInt(1, newUserId);
+                ps.executeUpdate();
+            }
+
+            connection.commit();
+            return newUserId;
+        } catch (Exception e) {
+            try { connection.rollback(); } catch (SQLException ignore) {}
+            e.printStackTrace();
+        } finally {
+            try { connection.setAutoCommit(true); } catch (SQLException ignore) {}
+        }
         return 0;
     }
 
@@ -185,7 +207,10 @@ public class SqliteUserDAO implements IUserDAO {
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate("DELETE FROM Users");
-            statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='Users'"); //reset autoincrement
+
+            //reset autoincrement
+            statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='Users'");
+            statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='QuizAttempts'");
         } catch (Exception e) {
             e.printStackTrace();
         }
