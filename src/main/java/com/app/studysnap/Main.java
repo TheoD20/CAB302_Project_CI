@@ -22,6 +22,8 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
+        /* DEBUGGING REASONS:
+
         //Database logic
         SqliteUserDAO userDAO = new SqliteUserDAO();
         SqliteBadgeDAO badgeDAO = new SqliteBadgeDAO();
@@ -36,10 +38,12 @@ public class Main extends Application {
         badgeDAO.initializeBadges();
         userDAO.seedMockUsers();
 
-        //DEBUGGING REASONS: Print users from DB
+        // Print users from DB
         for (User user : userDAO.getAllUsers()) {
             System.out.println(user.getUserId() + " | " + user.getUsername() + " | " + user.getEmail() + " | " + user.getAuthProvider());
         }
+
+        */
     }
 
     public static void main(String[] args) {

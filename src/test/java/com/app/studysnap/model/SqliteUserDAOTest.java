@@ -27,6 +27,8 @@ public class SqliteUserDAOTest {
 
         // Create Users table
         try (Statement st = conn.createStatement()) {
+            st.execute("PRAGMA foreign_keys = ON");
+
             st.execute("""
                 CREATE TABLE Users (
                     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,6 +37,30 @@ public class SqliteUserDAOTest {
                     password TEXT,
                     auth_provider TEXT NOT NULL DEFAULT 'LOCAL',
                     google_sub TEXT UNIQUE
+                )
+            """);
+
+            st.execute("""
+                CREATE TABLE IF NOT EXISTS Badges (
+                    badge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    description TEXT,
+                    icon_path TEXT,
+                    type TEXT,
+                    goal INTEGER
+                )
+            """);
+
+            st.execute("""
+                CREATE TABLE IF NOT EXISTS BadgeProgress (
+                    user_id INTEGER NOT NULL,
+                    badge_id INTEGER NOT NULL,
+                    is_earned INTEGER NOT NULL DEFAULT 0,
+                    progress INTEGER NOT NULL DEFAULT 0,
+                    progress_goal INTEGER,
+                    PRIMARY KEY (user_id, badge_id),
+                    FOREIGN KEY (user_id)  REFERENCES Users(user_id)  ON DELETE CASCADE,
+                    FOREIGN KEY (badge_id) REFERENCES Badges(badge_id) ON DELETE CASCADE
                 )
             """);
         }
