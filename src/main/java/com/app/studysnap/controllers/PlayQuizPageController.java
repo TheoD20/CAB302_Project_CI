@@ -68,7 +68,6 @@ public class PlayQuizPageController {
         questionLayout.getChildren().clear();
         questionControllers.clear();
         SqliteQuestionDAO questionDAO = new SqliteQuestionDAO();
-        SqliteQuestionProgressDAO progressDAO = new SqliteQuestionProgressDAO(); // New for
 
         List<Question> questions = questionDAO.getQuestionsForQuiz(quiz.getQuizId());
 

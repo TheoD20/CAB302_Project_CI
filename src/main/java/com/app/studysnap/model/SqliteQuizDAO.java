@@ -235,6 +235,7 @@ public class SqliteQuizDAO implements IQuizDAO {
 
             //reset autoincrement
             statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='Quizzes'");
+            statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='Questions'");
             statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='QuizAttempts'");
         } catch (Exception e) {
             e.printStackTrace();
