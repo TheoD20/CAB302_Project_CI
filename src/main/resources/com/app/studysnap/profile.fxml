@@ -85,6 +85,7 @@
                     </VBox>
                 </HBox>
 
+                <!-- Cards -->
                 <VBox spacing="18" styleClass="card section">
                     <Label text="Your StudySnap Progress" styleClass="section-title" />
                     <HBox spacing="14">
@@ -110,8 +111,8 @@
                         </VBox>
                     </HBox>
 
-                    <!-- Charts grid -->
-                    <GridPane hgap="18" vgap="18">
+                    <!-- Charts -->
+                    <GridPane hgap="18" vgap="18" fx:id="ChartsArea">
                         <columnConstraints>
                             <ColumnConstraints percentWidth="50" />
                             <ColumnConstraints percentWidth="50" />
@@ -164,7 +165,15 @@
                     </GridPane>
                 </VBox>
 
-                <VBox spacing="12" styleClass="card section">
+                <!--Empty state for charts -->
+                <VBox fx:id="chartsEmptyState" alignment="CENTER" spacing="8" visible="false" managed="false">
+                    <Label text="No activity to display yet." styleClass="chart-empty-title"/>
+                    <Label text="Play a quiz or generate a deck to see accuracy, streaks and topics here."
+                           wrapText="true" maxWidth="420" styleClass="chart-empty-sub"/>
+                </VBox>
+
+                <!-- Badges -->
+                <VBox spacing="12" styleClass="card">
                     <HBox alignment="CENTER_LEFT" spacing="12">
                         <Label text="My Badges" styleClass="section-title" />
                         <Region HBox.hgrow="ALWAYS" />

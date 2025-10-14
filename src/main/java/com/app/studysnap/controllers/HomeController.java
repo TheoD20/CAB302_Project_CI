@@ -14,14 +14,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class HomeController {
@@ -29,6 +36,12 @@ public class HomeController {
     @FXML private Label welcomeLabel;
     @FXML private FlowPane deckContainer;
     @FXML private VBox emptyState;
+    @FXML private ImageView avatarView;
+
+    private static final int avatar_size = 48;
+    private Image defaultAvatar;
+    private static final String[] avatar_format = {".png", ".jpg", ".jpeg", ".gif"};
+    private static final String DEFAULT_AVATAR_PATH = "src/main/resources/com/app/studysnap/images/default_avatar.png";
 
     private final IQuizDAO dao = new SqliteQuizDAO();
     private final PdfExporter pdfExporter = new PdfExporter();
@@ -42,6 +55,18 @@ public class HomeController {
         welcomeLabel.setText("Welcome, " + name);
 
         loadMyQuizzes();
+
+        // Load avatar image
+        defaultAvatar = avatarView.getImage();
+        if (defaultAvatar == null) {
+            defaultAvatar = loadResourceImage(DEFAULT_AVATAR_PATH);
+            if (defaultAvatar != null) applyCircularAvatar(avatarView, defaultAvatar, avatar_size);;
+        }
+
+        boolean hasCustom = loadAvatarFromDisk(u);
+        if (!hasCustom && defaultAvatar != null) {
+            applyCircularAvatar(avatarView, defaultAvatar, avatar_size);
+        }
     }
 
     // Load user quizzes on fxml decks
@@ -239,4 +264,72 @@ public class HomeController {
 
     // Helper to handle null strings
     private String nz(String s) { return s == null ? "" : s; }
+    private static String safe(String s) { return s == null ? "" : s.trim(); }
+
+    // Avatar image helpers
+    private Image loadResourceImage(String path) {
+        var url = ProfileController.class.getResource(path);
+        if (url == null) {
+            var cl = Thread.currentThread().getContextClassLoader();
+            url = cl.getResource(path.startsWith("/") ? path.substring(1) : path);
+        }
+        return (url != null) ? new Image(url.toExternalForm(), 96, 96, true, true) : null;
+    }
+    private boolean loadAvatarFromDisk(User u) {
+        Path p = findAvatarFile(u);
+        if (p != null && Files.exists(p)) {
+            String uri = p.toUri().toString();
+            applyCircularAvatar(avatarView, new Image(uri), avatar_size);
+            return true;
+        }
+        return false;
+    }
+    private Path findAvatarFile(User u) {
+        Path dir = getAvatarsDir();
+        String base = baseAvatarName(u);
+        for (String e : avatar_format) {
+            Path p = dir.resolve(base + e);
+            if (Files.exists(p)) return p;
+        }
+        return null;
+    }
+    private Path getAvatarsDir() {
+        return Paths.get(System.getProperty("user.home"), ".studysnap", "avatars");
+    }
+    private String baseAvatarName(User u) {
+        if (u != null && u.getUserId() > 0) return "u" + u.getUserId();
+        String email = safe(u == null ? null : u.getEmail());
+        return email.isBlank() ? "anonymous" : email.replaceAll("[^a-zA-Z0-9]", "_");
+    }
+    private static String extLower(String name) {
+        int i = name.lastIndexOf('.');
+        return (i >= 0) ? name.substring(i).toLowerCase() : "";
+    }
+    private void applyCircularAvatar(ImageView iv, Image img, double sizePx) {
+        iv.setImage(img);
+
+        double w = img.getWidth();
+        double h = img.getHeight();
+        double s = Math.min(w, h);
+        double x = (w - s) / 2.0;
+        double y = (h - s) / 2.0;
+        iv.setViewport(new Rectangle2D(x, y, s, s));
+
+        iv.setFitWidth(sizePx);
+        iv.setFitHeight(sizePx);
+        iv.setPreserveRatio(false);
+        iv.setSmooth(true);
+
+        Circle clip = new Circle(sizePx / 2.0, sizePx / 2.0, sizePx / 2.0);
+        iv.setClip(clip);
+
+        iv.layoutBoundsProperty().addListener((obs, oldB, newB) -> {
+            double cx = newB.getWidth()  / 2.0;
+            double cy = newB.getHeight() / 2.0;
+            double r  = Math.min(newB.getWidth(), newB.getHeight()) / 2.0;
+            clip.setCenterX(cx);
+            clip.setCenterY(cy);
+            clip.setRadius(r);
+        });
+    }
 }

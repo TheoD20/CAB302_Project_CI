@@ -77,12 +77,13 @@
 }
 .delete-btn:disabled {
 -fx-opacity: 0.6;
-}.secondary-btn {
-     -fx-background-color: #e8eef6;
-     -fx-text-fill: #2c3e50;
-     -fx-font-weight: 600;
-     -fx-background-radius: 10;
-     -fx-padding: 8 14;
+}
+.secondary-btn {
+ -fx-background-color: #e8eef6;
+ -fx-text-fill: #2c3e50;
+ -fx-font-weight: 600;
+ -fx-background-radius: 10;
+ -fx-padding: 8 14;
  }
 .secondary-btn:disabled { -fx-opacity: 0.5; }
 .section { -fx-padding: 20 24; }
@@ -114,3 +115,5 @@
 }
 .badge-title { -fx-font-size: 12px; -fx-text-fill: #34495e; -fx-font-weight: 600; }
 .empty-label { -fx-text-fill: #7f8c8d; -fx-font-size: 13px; -fx-font-style: italic; }
+.chart-empty-title { -fx-font-size: 16px; -fx-text-fill: #444; }
+.chart-empty-sub   { -fx-font-size: 13px; -fx-text-fill: #666; -fx-text-alignment: center; }

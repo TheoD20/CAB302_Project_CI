@@ -3,6 +3,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.app.studysnap.controllers.HomeController"
             stylesheets="@styles/home.css"
@@ -12,6 +14,13 @@
               AnchorPane.rightAnchor="16" AnchorPane.bottomAnchor="16">
 
             <HBox spacing="12" alignment="CENTER_LEFT">
+                <ImageView fx:id="avatarView"
+                           fitHeight="48" fitWidth="48" preserveRatio="true"
+                           styleClass="avatar">
+                    <image>
+                        <Image url="@images/default_avatar.png"/>
+                    </image>
+                </ImageView>
                 <VBox spacing="4">
                     <Label text="Home" styleClass="title"/>
                     <Label fx:id="welcomeLabel" styleClass="subtitle"/>

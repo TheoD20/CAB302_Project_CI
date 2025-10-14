@@ -5,11 +5,15 @@ import com.app.studysnap.model.*;
 import com.app.studysnap.services.Navigator;
 import com.app.studysnap.services.Popup;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -44,6 +48,10 @@ public class ProfileController {
     @FXML
     private Label decksCount, quizzesCount, correctCount, streakCount, bestStreakCount;
     @FXML
+    private GridPane ChartsArea;
+    @FXML
+    private VBox chartsEmptyState;
+    @FXML
     private PieChart accuracyChart;
     @FXML
     private BarChart<String, Number> weeklyActivityChart;
@@ -67,6 +75,7 @@ public class ProfileController {
     private List<Quiz> myQuizzes;
     private User currentUser;
     private static final String[] avatar_format = {".png", ".jpg", ".jpeg", ".gif"};
+    private static final int avatar_size = 96;
     private Image defaultAvatar;
     private static final String DEFAULT_AVATAR_PATH = "/images/default_avatar.png";
 
@@ -128,12 +137,12 @@ public class ProfileController {
         defaultAvatar = avatarView.getImage();
         if (defaultAvatar == null) {
             defaultAvatar = loadResourceImage(DEFAULT_AVATAR_PATH);
-            if (defaultAvatar != null) avatarView.setImage(defaultAvatar);
+            if (defaultAvatar != null) applyCircularAvatar(avatarView, defaultAvatar, avatar_size);;
         }
 
         boolean hasCustom = loadAvatarFromDisk();
         if (!hasCustom && defaultAvatar != null) {
-            avatarView.setImage(defaultAvatar);
+            applyCircularAvatar(avatarView, defaultAvatar, avatar_size);
         }
         updateAvatarButtons();
 
@@ -150,10 +159,27 @@ public class ProfileController {
         correctCount.setText(String.valueOf(correct));
         streakCount.setText(String.valueOf(streak));
         bestStreakCount.setText(String.valueOf(bestStreak));
-        setupAccuracyChart(correct, Math.max(0, attempts * 10 - correct));
-        setupWeeklyActivityChart();
-        setupStreakLineChart();
-        setupDecksByTopicChart();
+
+        if(attempts == 0 && decks == 0) {
+            ChartsArea.setVisible(false);
+            ChartsArea.setManaged(false);
+
+            // Show empty message
+            chartsEmptyState.setVisible(true);
+            chartsEmptyState.setManaged(true);
+        } else {
+            chartsEmptyState.setVisible(false);
+            chartsEmptyState.setManaged(false);
+
+            ChartsArea.setVisible(true);
+            ChartsArea.setManaged(true);
+
+            setupAccuracyChart(correct, Math.max(0, attempts * 10 - correct));
+            setupWeeklyActivityChart();
+            setupStreakLineChart();
+            setupDecksByTopicChart();
+        }
+
         renderBadges();
     }
 
@@ -283,7 +309,7 @@ public class ProfileController {
 
         try {
             Path saved = saveAvatarForUser(currentUser, chosen);
-            avatarView.setImage(new Image(saved.toUri().toString(), 96, 96, true, true));
+            applyCircularAvatar(avatarView, new Image(saved.toUri().toString()), avatar_size);
             setStatus("Avatar updated ✓");
             updateAvatarButtons(); // <— show delete
         } catch (Exception e) {
@@ -436,10 +462,19 @@ public class ProfileController {
         Path p = findAvatarFile(currentUser);
         if (p != null && Files.exists(p)) {
             String uri = p.toUri().toString();
-            avatarView.setImage(new Image(uri, 96, 96, true, true));
+            applyCircularAvatar(avatarView, new Image(uri), avatar_size);
             return true;
         }
         return false;
+    }
+    private Path findAvatarFile(User u) {
+        Path dir = getAvatarsDir();
+        String base = baseAvatarName(u);
+        for (String e : avatar_format) {
+            Path p = dir.resolve(base + e);
+            if (Files.exists(p)) return p;
+        }
+        return null;
     }
     private Path saveAvatarForUser(User u, File chosen) throws Exception {
         Path dir = getAvatarsDir();
@@ -453,15 +488,6 @@ public class ProfileController {
         Path target = dir.resolve(base + ext);
         Files.copy(chosen.toPath(), target, StandardCopyOption.REPLACE_EXISTING);
         return target;
-    }
-    private Path findAvatarFile(User u) {
-        Path dir = getAvatarsDir();
-        String base = baseAvatarName(u);
-        for (String e : avatar_format) {
-            Path p = dir.resolve(base + e);
-            if (Files.exists(p)) return p;
-        }
-        return null;
     }
     private Path getAvatarsDir() {
         return Paths.get(System.getProperty("user.home"), ".studysnap", "avatars");
@@ -477,7 +503,7 @@ public class ProfileController {
     }
     private void resetAvatarToDefault() {
         if (defaultAvatar == null) defaultAvatar = loadResourceImage(DEFAULT_AVATAR_PATH);
-        if (defaultAvatar != null) avatarView.setImage(defaultAvatar);
+        if (defaultAvatar != null) applyCircularAvatar(avatarView, defaultAvatar, avatar_size);;
     }
     private void deleteAvatarFilesForUser(User u) throws Exception {
         Path dir = getAvatarsDir();
@@ -493,5 +519,32 @@ public class ProfileController {
             url = cl.getResource(path.startsWith("/") ? path.substring(1) : path);
         }
         return (url != null) ? new Image(url.toExternalForm(), 96, 96, true, true) : null;
+    }
+    private void applyCircularAvatar(ImageView iv, Image img, double sizePx) {
+        iv.setImage(img);
+
+        double w = img.getWidth();
+        double h = img.getHeight();
+        double s = Math.min(w, h);
+        double x = (w - s) / 2.0;
+        double y = (h - s) / 2.0;
+        iv.setViewport(new Rectangle2D(x, y, s, s));
+
+        iv.setFitWidth(sizePx);
+        iv.setFitHeight(sizePx);
+        iv.setPreserveRatio(false);
+        iv.setSmooth(true);
+
+        Circle clip = new Circle(sizePx / 2.0, sizePx / 2.0, sizePx / 2.0);
+        iv.setClip(clip);
+
+        iv.layoutBoundsProperty().addListener((obs, oldB, newB) -> {
+            double cx = newB.getWidth()  / 2.0;
+            double cy = newB.getHeight() / 2.0;
+            double r  = Math.min(newB.getWidth(), newB.getHeight()) / 2.0;
+            clip.setCenterX(cx);
+            clip.setCenterY(cy);
+            clip.setRadius(r);
+        });
     }
 }
