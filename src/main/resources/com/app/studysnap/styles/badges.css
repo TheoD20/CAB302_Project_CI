@@ -75,15 +75,13 @@
 }
 
 /* Badge progress bar */
-.badge-progress {
-    -fx-pref-height: 8px;
+.badge-progress.progress-bar .track {
     -fx-background-color: #e0e0e0;
+    -fx-background-insets: 0;
     -fx-background-radius: 6;
-    -fx-padding: 0.5;
-    -fx-border-color: transparent;
-    -fx-border-radius: 6;
 }
-.badge-progress > .bar {
+.badge-progress.progress-bar .bar {
     -fx-background-color: linear-gradient(to right, #5cb85c, #8bd78b);
+    -fx-background-insets: 0;
     -fx-background-radius: 6;
 }

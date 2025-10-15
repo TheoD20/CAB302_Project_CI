@@ -140,18 +140,19 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
     @Override
     public List<Badge> getCompletedBadgesByUser(int userId) {
         List<Badge> list = new ArrayList<>();
+        IBadgeDAO badgeDAO = new SqliteBadgeDAO();
+
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT * FROM BadgeProgress WHERE user_id=? AND is_earned=1")) {
+            ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
-
-                IBadgeDAO badgeDAO = new SqliteBadgeDAO();
-
-                while (rs.next()) {
-                    Badge badge = badgeDAO.getBadgeById(rs.getInt("badge_id"));
-                    list.add(badge);
+                if (rs.next()) {
+                    list.add(badgeDAO.getBadgeById(rs.getInt("badge_id")));
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return list;
     }
 

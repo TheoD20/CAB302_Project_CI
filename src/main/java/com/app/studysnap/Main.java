@@ -22,11 +22,12 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
-        /* DEBUGGING REASONS:
+        //* DEBUGGING REASONS:
 
         //Database logic
         SqliteUserDAO userDAO = new SqliteUserDAO();
         SqliteBadgeDAO badgeDAO = new SqliteBadgeDAO();
+        SqliteBadgeProgressDAO badgeProgressDAO = new SqliteBadgeProgressDAO();
         SqliteQuizDAO quizDAO = new SqliteQuizDAO();
 
         // Reset db

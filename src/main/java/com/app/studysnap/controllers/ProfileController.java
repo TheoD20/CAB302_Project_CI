@@ -461,7 +461,6 @@ public class ProfileController {
             Label empty = new Label("No badges achieved yet");
             empty.getStyleClass().add("empty-label");
             badgesGrid.getChildren().add(empty);
-            return;
         }
         else {
             for (Badge b : CompletedBadges) {

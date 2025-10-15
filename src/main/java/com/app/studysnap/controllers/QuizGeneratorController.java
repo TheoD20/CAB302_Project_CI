@@ -1,10 +1,8 @@
 package com.app.studysnap.controllers;
 
+import com.app.studysnap.model.*;
 import com.app.studysnap.services.*;
 import com.app.studysnap.auth.Session;
-import com.app.studysnap.model.IQuizDAO;
-import com.app.studysnap.model.Quiz;
-import com.app.studysnap.model.SqliteQuizDAO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -321,7 +319,14 @@ public class QuizGeneratorController {
         quiz.setQuestions(lastGeneratedQuestions);
 
         Async.run(
-            () -> { quizDao.addQuiz(quiz); return null; },
+            () -> {
+                // Add quiz
+                quizDao.addQuiz(quiz);
+
+                // Update creation type badges
+                new BadgeService().UpdateCreationTypeBadges(Session.getCurrentUser().getUserId());
+
+                return null; },
             ignored -> {
                 Popup.info("Quiz saved successfully.");
                 onRefreshPublic();

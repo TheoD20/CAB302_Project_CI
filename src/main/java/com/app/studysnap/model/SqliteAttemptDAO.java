@@ -65,6 +65,7 @@ public class SqliteAttemptDAO implements IAttemptDAO {
                 attempts.add(new Attempt(
                         rs.getInt("attempt_id"),
                         rs.getInt("user_id"),
+                        rs.getInt("quiz_id"),
                         rs.getString("score"),
                         rs.getInt("time_taken"),
                         rs.getString("attempt_at")

@@ -64,6 +64,7 @@ public class BadgeRenderer {
         // === badge progress visual ===
         ProgressBar progressBar = new ProgressBar(0);
         progressBar.setPrefWidth(160);
+        progressBar.setPrefHeight(8);                // size with Java, not CSS
         progressBar.getStyleClass().add("badge-progress");
 
         boolean earned = false;
@@ -73,21 +74,18 @@ public class BadgeRenderer {
         if (progressDAO != null && userId > 0) {
             try {
                 progress = progressDAO.getProgress(userId, b.getBadgeId());
-                goal = progressDAO.getGoal(userId, b.getBadgeId()); // your DAO returns int
-                earned = progressDAO.isEarned(userId, b.getBadgeId());
-            } catch (Exception ignored) { /* fail softly */ }
+                goal    = progressDAO.getGoal(userId, b.getBadgeId());
+                earned  = progressDAO.isEarned(userId, b.getBadgeId());
+            } catch (Exception ignored) { }
         }
 
+        // Set progress
         double pct = (goal > 0) ? Math.min(1.0, (double) progress / goal) : 0.0;
         progressBar.setProgress(pct);
 
-        // Hide progress bar for goal-less / event-only badges
-        if (showProgress) {
-            showProgress = goal > 0;
-        }
-
         progressBar.setVisible(showProgress);
         progressBar.setManaged(showProgress);
+
 
         // Earned/locked state classes for CSS
         if (earned) {

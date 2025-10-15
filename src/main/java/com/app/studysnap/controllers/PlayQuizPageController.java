@@ -3,6 +3,7 @@ package com.app.studysnap.controllers;
 import com.app.studysnap.Main;
 import com.app.studysnap.model.*;
 
+import com.app.studysnap.services.BadgeService;
 import com.app.studysnap.services.Navigator;
 import com.app.studysnap.services.Popup;
 import javafx.animation.KeyFrame;
@@ -138,6 +139,19 @@ public class PlayQuizPageController {
             );
 
             attemptDAO.addAttempt(attempt);
+
+            // Calculate badge progress
+            try {
+                // Get any unanswered questions
+                int unansweredCount = (int) questionControllers.stream()
+                        .filter(qc -> qc.getSelectedOptionIndex() == -1).count();
+
+                BadgeService badgeSvc = new com.app.studysnap.services.BadgeService();
+                badgeSvc.UpdateScoreTypeBadges(attempt, unansweredCount);
+            } catch (Exception ignore) {
+                // no blocking
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

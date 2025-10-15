@@ -169,11 +169,11 @@ public class SqliteBadgeDAO implements IBadgeDAO {
 
         addBadge(new Badge("Flawless Twenty", "Score 100% on 20 quizzes", "src/main/resources/com/app/studysnap/images/badges/flawless1.png", "score", 20));
 
-        addBadge(new Badge("Big Brain", "Get 20 flashcards correct in a row without mistakes", "src/main/resources/com/app/studysnap/images/badges/bigbrain.png", "streak", 20));
+        addBadge(new Badge("Big Brain", "Get 200 correct questions", "src/main/resources/com/app/studysnap/images/badges/bigbrain.png", "score", 200));
 
-        addBadge(new Badge("Speed Reader", "Complete a quiz in under 2 minutes with a score above 80%", "src/main/resources/com/app/studysnap/images/badges/speedreader.png", "speed", 1));
+        addBadge(new Badge("Speed Reader", "Complete a quiz in under 2 minutes with a score above 80%", "src/main/resources/com/app/studysnap/images/badges/speedreader.png", "score", 1));
 
-        addBadge(new Badge("Persistence Pays", "Retry the same quiz 3 or more times and achieve a passing score", "src/main/resources/com/app/studysnap/images/badges/persistencepays.png", "persistence", 3));
+        addBadge(new Badge("Persistence Pays", "Retry the same quiz 3 or more times and achieve a passing score", "src/main/resources/com/app/studysnap/images/badges/persistencepays.png", "score", 3));
 
         addBadge(new Badge("Quiz Creator (Bronze)", "Create your first quiz", "src/main/resources/com/app/studysnap/images/badges/quizcreator3.png", "creation", 1));
 
@@ -183,15 +183,15 @@ public class SqliteBadgeDAO implements IBadgeDAO {
 
         addBadge(new Badge("DecaGenius", "Complete 10 quizzes with at least 80% accuracy", "src/main/resources/com/app/studysnap/images/badges/genius.png", "score", 10));
 
-        addBadge(new Badge("First Step", "Complete your first quiz or create your first deck", "src/main/resources/com/app/studysnap/images/badges/firststep.png", "progress", 1));
+        addBadge(new Badge("First Step", "Complete your first quiz", "src/main/resources/com/app/studysnap/images/badges/firststep.png", "score", 1));
 
         addBadge(new Badge("Quick Learner", "Score 80% or higher on any quiz", "src/main/resources/com/app/studysnap/images/badges/quicklearner.png", "score", 1));
 
         addBadge(new Badge("Accuracy Hero", "Score 100% on a single quiz", "src/main/resources/com/app/studysnap/images/badges/accuracyhero.png", "score", 1));
 
-        addBadge(new Badge("Comeback Kid", "Improve your score by 20% or more after retaking a quiz", "src/main/resources/com/app/studysnap/images/badges/comeback.png", "improvement", 1));
+        addBadge(new Badge("Comeback Kid", "Improve your score by 20% or more after retaking a quiz", "src/main/resources/com/app/studysnap/images/badges/comeback.png", "score", 1));
 
-        addBadge(new Badge("Explorer", "Play quizzes from 5 different categories", "src/main/resources/com/app/studysnap/images/badges/explorer.png", "exploration", 5));
+        addBadge(new Badge("Explorer", "Play quizzes from 5 different categories", "src/main/resources/com/app/studysnap/images/badges/explorer.png", "score", 5));
 
         addBadge(new Badge("Consistency Master", "Complete 10 quizzes in a row without skipping questions", "src/main/resources/com/app/studysnap/images/badges/consistencymaster.png", "streak", 10));
 
