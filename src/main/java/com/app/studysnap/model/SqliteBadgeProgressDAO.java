@@ -1,6 +1,8 @@
 package com.app.studysnap.model;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
 
@@ -132,6 +134,25 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
             ps.setInt(2, badgeId);
             ps.executeUpdate();
         } catch (SQLException e) { throw new RuntimeException(e); }
+    }
+
+    // Return all completed badges for specific user
+    @Override
+    public List<Badge> getCompletedBadgesByUser(int userId) {
+        List<Badge> list = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT * FROM BadgeProgress WHERE user_id=? AND is_earned=1")) {
+            try (ResultSet rs = ps.executeQuery()) {
+
+                IBadgeDAO badgeDAO = new SqliteBadgeDAO();
+
+                while (rs.next()) {
+                    Badge badge = badgeDAO.getBadgeById(rs.getInt("badge_id"));
+                    list.add(badge);
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
     }
 
     // Returns true if the badge has been earned by the user

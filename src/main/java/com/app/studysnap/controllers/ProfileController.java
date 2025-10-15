@@ -1,19 +1,23 @@
 package com.app.studysnap.controllers;
 
+import com.app.studysnap.Main;
 import com.app.studysnap.auth.Session;
 import com.app.studysnap.model.*;
 import com.app.studysnap.services.Navigator;
 import com.app.studysnap.services.Popup;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -26,6 +30,9 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import com.app.studysnap.services.BadgeRenderer;
 
 public class ProfileController {
 
@@ -72,8 +79,14 @@ public class ProfileController {
     private IUserDAO userDAO;
     private IQuizDAO quizDAO;
     private IAttemptDAO attemptDAO;
+    private IBadgeDAO badgeDAO;
+    private IBadgeProgressDAO badgeProgressDAO;
+
     private List<Quiz> myQuizzes;
+    private List<Badge> Badges;
+    private List<Badge> CompletedBadges;
     private User currentUser;
+
     private static final String[] avatar_format = {".png", ".jpg", ".jpeg", ".gif"};
     private static final int avatar_size = 96;
     private Image defaultAvatar;
@@ -81,17 +94,15 @@ public class ProfileController {
 
     @FXML
     private void initialize() {
-        try {
-            userDAO = new SqliteUserDAO();
-            quizDAO = new SqliteQuizDAO();
-            attemptDAO = new SqliteAttemptDAO();
 
-        } catch (Throwable t) {
-            userDAO = null;
-            quizDAO = null;
-            attemptDAO = null;
-        }
+        // Initialize DAOs
+        try { userDAO = new SqliteUserDAO(); } catch (Throwable t) { userDAO = null; }
+        try { quizDAO = new SqliteQuizDAO(); } catch (Throwable t) { quizDAO = null; }
+        try { attemptDAO = new SqliteAttemptDAO(); } catch (Throwable t) { attemptDAO = null; }
+        try { badgeDAO = new SqliteBadgeDAO(); } catch (Throwable t) { badgeDAO = null; }
+        try { badgeProgressDAO = new SqliteBadgeProgressDAO(); } catch (Throwable t) { badgeProgressDAO = null; }
 
+        // Get current user
         currentUser = Session.getCurrentUser();
         if (currentUser == null) {
             setStatus("No session found. Please log in again.");
@@ -180,6 +191,21 @@ public class ProfileController {
             setupDecksByTopicChart();
         }
 
+        // Load badges
+        try {
+            if (badgeDAO != null || badgeProgressDAO != null) {
+                Badges = badgeDAO.getAllBadges();
+                CompletedBadges = badgeProgressDAO.getCompletedBadgesByUser(currentUser.getUserId());
+            } else {
+                Badges = Collections.emptyList();
+                CompletedBadges = Collections.emptyList();
+                setStatus("Badges service unavailable. Some actions may be limited.");
+            }
+        } catch (Exception e) {
+            Badges = Collections.emptyList();
+            CompletedBadges = Collections.emptyList();
+            setStatus("Couldn’t load badges right now.");
+        }
         renderBadges();
     }
 
@@ -334,14 +360,20 @@ public class ProfileController {
 
     @FXML
     private void handleSeeAllBadges() {
-        // Open a simple window listing all possible badges
-        Dialog<Void> dlg = new Dialog<>();
-        dlg.setTitle("All Badges");
-        dlg.setHeaderText("Browse all available badges");
-        FlowPane grid = new FlowPane(12, 12);
-        grid.setPrefWrapLength(480);
+        try {
+            Node view = FXMLLoader.load(Objects.requireNonNull(Main.class.getResource("badges.fxml")));
 
-        //TODO: Inject badges
+            Dialog<Void> dlg = new Dialog<>();
+            dlg.setTitle("All Badges");
+            dlg.getDialogPane().setContent(view);
+            dlg.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+            dlg.initOwner(displayName.getScene().getWindow());
+            dlg.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fallback simple message
+            new Alert(Alert.AlertType.ERROR, "Failed to open badges window.").showAndWait();
+        }
     }
 
     // Progress Section:
@@ -423,16 +455,18 @@ public class ProfileController {
 
     private void renderBadges() {
         badgesGrid.getChildren().clear();
-        List<String> userBadges = List.of(); // TODO: fetch from DB
 
-        if (userBadges.isEmpty()) {
+        if (CompletedBadges.isEmpty()) {
             Label empty = new Label("No badges achieved yet");
             empty.getStyleClass().add("empty-label");
             badgesGrid.getChildren().add(empty);
             return;
         }
-
-        //TODO: otherwise render badges
+        else {
+            for (Badge b : CompletedBadges) {
+                badgesGrid.getChildren().add(BadgeRenderer.buildCard(b, currentUser, badgeProgressDAO, false));
+            }
+        }
     }
 
     /* ------------ helpers ------------ */

@@ -83,18 +83,42 @@ public class SqliteBadgeDAO implements IBadgeDAO {
 
             while (rs.next()) {
                 badges.add(new Badge(
-                        rs.getInt("badge_id"),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        rs.getString("icon_path"),
-                        rs.getString("type"),
-                        rs.getInt("goal")
+                    rs.getInt("badge_id"),
+                    rs.getString("name"),
+                    rs.getString("description"),
+                    rs.getString("icon_path"),
+                    rs.getString("type"),
+                    rs.getInt("goal")
                 ));
             }
         } catch(SQLException e) {
             e.printStackTrace();
         }
         return badges;
+    }
+
+    @Override
+    public Badge getBadgeById(int badge_id) {
+        Badge badge = null;
+        try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT * FROM Badges WHERE badge_id=?")) {
+            ps.setInt(1, badge_id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    badge = new Badge(
+                        rs.getInt("badge_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getString("icon_path"),
+                        rs.getString("type"),
+                        rs.getInt("goal")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return badge;
     }
 
     @Override
@@ -139,11 +163,11 @@ public class SqliteBadgeDAO implements IBadgeDAO {
     @Override
     public void initializeBadges() {
 
-        addBadge(new Badge("Flawless Five", "Score 100% on 5 quizzes", "src/main/resources/com/app/studysnap/images/badges/flawless1.png", "score", 5));
+        addBadge(new Badge("Flawless Five", "Score 100% on 5 quizzes", "src/main/resources/com/app/studysnap/images/badges/flawless3.png", "score", 5));
 
         addBadge(new Badge("Flawless Ten", "Score 100% on 10 quizzes", "src/main/resources/com/app/studysnap/images/badges/flawless2.png", "score", 10));
 
-        addBadge(new Badge("Flawless Twenty", "Score 100% on 20 quizzes", "src/main/resources/com/app/studysnap/images/badges/flawless3.png", "score", 20));
+        addBadge(new Badge("Flawless Twenty", "Score 100% on 20 quizzes", "src/main/resources/com/app/studysnap/images/badges/flawless1.png", "score", 20));
 
         addBadge(new Badge("Big Brain", "Get 20 flashcards correct in a row without mistakes", "src/main/resources/com/app/studysnap/images/badges/bigbrain.png", "streak", 20));
 
@@ -151,11 +175,11 @@ public class SqliteBadgeDAO implements IBadgeDAO {
 
         addBadge(new Badge("Persistence Pays", "Retry the same quiz 3 or more times and achieve a passing score", "src/main/resources/com/app/studysnap/images/badges/persistencepays.png", "persistence", 3));
 
-        addBadge(new Badge("Quiz Creator (Bronze)", "Create your first quiz", "src/main/resources/com/app/studysnap/images/badges/quizcreator1.png", "creation", 1));
+        addBadge(new Badge("Quiz Creator (Bronze)", "Create your first quiz", "src/main/resources/com/app/studysnap/images/badges/quizcreator3.png", "creation", 1));
 
         addBadge(new Badge("Quiz Creator (Silver)", "Create 5 quizzes", "src/main/resources/com/app/studysnap/images/badges/quizcreator2.png", "creation", 5));
 
-        addBadge(new Badge("Quiz Creator (Gold)", "Create 10 quizzes", "src/main/resources/com/app/studysnap/images/badges/quizcreator3.png", "creation", 10));
+        addBadge(new Badge("Quiz Creator (Gold)", "Create 10 quizzes", "src/main/resources/com/app/studysnap/images/badges/quizcreator1.png", "creation", 10));
 
         addBadge(new Badge("DecaGenius", "Complete 10 quizzes with at least 80% accuracy", "src/main/resources/com/app/studysnap/images/badges/genius.png", "score", 10));
 

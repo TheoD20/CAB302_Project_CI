@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.app.studysnap.controllers.BadgesController"
+      spacing="8"
+      stylesheets="@styles/badges.css"
+      prefWidth="720" prefHeight="560">
+
+    <children>
+        <!-- header/legend -->
+        <HBox spacing="16" styleClass="badges-header">
+            <children>
+                <Label text="All Badges" styleClass="badges-title"/>
+            </children>
+            <padding>
+                <Insets top="8" right="8" left="8"/>
+            </padding>
+        </HBox>
+
+        <!-- scrollable badge grid -->
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+            <content>
+                <FlowPane fx:id="flow" hgap="12" vgap="12" prefWrapLength="680" styleClass="badges-flow">
+                    <padding>
+                        <Insets top="8" right="8" bottom="8" left="8"/>
+                    </padding>
+                </FlowPane>
+            </content>
+        </ScrollPane>
+    </children>
+</VBox>
+

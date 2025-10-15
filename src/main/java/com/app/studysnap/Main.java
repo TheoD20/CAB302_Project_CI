@@ -27,7 +27,6 @@ public class Main extends Application {
         //Database logic
         SqliteUserDAO userDAO = new SqliteUserDAO();
         SqliteBadgeDAO badgeDAO = new SqliteBadgeDAO();
-        SqliteBadgeProgressDAO progressDAO = new SqliteBadgeProgressDAO();
         SqliteQuizDAO quizDAO = new SqliteQuizDAO();
 
         // Reset db
@@ -43,7 +42,7 @@ public class Main extends Application {
             System.out.println(user.getUserId() + " | " + user.getUsername() + " | " + user.getEmail() + " | " + user.getAuthProvider());
         }
 
-        */
+        //*/
     }
 
     public static void main(String[] args) {
