@@ -3,29 +3,22 @@ package com.app.studysnap.controllers;
 import com.app.studysnap.Main;
 import com.app.studysnap.auth.Session;
 import com.app.studysnap.model.*;
+import com.app.studysnap.services.AvatarService;
 import com.app.studysnap.services.Navigator;
 import com.app.studysnap.services.Popup;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -87,10 +80,9 @@ public class ProfileController {
     private List<Badge> CompletedBadges;
     private User currentUser;
 
-    private static final String[] avatar_format = {".png", ".jpg", ".jpeg", ".gif"};
-    private static final int avatar_size = 96;
+    private final AvatarService avatars = new AvatarService();
+    private static final double AVATAR_SIZE = 96.0;
     private Image defaultAvatar;
-    private static final String DEFAULT_AVATAR_PATH = "/images/default_avatar.png";
 
     @FXML
     private void initialize() {
@@ -145,16 +137,8 @@ public class ProfileController {
         changePasswordButton.setDisable(isGoogle);
 
         // Load avatar image
-        defaultAvatar = avatarView.getImage();
-        if (defaultAvatar == null) {
-            defaultAvatar = loadResourceImage(DEFAULT_AVATAR_PATH);
-            if (defaultAvatar != null) applyCircularAvatar(avatarView, defaultAvatar, avatar_size);;
-        }
-
-        boolean hasCustom = loadAvatarFromDisk();
-        if (!hasCustom && defaultAvatar != null) {
-            applyCircularAvatar(avatarView, defaultAvatar, avatar_size);
-        }
+        defaultAvatar = avatars.loadDefaultAvatar(AVATAR_SIZE);
+        avatars.applyUserAvatarOrDefault(avatarView, currentUser, AVATAR_SIZE, defaultAvatar);
         updateAvatarButtons();
 
         // Get all users attempts
@@ -292,7 +276,8 @@ public class ProfileController {
         if (deleteButton != null) deleteButton.setDisable(true);
 
         try {
-            if (quizDAO != null) {
+            // delete quizzes
+            if (myQuizzes != null) {
                 for (Quiz q : myQuizzes) {
                     if (q != null) {
                         quizDAO.deleteQuiz(q.getQuizId());
@@ -300,7 +285,12 @@ public class ProfileController {
                 }
             }
 
+            // delete avatar files
+            try { avatars.deleteAvatar(currentUser); } catch (Exception ignore) {}
+
+            // delete user
             userDAO.deleteUser(currentUser.getUserId());
+
             if (myQuizzes != null) myQuizzes.clear();
             currentUser = null;
             Session.clear();
@@ -334,10 +324,10 @@ public class ProfileController {
         if (chosen == null) return;
 
         try {
-            Path saved = saveAvatarForUser(currentUser, chosen);
-            applyCircularAvatar(avatarView, new Image(saved.toUri().toString()), avatar_size);
+            avatars.saveAvatar(currentUser, chosen);
+            avatars.applyUserAvatarOrDefault(avatarView, currentUser, AVATAR_SIZE, defaultAvatar);
             setStatus("Avatar updated ✓");
-            updateAvatarButtons(); // <— show delete
+            updateAvatarButtons();
         } catch (Exception e) {
             setStatus("Could not save avatar.");
         }
@@ -349,14 +339,25 @@ public class ProfileController {
         if (!Popup.confirm("Remove avatar?", "Revert to the default icon.")) return;
 
         try {
-            deleteAvatarFilesForUser(currentUser);
-            resetAvatarToDefault();
+            avatars.deleteAvatar(currentUser);
+            avatars.applyUserAvatarOrDefault(avatarView, currentUser, AVATAR_SIZE, defaultAvatar);
             setStatus("Avatar removed ✓");
             updateAvatarButtons();
         } catch (Exception ex) {
             Popup.error("Couldn't remove avatar: " + ex.getMessage());
         }
     }
+
+    // update buttons to add/delete avatar image
+    @FXML
+    private void updateAvatarButtons() {
+        boolean hasCustom = avatars.findAvatarFile(currentUser).isPresent();
+        if (deleteAvatarBtn != null) {
+            deleteAvatarBtn.setVisible(hasCustom);
+            deleteAvatarBtn.setManaged(hasCustom);
+        }
+    }
+
 
     @FXML
     private void handleSeeAllBadges() {
@@ -482,103 +483,5 @@ public class ProfileController {
         if (s == null) return false;
         String v = s.trim().toLowerCase();
         return v.contains("@") && v.indexOf('@') > 0 && v.indexOf('@') < v.length() - 3 && v.contains(".");
-    }
-
-    /* ------------ avatar helpers ------------ */
-    private void updateAvatarButtons() {
-        boolean hasCustom = findAvatarFile(currentUser) != null;
-        if (deleteAvatarBtn != null) {
-            deleteAvatarBtn.setVisible(hasCustom);
-            deleteAvatarBtn.setManaged(hasCustom);
-        }
-    }
-    private boolean loadAvatarFromDisk() {
-        Path p = findAvatarFile(currentUser);
-        if (p != null && Files.exists(p)) {
-            String uri = p.toUri().toString();
-            applyCircularAvatar(avatarView, new Image(uri), avatar_size);
-            return true;
-        }
-        return false;
-    }
-    private Path findAvatarFile(User u) {
-        Path dir = getAvatarsDir();
-        String base = baseAvatarName(u);
-        for (String e : avatar_format) {
-            Path p = dir.resolve(base + e);
-            if (Files.exists(p)) return p;
-        }
-        return null;
-    }
-    private Path saveAvatarForUser(User u, File chosen) throws Exception {
-        Path dir = getAvatarsDir();
-        Files.createDirectories(dir);
-
-        String base = baseAvatarName(u);
-        String ext = extLower(chosen.getName());
-        if (!ext.matches("\\.(png|jpg|jpeg|gif)")) ext = ".png";
-        for (String e : avatar_format) Files.deleteIfExists(dir.resolve(base + e));
-
-        Path target = dir.resolve(base + ext);
-        Files.copy(chosen.toPath(), target, StandardCopyOption.REPLACE_EXISTING);
-        return target;
-    }
-    private Path getAvatarsDir() {
-        return Paths.get(System.getProperty("user.home"), ".studysnap", "avatars");
-    }
-    private String baseAvatarName(User u) {
-        if (u != null && u.getUserId() > 0) return "u" + u.getUserId();
-        String email = safe(u == null ? null : u.getEmail());
-        return email.isBlank() ? "anonymous" : email.replaceAll("[^a-zA-Z0-9]", "_");
-    }
-    private static String extLower(String name) {
-        int i = name.lastIndexOf('.');
-        return (i >= 0) ? name.substring(i).toLowerCase() : "";
-    }
-    private void resetAvatarToDefault() {
-        if (defaultAvatar == null) defaultAvatar = loadResourceImage(DEFAULT_AVATAR_PATH);
-        if (defaultAvatar != null) applyCircularAvatar(avatarView, defaultAvatar, avatar_size);;
-    }
-    private void deleteAvatarFilesForUser(User u) throws Exception {
-        Path dir = getAvatarsDir();
-        String base = baseAvatarName(u);
-        for (String e : avatar_format) {
-            Files.deleteIfExists(dir.resolve(base + e));
-        }
-    }
-    private Image loadResourceImage(String path) {
-        var url = ProfileController.class.getResource(path);
-        if (url == null) {
-            var cl = Thread.currentThread().getContextClassLoader();
-            url = cl.getResource(path.startsWith("/") ? path.substring(1) : path);
-        }
-        return (url != null) ? new Image(url.toExternalForm(), 96, 96, true, true) : null;
-    }
-    private void applyCircularAvatar(ImageView iv, Image img, double sizePx) {
-        iv.setImage(img);
-
-        double w = img.getWidth();
-        double h = img.getHeight();
-        double s = Math.min(w, h);
-        double x = (w - s) / 2.0;
-        double y = (h - s) / 2.0;
-        iv.setViewport(new Rectangle2D(x, y, s, s));
-
-        iv.setFitWidth(sizePx);
-        iv.setFitHeight(sizePx);
-        iv.setPreserveRatio(false);
-        iv.setSmooth(true);
-
-        Circle clip = new Circle(sizePx / 2.0, sizePx / 2.0, sizePx / 2.0);
-        iv.setClip(clip);
-
-        iv.layoutBoundsProperty().addListener((obs, oldB, newB) -> {
-            double cx = newB.getWidth()  / 2.0;
-            double cy = newB.getHeight() / 2.0;
-            double r  = Math.min(newB.getWidth(), newB.getHeight()) / 2.0;
-            clip.setCenterX(cx);
-            clip.setCenterY(cy);
-            clip.setRadius(r);
-        });
     }
 }
