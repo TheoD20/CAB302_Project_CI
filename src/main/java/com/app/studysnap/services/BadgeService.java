@@ -1,6 +1,14 @@
 package com.app.studysnap.services;
 
+import com.app.studysnap.Main;
+import com.app.studysnap.controllers.BadgeAwardController;
 import com.app.studysnap.model.*;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,8 +20,18 @@ public final class BadgeService {
     private final IAttemptDAO attemptDAO = new SqliteAttemptDAO();
     private final IQuizDAO quizDAO = new SqliteQuizDAO();
 
+    private List<Badge> newBadges;
+    private List<Integer> oldBadgeIds;
+
     // Called after an attempt handle each badge individually
     public void UpdateScoreTypeBadges(Attempt attempt, int unanswered) {
+        newBadges = new ArrayList<>();
+        oldBadgeIds = new ArrayList<>();
+
+        for (Badge b : progressDAO.getCompletedBadgesByUser(attempt.getUserId())) {
+            oldBadgeIds.add(b.getBadgeId());
+        }
+
         handleFirstStep(attempt);
         handleFlawlessSeries(attempt);
         handleAccuracyHero(attempt);
@@ -26,15 +44,30 @@ public final class BadgeService {
         handleConsistencyMaster(attempt, unanswered);
         handleSevenDayActivityStreak(attempt);
         handleBigBrain(attempt);
+
+        // award any new badges
+        awardIfNew(attempt.getUserId());
     }
 
     // Called after quiz creation handle each badge individually
     // Quiz Creator (Bronze/Silver/Gold)
     public void UpdateCreationTypeBadges(int userId) {
+        newBadges = new ArrayList<>();
+        oldBadgeIds = new ArrayList<>();
+
+        // snapshot what user already had
+        for (Badge b : progressDAO.getCompletedBadgesByUser(userId)) {
+            oldBadgeIds.add(b.getBadgeId());
+        }
+
         for (Badge b : badgeDAO.getBadgesByType("creation")) {
             int createdCount = quizDAO.getQuizzesByUser(userId).size();
             progressDAO.setProgress(userId, b.getBadgeId(), Math.min(createdCount, b.getBadgeGoal()));
+
+            addIfEarned(userId, b);
         }
+
+        awardIfNew(userId);
     }
 
     // ==== Badge handlers ====
@@ -43,6 +76,8 @@ public final class BadgeService {
     private void handleFirstStep(Attempt a) {
         Badge b = byName("First Step"); if (b == null) return;
         progressDAO.setProgress(a.getUserId(), b.getBadgeId(), b.getBadgeGoal());
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "Flawless Five/Ten/Twenty" (count of 100% scores)
@@ -53,6 +88,8 @@ public final class BadgeService {
             if (n.contains("flawless")) {
                 progressDAO.addProgress(a.getUserId(), b.getBadgeId(), 1);
             }
+
+            addIfEarned(a.getUserId(), b);
         }
     }
 
@@ -62,6 +99,8 @@ public final class BadgeService {
         if (percent(a) == 100) {
             progressDAO.setProgress(a.getUserId(), b.getBadgeId(), b.getBadgeGoal());
         }
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "Quick Learner" (score ≥80% once)
@@ -70,6 +109,8 @@ public final class BadgeService {
         if (percent(a) >= 80) {
             progressDAO.setProgress(a.getUserId(), b.getBadgeId(), b.getBadgeGoal());
         }
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "DecaGenius" (complete 10 quizzes with ≥80%)
@@ -78,6 +119,8 @@ public final class BadgeService {
         if (percent(a) >= 80) {
             progressDAO.addProgress(a.getUserId(), b.getBadgeId(), 1);
         }
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "Speed Reader" (≤2 minutes AND ≥80%)
@@ -86,6 +129,8 @@ public final class BadgeService {
         if (a.getTimeTaken() <= 120 && percent(a) >= 80) {
             progressDAO.setProgress(a.getUserId(), b.getBadgeId(), b.getBadgeGoal());
         }
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "Persistence Pays" (≥3 attempts on same quiz and at least ≥50%)
@@ -97,6 +142,8 @@ public final class BadgeService {
         if (countForUserOnQuiz >= 3 && percent(a) >= 50) {
             progressDAO.addProgress(a.getUserId(), b.getBadgeId(), 1);
         }
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "Comeback Kid" (improve by ≥20 percentage points vs previous attempt on same quiz)
@@ -113,6 +160,8 @@ public final class BadgeService {
         if (now - prev >= 20) {
             progressDAO.setProgress(a.getUserId(), b.getBadgeId(), b.getBadgeGoal());
         }
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "Explorer" (play quizzes from N distinct categories)
@@ -126,6 +175,8 @@ public final class BadgeService {
             }
         }
         progressDAO.setProgress(a.getUserId(), b.getBadgeId(), Math.min(subjects.size(), b.getBadgeGoal()));
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "Consistency Master" (streak of attempts with no skipped questions)
@@ -136,6 +187,8 @@ public final class BadgeService {
         } else {
             progressDAO.setProgress(a.getUserId(), b.getBadgeId(), 0); // reset streak
         }
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "Persistence" (7-day activity streak)
@@ -143,6 +196,8 @@ public final class BadgeService {
         Badge b = byName("Persistence"); if (b == null) return;
         int streak = attemptDAO.getCurrentStreakByUser(a.getUserId()); // your DAO handles streak calc
         progressDAO.setProgress(a.getUserId(), b.getBadgeId(), Math.min(streak, b.getBadgeGoal()));
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // Handles "Big Brain" (Get 200 correct questions)
@@ -151,9 +206,60 @@ public final class BadgeService {
         int totalCorrect = attemptDAO.getCorrectAnswersByUser(a.getUserId()); // DAO you already have
         int value = Math.max(0, Math.min(totalCorrect, b.getBadgeGoal()));
         progressDAO.setProgress(a.getUserId(), b.getBadgeId(), value);
+
+        addIfEarned(a.getUserId(), b);
     }
 
     // ==== helpers ====
+
+    // Test if badge has been earned and add to new badges list
+    private void addIfEarned(int userId, Badge b) {
+        if (progressDAO.isEarned(userId, b.getBadgeId()) && !oldBadgeIds.contains(b.getBadgeId()) && !alreadyInNew(b)) {
+            newBadges.add(b);
+        }
+    }
+
+    private boolean alreadyInNew(Badge b) {
+        for (Badge existing : newBadges) {
+            if (existing.getBadgeId() == b.getBadgeId()) return true;
+        }
+        return false;
+    }
+
+    // Award badges if any new was earned
+    private void awardIfNew(int userId) {
+        if (newBadges == null || newBadges.isEmpty()) return;
+
+        // copy the list for thread run and clear immediately
+        final List<Badge> earned = new ArrayList<>(newBadges);
+        newBadges.clear();
+        oldBadgeIds.clear();
+
+        // Run Thread
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(Main.class.getResource("badgeAward.fxml")));
+                Node view = loader.load();
+
+                BadgeAwardController ctrl = loader.getController();
+
+                IUserDAO udao = new SqliteUserDAO();
+                User u = udao.getUserById(userId);
+
+                // pass data (works with your dynamic subtitle too)
+                ctrl.setupNewBadgeDisplay(earned, (SqliteBadgeProgressDAO) progressDAO, u);
+
+                Dialog<Void> dlg = new Dialog<>();
+                dlg.setTitle("New Badge");
+                dlg.getDialogPane().setContent(view);
+                dlg.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+                dlg.showAndWait();
+            } catch (Exception e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Failed to open badges window.").showAndWait();
+            }
+        });
+    }
 
     private Badge byName(String name) {
         for (Badge b : badgeDAO.getAllBadges()) {

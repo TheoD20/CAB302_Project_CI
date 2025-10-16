@@ -8,7 +8,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/17.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.app.studysnap.controllers.BadgesController"
+      fx:controller="com.app.studysnap.controllers.BadgeAwardController"
       spacing="8"
       stylesheets="@styles/badges.css"
       prefWidth="720" prefHeight="560">
@@ -17,7 +17,7 @@
         <!-- header/legend -->
         <HBox spacing="16" styleClass="header">
             <children>
-                <Label text="All Badges" styleClass="title"/>
+                <Label text="New Badge" styleClass="title"/>
             </children>
             <padding>
                 <Insets top="8" right="8" left="8"/>
@@ -27,13 +27,21 @@
         <!-- scrollable badge grid -->
         <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
             <content>
-                <FlowPane fx:id="flow" hgap="12" vgap="12" prefWrapLength="680" styleClass="flow">
+                <VBox spacing="16" alignment="TOP_CENTER">
+                    <children>
+                        <Label text="Your dedication paid off!" styleClass="congrats"/>
+                        <Label fx:id="congratsSub" styleClass="congrats-sub"/>
+                        <FlowPane fx:id="flow" hgap="12" vgap="12" prefWrapLength="680" styleClass="flow">
+                            <padding>
+                                <Insets top="8" right="8" bottom="8" left="8"/>
+                            </padding>
+                        </FlowPane>
+                    </children>
                     <padding>
-                        <Insets top="8" right="8" bottom="8" left="8"/>
+                        <Insets top="8" right="8" left="8"/>
                     </padding>
-                </FlowPane>
+                </VBox>
             </content>
         </ScrollPane>
     </children>
 </VBox>
-

@@ -1,18 +1,18 @@
-.badges-title {
-    -fx-font-size: 20px;
+.title {
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-text-fill: -fx-text-base-color;
 }
 
-.badges-header {
+.header {
     -fx-alignment: center-left;
     -fx-border-color: transparent transparent #ccc transparent;
     -fx-border-width: 0 0 1 0;
-    -fx-padding: 8 12 4 12;
+    -fx-padding: 9 14 5 14;
 }
 
 .legend-chip {
-    -fx-padding: 4 10 4 10;
+    -fx-padding: 5 11 5 11;
     -fx-background-radius: 12;
     -fx-border-radius: 12;
     -fx-font-size: 12px;
@@ -20,13 +20,25 @@
     -fx-text-fill: white;
 }
 
-.badges-flow {
+.flow {
     -fx-padding: 12;
     -fx-alignment: top-center;
 }
 
+.congrats {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 12;
+    -fx-alignment: top-center;
+}
+
+.congrats-sub {
+    -fx-font-size: 19px;
+    -fx-alignment: top-center;
+}
+
 /* Each badge card */
-.card {
+.badge {
     -fx-background-color: white;
     -fx-background-radius: 10;
     -fx-border-radius: 10;
@@ -39,7 +51,7 @@
     -fx-transition: 0.3s ease;
 }
 
-.card:hover {
+.badge:hover {
     -fx-scale-x: 1.03;
     -fx-scale-y: 1.03;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.3, 0, 2);
@@ -75,12 +87,12 @@
 }
 
 /* Badge progress bar */
-.badge-progress.progress-bar .track {
+.progress.progress-bar .track {
     -fx-background-color: #e0e0e0;
     -fx-background-insets: 0;
     -fx-background-radius: 6;
 }
-.badge-progress.progress-bar .bar {
+.progress.progress-bar .bar {
     -fx-background-color: linear-gradient(to right, #5cb85c, #8bd78b);
     -fx-background-insets: 0;
     -fx-background-radius: 6;

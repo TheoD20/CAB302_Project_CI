@@ -47,7 +47,7 @@ public final class QuizService {
             .build();
 
     // Debugging
-    private static boolean DEBUG() {return true;};
+    private static boolean DEBUG() {return false;};
     private static void dbg(String label, String text) {
         if (!DEBUG()) return;
         System.out.println("[QUIZ DEBUG] " + label + ": " +

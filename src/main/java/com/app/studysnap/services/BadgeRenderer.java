@@ -28,7 +28,11 @@ public class BadgeRenderer {
         card.setPadding(new Insets(12));
         card.setPrefWidth(200);
         card.setAlignment(Pos.TOP_CENTER);
-        card.getStyleClass().add("card");
+        card.getStyleClass().add("badge");
+
+        if (!showProgress) {
+            card.getStyleClass().add("compact");
+        }
 
         // === Title ===
         Label title = new Label(safe(b.getBadgeName()));
@@ -65,7 +69,7 @@ public class BadgeRenderer {
         ProgressBar progressBar = new ProgressBar(0);
         progressBar.setPrefWidth(160);
         progressBar.setPrefHeight(8);                // size with Java, not CSS
-        progressBar.getStyleClass().add("badge-progress");
+        progressBar.getStyleClass().add("progress");
 
         boolean earned = false;
         int progress = 0;

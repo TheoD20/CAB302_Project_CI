@@ -323,13 +323,13 @@ public class QuizGeneratorController {
                 // Add quiz
                 quizDao.addQuiz(quiz);
 
-                // Update creation type badges
-                new BadgeService().UpdateCreationTypeBadges(Session.getCurrentUser().getUserId());
-
                 return null; },
             ignored -> {
                 Popup.info("Quiz saved successfully.");
                 onRefreshPublic();
+
+                // Update creation type badges
+                new BadgeService().UpdateCreationTypeBadges(Session.getCurrentUser().getUserId());
             },
             progress, tabPane
         );

@@ -146,7 +146,7 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
                 "SELECT * FROM BadgeProgress WHERE user_id=? AND is_earned=1")) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
+                while (rs.next()) {
                     list.add(badgeDAO.getBadgeById(rs.getInt("badge_id")));
                 }
             }

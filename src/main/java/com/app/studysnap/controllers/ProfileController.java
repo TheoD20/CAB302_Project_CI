@@ -155,7 +155,7 @@ public class ProfileController {
         streakCount.setText(String.valueOf(streak));
         bestStreakCount.setText(String.valueOf(bestStreak));
 
-        if(attempts == 0 && decks == 0) {
+        if(attempts == 0) {
             ChartsArea.setVisible(false);
             ChartsArea.setManaged(false);
 

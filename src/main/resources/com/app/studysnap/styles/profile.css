@@ -107,7 +107,7 @@
     -fx-font-weight: 600;
     -fx-text-fill: #34495e;
 }
-.badge-item {
+.badge.compact {
     -fx-background-color: white;
     -fx-padding: 10;
     -fx-background-radius: 10;

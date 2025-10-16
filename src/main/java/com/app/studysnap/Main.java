@@ -22,7 +22,7 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
-        //* DEBUGGING REASONS:
+        /* DEBUGGING REASONS:
 
         //Database logic
         SqliteUserDAO userDAO = new SqliteUserDAO();
