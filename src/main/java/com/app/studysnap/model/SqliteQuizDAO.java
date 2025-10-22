@@ -218,7 +218,6 @@ public class SqliteQuizDAO implements IQuizDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String subject = rs.getString("subject");
-                // rule #3: delegate blank check
                 if (isBlank(subject)) subject = "(No subject)";
                 out.put(subject, rs.getInt("c"));
             }
@@ -231,7 +230,7 @@ public class SqliteQuizDAO implements IQuizDAO {
     /** {@inheritDoc} */
     @Override
     public List<PublicListItem> findPublic(String query) {
-        String like = "%" + trim(query) + "%"; // rule #3: delegate trim/safe
+        String like = "%" + trim(query) + "%";
         final String sql = """
             SELECT q.quiz_id, q.title, q.subject, q.description, IFNULL(u.username,'') AS author
             FROM Quizzes q

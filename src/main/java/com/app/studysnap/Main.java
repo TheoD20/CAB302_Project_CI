@@ -8,6 +8,12 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * JavaFX entry point for StudySnap.
+ * <p>Loads the initial FXML and applies window defaults.
+ * A guarded, optional "dev seeding" section can reset and pre-populate the DB.
+ * </p>
+ */
 public class Main extends Application {
     public static final String TITLE = "StudySnap";
     public static final int WIDTH = 1280;
@@ -22,7 +28,7 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
-        /* DEBUGGING REASONS:
+        /* ADMIN/SETUP REASONS:
 
         //Database logic
         SqliteUserDAO userDAO = new SqliteUserDAO();

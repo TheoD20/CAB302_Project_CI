@@ -149,7 +149,7 @@ public class SqliteBadgeDAO implements IBadgeDAO {
         String sql = "SELECT * FROM Badges WHERE type = ? ORDER BY badge_id DESC";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, trim(type));  // rule #3: delegate simple text handling
+            ps.setString(1, trim(type));
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
