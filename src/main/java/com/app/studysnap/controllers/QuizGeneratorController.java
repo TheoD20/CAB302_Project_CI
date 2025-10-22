@@ -18,6 +18,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.app.studysnap.services.TextParser.*;
+
+/**
+ * Controller for the Quiz Generator workspace.
+ * <p>
+ * Supports generating quizzes from uploaded files, pasted text, or prompts; browsing public quizzes;
+ * previewing questions (with/without answers); saving to the database; and exporting to PDF.
+ * </p>
+ */
 public class QuizGeneratorController {
 
     // Common UI
@@ -60,7 +69,9 @@ public class QuizGeneratorController {
     private List<com.app.studysnap.model.Question> lastGeneratedQuestions = List.of();
     private String lastGeneratedWithAnswers = null;
 
-
+    /**
+     * JavaFX initialization: wires drag and drop handlers and configures the public-table columns/sizing.
+     */
     @FXML
     public void initialize() {
         // Drag and drop setup for file area
@@ -94,7 +105,10 @@ public class QuizGeneratorController {
     }
 
     // Upload
-    // Handle file chooser for file uploading
+
+    /**
+     * Opens a file chooser for PDF/TXT and stores the selected file.
+     */
     @FXML private void onChooseFile() {
         var owner = chooseFileBtn.getScene().getWindow();
         File f = FileDialogs.chooseOpenDoc(owner);
@@ -104,14 +118,18 @@ public class QuizGeneratorController {
         }
     }
 
-    // Handle simple drag file to upload field
+    /**
+     * Accepts copy transfer mode when files are dragged over the drop zone.
+     */
     private void onDragOver(DragEvent e) {
         Dragboard db = e.getDragboard();
         if (db.hasFiles()) e.acceptTransferModes(TransferMode.COPY);
         e.consume();
     }
 
-    // Handle file dropped on upload field
+    /**
+     * Handles files dropped into the drop zone and updates UI.
+     */
     private void onDragDropped(DragEvent e) {
         Dragboard db = e.getDragboard();
         if (db.hasFiles()) {
@@ -124,7 +142,10 @@ public class QuizGeneratorController {
         e.consume();
     }
 
-    // Handle call to generate from upload
+    /**
+     * Generates quiz from the uploaded document (always requests answers internally),
+     * parses them, and updates the preview (respecting the "include answers" toggle).
+     */
     @FXML private void onGenerateFromUpload() {
         if (selectedFile == null) {
             Popup.warn("No file selected. Choose a PDF/TXT first.");
@@ -133,7 +154,7 @@ public class QuizGeneratorController {
         Async.run(
             () -> genGateway.generateFromUpload(selectedFile, true), // always with answers; hide later
             txt -> {
-                if (txt == null || txt.isBlank()) {
+                if (isBlank(txt)) {
                     Popup.error("Nothing was generated from the file. Try a different file or reduce size.");
                     return;
                 }
@@ -149,17 +170,20 @@ public class QuizGeneratorController {
     }
 
     // Paste
-    // Handle call to generate from paste text
+
+    /**
+     * Generates questions from pasted text, parses them, and updates the preview.
+     */
     @FXML private void onGenerateFromPaste() {
         String text = pastedTextArea.getText();
-        if (text == null || text.isBlank()) {
+        if (isBlank(text)) {
             Popup.warn("Nothing to generate. Paste some content first.");
             return;
         }
         Async.run(
             () -> genGateway.generateFromPaste(text, true),
             txt -> {
-                if (txt == null || txt.isBlank()) {              // <-- add this
+                if (isBlank(txt)) {
                     Popup.error("Nothing was generated from the pasted text. Add more detail and try again.");
                     return;
                 }
@@ -175,22 +199,27 @@ public class QuizGeneratorController {
         );
     }
 
-    // Handle clearing paste area
+    /**
+     * Handle clearing paste area
+     */
     @FXML private void onResetPaste() {
         pastedTextArea.clear();
     }
 
     // Prompt
-    // Handle call to generate from prompt
+
+    /**
+     * Generates questions from a short prompt, parses them, and updates the preview.
+     */
     @FXML private void onGenerateFromPrompt() {
         String prompt = promptTextArea.getText();
-        if (prompt == null || prompt.isBlank()) {
+        if (isBlank(prompt)) {
             Popup.warn("Empty prompt. Write a short prompt.");
             return;
         }
         Async.run(() -> genGateway.generateFromPrompt(prompt, 10, true),
             txt -> {
-                if (txt == null || txt.isBlank()) {
+                if (isBlank(prompt)) {
                     Popup.error("Nothing was generated. Try a different prompt or include more context.");
                     return;
                 }
@@ -205,15 +234,20 @@ public class QuizGeneratorController {
         );
     }
 
-    // Handle clearing prompt area
+    /**
+     * Handles clearing the prompt area.
+     */
     @FXML private void onResetPrompt() {
         promptTextArea.clear();
     }
 
     // Public
-    // Refresh public quizzes list
+
+    /**
+     * Refreshes the list of public quizzes based on the search field.
+     */
     @FXML private void onRefreshPublic() {
-        String q = (searchField.getText() == null) ? "" : searchField.getText().trim();
+        String q = trim(searchField.getText());
         Async.run(
             () -> quizDao.findPublic(q),
             items -> {
@@ -227,7 +261,9 @@ public class QuizGeneratorController {
         );
     }
 
-    // Handles download a public quiz to display area
+    /**
+     * Downloads the selected public quiz, renders it to text, and updates the preview.
+     */
     @FXML private void onDownloadSelected() {
         PublicQuizRow sel = publicTable.getSelectionModel().getSelectedItem();
         if (sel == null) {
@@ -248,9 +284,11 @@ public class QuizGeneratorController {
         );
     }
 
-    // Handles toggling include/remove answers from display
+    /**
+     * Toggles whether answers are included in the preview and syncs all include-answer checkboxes.
+     */
     @FXML private void onIncludeAnswersToggle(ActionEvent e) {
-        if (lastGeneratedWithAnswers == null || lastGeneratedWithAnswers.isBlank()) return;
+        if (isBlank(lastGeneratedWithAnswers)) return;
 
         CheckBox src = (CheckBox) e.getSource();
         boolean showAns = src != null && src.isSelected();
@@ -260,6 +298,8 @@ public class QuizGeneratorController {
         String display = showAns ? lastGeneratedWithAnswers : stripAnswers(lastGeneratedWithAnswers);
         previewArea.setText(display);
     }
+
+    /** Keeps all include-answer toggles in sync across tabs. */
     private void syncIncludeAnswerChecks(boolean selected) {
         if (includeAnswersUpload != null) includeAnswersUpload.setSelected(selected);
         if (includeAnswersPaste  != null) includeAnswersPaste.setSelected(selected);
@@ -268,7 +308,10 @@ public class QuizGeneratorController {
     }
 
     // Save and Export
-    // Handles call to save a new quiz
+
+    /**
+     * Prompts for quiz metadata, validates inputs, persists a new quiz, and updates UI/badges.
+     */
     @FXML private void onSave() {
 
         // Handles dialog for quiz name, subject, description and is_public
@@ -296,7 +339,7 @@ public class QuizGeneratorController {
         String desc = descArea.getText();
         boolean is_private = !publicCheck.isSelected();
 
-        if (nm == null || nm.isBlank()) {
+        if (isBlank(nm)) {
             Popup.warn("Name is required.");
             return;
         }
@@ -334,7 +377,9 @@ public class QuizGeneratorController {
         );
     }
 
-    // Handles call to export quiz as pdf
+    /**
+     * Exports the currently previewed quiz text to PDF (with or without answers).
+     */
     @FXML private void onExportPdf() {
         boolean withAnswers = exportWithAnswersCheck != null && exportWithAnswersCheck.isSelected();
         String txt = PdfExporter.buildExportText(
@@ -345,7 +390,7 @@ public class QuizGeneratorController {
                 renderer
         );
 
-        if (txt == null || txt.isBlank()) {
+        if (isBlank(txt)) {
             Popup.warn("Nothing to export. Generate or load a quiz first.");
             return;
         }
@@ -364,13 +409,21 @@ public class QuizGeneratorController {
 
     // Helpers
 
-    // Hide answers if required
+    /**
+     * Hides answer lines from generated text.
+     * Lines beginning with "Answer:" (case-insensitive) are removed.
+     * @param text full generated text including answers
+     * @return text with answer lines stripped
+     */
     private String stripAnswers(String text) {
         if (text == null) return null;
         // Remove lines starting with "Answer:" (case-insensitive, tolerant spacing)
         return text.replaceAll("(?im)^\\s*Answer:\\s*.*\\R?", "");
     }
 
+    /**
+     * Row model for the public quizzes table.
+     */
     public record PublicQuizRow(int quizId, String name, String subject, String description, String author) {
         public String getName() { return name; }
         public String getSubject() { return subject; }
