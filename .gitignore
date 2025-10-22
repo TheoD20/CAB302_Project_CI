@@ -36,7 +36,7 @@ build/
 
 ### DB ###
 *.sqbpro
-*.db
+StudySnap.db
 
 ### Secrets ###
 client_secret.json

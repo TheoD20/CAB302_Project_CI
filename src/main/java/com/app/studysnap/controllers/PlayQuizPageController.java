@@ -21,7 +21,15 @@ import java.util.List;
 import javafx.util.Duration;
 
 import static com.app.studysnap.auth.Session.getCurrentUser;
+import static com.app.studysnap.services.TextParser.isBlank;
 
+/**
+ * Controller for the quiz play page.
+ * <p>
+ * Loads quiz questions, tracks elapsed time, handles submission/cancel actions,
+ * persists the attempt, and computes badge progress before routing to the result page.
+ * </p>
+ */
 public class PlayQuizPageController {
     private Quiz quiz;
 
@@ -36,10 +44,20 @@ public class PlayQuizPageController {
     @FXML
     private Button cancelButton;
 
+    /**
+     * Timeline for updating the visible timer every second.
+     */
     private Timeline timeline;// this is for displaying the time elapse
     private int elapsedSecond = 0;
+
+    /**
+     * Holds the controller for each rendered question card, used to collect answers/results.
+     */
     List<QuestionController> questionControllers = new ArrayList<>();
 
+    /**
+     * JavaFX initialization: initializes the timer display.
+     */
     @FXML
     private void initialize() {
         if (quizTimer != null) {
@@ -47,17 +65,21 @@ public class PlayQuizPageController {
         }
     }
 
+    /**
+     * Injects the quiz to be played, renders its questions, sets title/subtitle, and starts the timer.
+     * @param quiz the {@link Quiz} to play
+     */
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
         loadQuestions();  // display questions after quiz is injected
 
         if (quizTitle != null) {
-            String t = (quiz != null && quiz.getTitle() != null && !quiz.getTitle().isBlank())
+            String t = (quiz != null && !isBlank(quiz.getTitle()))
                     ? quiz.getTitle() : "Untitled Quiz";
             quizTitle.setText(t);
         }
         if (quizSubtitle != null) {
-            String t = (quiz != null && quiz.getSubject() != null && !quiz.getSubject().isBlank())
+            String t = (quiz != null && !isBlank(quiz.getSubject()))
                     ? quiz.getSubject() : "-";
             quizSubtitle.setText("Subject: " + t);
         }
@@ -65,6 +87,10 @@ public class PlayQuizPageController {
         startTimer(); // start timer as soon as quiz is loaded.
     }
 
+    /**
+     * Loads questions for the current quiz and renders a question card for each.
+     * Any load errors are caught and displayed via popup.
+     */
     private void loadQuestions() {
         questionLayout.getChildren().clear();
         questionControllers.clear();
@@ -90,6 +116,10 @@ public class PlayQuizPageController {
         }
     }
 
+    /**
+     * Validates unanswered questions, confirms submission, scores the attempt,
+     * persists the result, computes badge progress, and navigates to the result page.
+     */
     @FXML
     private void handleSubmit() {
         long unanswered = questionControllers.stream()
@@ -159,6 +189,12 @@ public class PlayQuizPageController {
         goToResultPage(score, total, elapsedSecond);
     }
 
+    /**
+     * Loads the result view and injects the computed results and quiz metadata.
+     * @param score number of correct answers
+     * @param total total questions
+     * @param elapsedSeconds time taken in seconds
+     */
     private void goToResultPage(int score, int total, int elapsedSeconds) {
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("quizResult.fxml"));
@@ -179,6 +215,11 @@ public class PlayQuizPageController {
         }
     }
 
+    /**
+     * Cancels the quiz (with confirmation), stops the timer, and navigates back to the dashboard.
+     *
+     * @throws IOException if navigation fails
+     */
     @FXML
     private void handleCancel() throws IOException {
         if (!Popup.confirm("Cancel quiz", "Are you sure you want to cancel and return to Home?")) return;
@@ -186,6 +227,9 @@ public class PlayQuizPageController {
         Navigator.goTo(cancelButton, "dashboard.fxml");
     }
 
+    /**
+     * Starts the elapsed time counter and updates the UI every second.
+     */
     public void startTimer(){
         elapsedSecond = 0;
         timeline = new Timeline(
@@ -198,6 +242,11 @@ public class PlayQuizPageController {
         timeline.play();
     }
 
+    /**
+     * Formats seconds as {@code HH:mm:ss}.
+     * @param seconds total seconds elapsed
+     * @return formatted time string
+     */
     private String formatTime(int seconds){
         int h = seconds / 3600;
         int m = (seconds % 3600) / 60;
