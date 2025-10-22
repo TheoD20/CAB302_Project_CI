@@ -2,7 +2,6 @@ package com.app.studysnap.services;
 
 import com.app.studysnap.model.Badge;
 import com.app.studysnap.model.IBadgeProgressDAO;
-import com.app.studysnap.model.SqliteBadgeProgressDAO;
 import com.app.studysnap.model.User;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,8 +17,25 @@ import javafx.scene.text.TextAlignment;
 import java.io.FileInputStream;
 import java.util.Objects;
 
+import static com.app.studysnap.services.TextParser.*;
+
+/**
+ * Utility for rendering {@link Badge} instances into JavaFX nodes.
+ * <p>
+ * Produces a compact or detailed badge card (title, icon, description, and optional
+ * progress bar) ready to be added to a {@code FlowPane} or similar container.
+ * </p>
+ */
 public class BadgeRenderer {
-    // Builds a visual card for a single badge to be injected into a FlowPane
+
+    /**
+     * Builds a visual card for a single badge, optionally showing progress for a given user.
+     * @param b the badge to render
+     * @param u the user for whom to compute earned/progress state
+     * @param progressDAO DAO used to read progress/goal/earned flags (can be {@code null})
+     * @param showProgress whether to include a progress bar
+     * @return a JavaFX node representing the badge
+     */
     public static Node buildCard(Badge b, User u, IBadgeProgressDAO progressDAO, boolean showProgress) {
 
         int userId = u.getUserId();
@@ -34,15 +50,15 @@ public class BadgeRenderer {
             card.getStyleClass().add("compact");
         }
 
-        // === Title ===
-        Label title = new Label(safe(b.getBadgeName()));
+        // Title
+        Label title = new Label(trim(b.getBadgeName()));
         title.setWrapText(true);
         title.setMaxWidth(Double.MAX_VALUE);
         title.setAlignment(Pos.CENTER);
         title.setTextAlignment(TextAlignment.CENTER);
         title.getStyleClass().add("card-title");
 
-        // === Badge Image ===
+        // Badge Image
         ImageView image = new ImageView();
         try {
             Image img = new Image(new FileInputStream(b.getBadgeIconPath()), 96, 96, true, true);
@@ -59,16 +75,16 @@ public class BadgeRenderer {
         image.setFitHeight(96);
         image.getStyleClass().add("badge-icon");
 
-        // === Description ===
-        Text desc = new Text(safe(b.getBadgeDescription()));
+        // Description
+        Text desc = new Text(trim(b.getBadgeDescription()));
         desc.setWrappingWidth(180);
         desc.setTextAlignment(TextAlignment.CENTER);
         desc.getStyleClass().add("card-desc");
 
-        // === badge progress visual ===
+        // Badge progress visual
         ProgressBar progressBar = new ProgressBar(0);
         progressBar.setPrefWidth(160);
-        progressBar.setPrefHeight(8);                // size with Java, not CSS
+        progressBar.setPrefHeight(8);
         progressBar.getStyleClass().add("progress");
 
         boolean earned = false;
@@ -90,13 +106,8 @@ public class BadgeRenderer {
         progressBar.setVisible(showProgress);
         progressBar.setManaged(showProgress);
 
-
         // Earned/locked state classes for CSS
-        if (earned) {
-            card.getStyleClass().add("earned");
-        } else {
-            card.getStyleClass().add("locked");
-        }
+        card.getStyleClass().add(earned ? "earned" : "locked");
 
         // Assemble
         if (showProgress) {
@@ -106,6 +117,4 @@ public class BadgeRenderer {
         }
         return card;
     }
-
-    private static String safe(String s) { return s == null ? "" : s; }
 }
