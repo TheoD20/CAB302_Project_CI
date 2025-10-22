@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"com.example.cab302_project","l":"com.app.studysnap"},{"m":"com.example.cab302_project","l":"com.app.studysnap.controllers"},{"m":"com.example.cab302_project","l":"com.app.studysnap.model"},{"m":"com.example.cab302_project","l":"com.app.studysnap.services"}];updateSearchResults();

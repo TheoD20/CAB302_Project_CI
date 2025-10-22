@@ -1,0 +1,5 @@
+module:com.example.cab302_project
+com.app.studysnap
+com.app.studysnap.controllers
+com.app.studysnap.model
+com.app.studysnap.services
