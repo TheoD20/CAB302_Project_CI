@@ -19,7 +19,7 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
     private final Connection connection;
 
     /**
-     * Creates a DAO bound to the shared SQLite connection and ensures the schema exists.
+     * Creates a DAO using to the shared SQLite connection and ensures the schema exists.
      */
     public SqliteBadgeProgressDAO() {
         this.connection = SqliteConnection.getInstance();
