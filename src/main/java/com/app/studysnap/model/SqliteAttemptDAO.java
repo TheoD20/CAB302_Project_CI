@@ -17,9 +17,6 @@ import static com.app.studysnap.services.TextParser.*;
  * Timestamps are stored in a text column ({@code attempt_at}) and parsed as dates
  * using the first 10 chars ({@code yyyy-MM-dd}) for streak computations.
  * </p>
- *
- * @implNote This implementation currently enables {@code PRAGMA foreign_keys = ON}.
- * @implNote Score strings are expected in the form {@code "correct/total"}.
  * @see IAttemptDAO
  */
 public class SqliteAttemptDAO implements IAttemptDAO {

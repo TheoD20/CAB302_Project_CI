@@ -1,18 +1,34 @@
 package com.app.studysnap.model;
 
+import com.app.studysnap.exceptions.DataAccessException;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * SQLite implementation of {@link IBadgeProgressDAO}.
+ * <p>
+ * Uses a {@code BadgeProgress} table keyed by {@code (user_id, badge_id)} to track progress,
+ * earned status, and goals.
+ * </p>
+ * @see IBadgeProgressDAO
+ */
 public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
 
     private final Connection connection;
 
+    /**
+     * Creates a DAO bound to the shared SQLite connection and ensures the schema exists.
+     */
     public SqliteBadgeProgressDAO() {
         this.connection = SqliteConnection.getInstance();
         createTable();
     }
 
+    /**
+     * Creates the {@code BadgeProgress} table if it does not already exist.
+     */
     private void createTable() {
         String sql = """
             CREATE TABLE IF NOT EXISTS BadgeProgress (
@@ -31,11 +47,11 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
             st.execute("PRAGMA foreign_keys = ON");
             st.execute(sql);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException("Failed to create BadgeProgress table.", e);
         }
     }
 
-    // Increments badge progress by a specified value (positive or negative) and update is_earned
+    /** {@inheritDoc} */
     @Override
     public void addProgress(int userId, int badgeId, int value) {
         String inc = "UPDATE BadgeProgress SET progress = MAX(0, progress + ?) WHERE user_id=? AND badge_id=?";
@@ -74,13 +90,13 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
             connection.commit();
         } catch (SQLException e) {
             try { connection.rollback(); } catch (SQLException ignore) {}
-            throw new RuntimeException(e);
+            throw new DataAccessException("Failed to add badge progress (user " + userId + ", badge " + badgeId + ").", e);
         } finally {
             try { connection.setAutoCommit(true); } catch (SQLException ignore) {}
         }
     }
 
-    // Sets the badge progress to an explicit value and update is_earned
+    /** {@inheritDoc} */
     @Override
     public void setProgress(int userId, int badgeId, int value) {
         String set = "UPDATE BadgeProgress SET progress = MAX(0, ?) WHERE user_id=? AND badge_id=?";
@@ -119,13 +135,13 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
             connection.commit();
         } catch (SQLException e) {
             try { connection.rollback(); } catch (SQLException ignore) {}
-            throw new RuntimeException(e);
+            throw new DataAccessException("Failed to set badge progress (user " + userId + ", badge " + badgeId + ").", e);
         } finally {
             try { connection.setAutoCommit(true); } catch (SQLException ignore) {}
         }
     }
 
-    // Resets progress for a specific badge
+    /** {@inheritDoc} */
     @Override
     public void resetProgress(int userId, int badgeId) {
         String sql = "UPDATE BadgeProgress SET progress=0, is_earned=0 WHERE user_id=? AND badge_id=?";
@@ -133,30 +149,32 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
             ps.setInt(1, userId);
             ps.setInt(2, badgeId);
             ps.executeUpdate();
-        } catch (SQLException e) { throw new RuntimeException(e); }
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to reset badge progress (user " + userId + ", badge " + badgeId + ").", e);
+        }
     }
 
-    // Return all completed badges for specific user
+    /** {@inheritDoc} */
     @Override
     public List<Badge> getCompletedBadgesByUser(int userId) {
         List<Badge> list = new ArrayList<>();
         IBadgeDAO badgeDAO = new SqliteBadgeDAO();
 
         try (PreparedStatement ps = connection.prepareStatement(
-                "SELECT * FROM BadgeProgress WHERE user_id=? AND is_earned=1")) {
+                "SELECT badge_id FROM BadgeProgress WHERE user_id=? AND is_earned=1")) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     list.add(badgeDAO.getBadgeById(rs.getInt("badge_id")));
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to fetch completed badges for user " + userId + ".", e);
         }
         return list;
     }
 
-    // Returns true if the badge has been earned by the user
+    /** {@inheritDoc} */
     @Override
     public boolean isEarned(int userId, int badgeId) {
         String sql = "SELECT is_earned FROM BadgeProgress WHERE user_id=? AND badge_id=?";
@@ -166,10 +184,12 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() && rs.getInt(1) == 1;
             }
-        } catch (SQLException e) { throw new RuntimeException(e); }
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to read is_earned (user " + userId + ", badge " + badgeId + ").", e);
+        }
     }
 
-    // Returns the current progress value for a specific user and badge
+    /** {@inheritDoc} */
     @Override
     public int getProgress(int userId, int badgeId) {
         String sql = "SELECT progress FROM BadgeProgress WHERE user_id=? AND badge_id=?";
@@ -179,10 +199,12 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
             }
-        } catch (SQLException e) { throw new RuntimeException(e); }
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to read progress (user " + userId + ", badge " + badgeId + ").", e);
+        }
     }
 
-    // Returns the progress goal for a badge, or null if not defined
+    /** {@inheritDoc} */
     @Override
     public int getGoal(int userId, int badgeId) {
         String sql = "SELECT progress_goal FROM BadgeProgress WHERE user_id=? AND badge_id=?";
@@ -192,6 +214,8 @@ public class SqliteBadgeProgressDAO implements IBadgeProgressDAO{
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
             }
-        } catch (SQLException e) { throw new RuntimeException(e); }
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to read progress_goal (user " + userId + ", badge " + badgeId + ").", e);
+        }
     }
 }
