@@ -1,6 +1,8 @@
 package com.app.studysnap.services;
 
 import com.app.studysnap.Main;
+import com.app.studysnap.exceptions.AppException;
+import com.app.studysnap.exceptions.ResourceNotFoundException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -15,11 +17,24 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 
+/**
+ * Simple navigation helper for switching scenes or replacing the
+ * dashboard content area with another FXML view.
+ * <p>
+ * This utility centralizes the usual JavaFX navigation boilerplate and
+ * reports failures through app popups.
+ * </p>
+ */
 public class Navigator {
     private Navigator() {}
 
-    // Navigate to different fxml
-    public static void goTo(Node source, String fxmlFile) throws IOException {
+    /**
+     * Replaces the root of the current window with the view from the given FXML.
+     * If the {@link Stage} has no scene yet, a new {@link Scene} is created.
+     * @param source any node on the target window (used to resolve its stage)
+     * @param fxmlFile FXML file name/path relative to {@link Main} resources
+     */
+    public static void goTo(Node source, String fxmlFile) {
         try {
             Stage stage = (Stage) source.getScene().getWindow();
             Parent view = loadView(fxmlFile);
@@ -35,44 +50,73 @@ public class Navigator {
         }
     }
 
-    private static Parent loadView(String fxml) throws Exception {
-        URL url = Objects.requireNonNull(Main.class.getResource(fxml), "FXML not found: " + fxml);
-        return FXMLLoader.load(url);
+    /**
+     * Loads an FXML view relative to {@link Main}’s resource root.
+     * @param fxml relative resource path (e.g. {@code "home.fxml"})
+     * @return the loaded {@link Parent}
+     * @throws ResourceNotFoundException if the FXML resource cannot be located
+     * @throws AppException if the FXML fails to load
+     */
+    private static Parent loadView(String fxml) {
+        try {
+            URL url = Main.class.getResource(fxml);
+            if (url == null) {
+                throw new ResourceNotFoundException("FXML not found: " + fxml);
+            }
+            return FXMLLoader.load(url);
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AppException("Error loading FXML '" + fxml + "': " + e.getMessage(), e);
+        }
     }
 
-    // Navigate to fxml into the Dashboard content area
+    /**
+     * Replaces the dashboard center content (a {@link StackPane} with fx:id {@code contentArea})
+     * with a view loaded from an FXML file.
+     * @param anyChildOnScene any node that lives in the dashboard scene
+     * @param fxml relative FXML path to load
+     */
     public static void showInDashboard(Node anyChildOnScene, String fxml) {
         try {
             if (anyChildOnScene == null || anyChildOnScene.getScene() == null) {
-                throw new IllegalStateException("Node is not attached to a Scene.");
+                throw new AppException("Node is not attached to a Scene.");
             }
             var root = anyChildOnScene.getScene().getRoot();
             if (!(root instanceof BorderPane dashRoot)) {
-                throw new IllegalStateException("Root is not a BorderPane (dashboard).");
+                throw new AppException("Root is not a BorderPane (dashboard).");
             }
             StackPane contentArea = (StackPane) dashRoot.lookup("#contentArea");
             if (contentArea == null) {
-                throw new IllegalStateException("contentArea not found. Ensure id=\"contentArea\" in dashboard.fxml.");
+                throw new ResourceNotFoundException("contentArea not found. Ensure id=\"contentArea\" in dashboard.fxml.");
             }
-            Parent view = FXMLLoader.load(Objects.requireNonNull(Main.class.getResource(fxml)));
+            Parent view = FXMLLoader.load(Objects.requireNonNull(Main.class.getResource(fxml),
+                    "FXML not found: " + fxml));
             contentArea.getChildren().setAll(view);
         } catch (Exception ex) {
             new Alert(Alert.AlertType.ERROR, "Failed to open " + fxml + ":\n" + ex.getMessage(), ButtonType.OK).showAndWait();
         }
     }
 
-    // Overload to load already loaded scene in dashboard
+    /**
+     * Replaces the dashboard center content (a {@link StackPane} with fx:id {@code contentArea})
+     * with an already loaded {@link Parent}.
+     * @param anyChildOnScene any node that lives in the dashboard scene
+     * @param view a preloaded view to inject
+     * @throws AppException if the scene/root type is unexpected
+     * @throws ResourceNotFoundException if the {@code contentArea} node is missing
+     */
     public static void showInDashboard(Node anyChildOnScene, Parent view) {
         if (anyChildOnScene == null || anyChildOnScene.getScene() == null) {
-            throw new IllegalStateException("Node is not attached to a Scene.");
+            throw new AppException("Node is not attached to a Scene.");
         }
         var root = anyChildOnScene.getScene().getRoot();
         if (!(root instanceof BorderPane dashRoot)) {
-            throw new IllegalStateException("Root is not a BorderPane (dashboard).");
+            throw new AppException("Root is not a BorderPane (dashboard).");
         }
         StackPane contentArea = (StackPane) dashRoot.lookup("#contentArea");
         if (contentArea == null) {
-            throw new IllegalStateException("contentArea not found. Ensure id=\"contentArea\" in dashboard.fxml.");
+            throw new ResourceNotFoundException("contentArea not found. Ensure id=\"contentArea\" in dashboard.fxml.");
         }
         contentArea.getChildren().setAll(view);
     }
