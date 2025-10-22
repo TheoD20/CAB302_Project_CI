@@ -30,27 +30,33 @@ jobs:
       STUDYSNAP_GOOGLE_OAUTH_PORT: "8888"
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'corretto'
-        cache: maven
-    - name: Build with Maven
-      env:
-        STUDYSNAP_GOOGLE_CLIENT_ID: ${{ secrets.STUDYSNAP_GOOGLE_CLIENT_ID }}
-        STUDYSNAP_GOOGLE_CLIENT_SECRET: ${{ secrets.STUDYSNAP_GOOGLE_CLIENT_SECRET }}
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        STUDYSNAP_GOOGLE_OAUTH_PORT: "8888"
-      run: mvn -B package --file pom.xml
-    - name: Test
-      run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
-    - name: Report
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: Maven Tests
-        path: target/surefire-reports/*.xml
-        reporter: java-junit
-        fail-on-error: true
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          cache: maven
+      - name: Build with Maven
+        env:
+          STUDYSNAP_GOOGLE_CLIENT_ID: ${{ secrets.STUDYSNAP_GOOGLE_CLIENT_ID }}
+          STUDYSNAP_GOOGLE_CLIENT_SECRET: ${{ secrets.STUDYSNAP_GOOGLE_CLIENT_SECRET }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          STUDYSNAP_GOOGLE_OAUTH_PORT: "8888"
+        run: mvn -B package --file pom.xml
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Maven Tests
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true
+      - name: Generate Javadoc
+        run: mvn javadoc:javadoc
+      - name: Publish Javadoc
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: target/docs/javadoc
