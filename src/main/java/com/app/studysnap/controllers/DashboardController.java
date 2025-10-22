@@ -13,11 +13,21 @@ import javafx.scene.control.Button;
 
 import java.util.Objects;
 
+/**
+ * JavaFX controller for the main dashboard view.
+ */
 public class DashboardController {
 
     @FXML private StackPane contentArea;
     private static String pendingCenterFxml;
 
+    /**
+     * JavaFX initialize method.
+     * <p>
+     * Loads the requested center content into {@link #contentArea}. If no pending
+     * content was specified, {@code home.fxml} is loaded by default.
+     * </p>
+     */
     @FXML
     private void initialize() {
         String target = (pendingCenterFxml != null) ? pendingCenterFxml : "home.fxml";
@@ -25,7 +35,14 @@ public class DashboardController {
         safeLoadCenter(target);
     }
 
-    // Sidebar navigation
+    /**
+     * Handles sidebar navigation button clicks.
+     * <p>
+     * Expects each {@link Button} to have its target FXML filename set as {@code userData}.
+     * When clicked, the corresponding view is loaded into {@link #contentArea}.
+     * </p>
+     * @param event the action event triggered by clicking on specific button
+     */
     @FXML
     private void handleNav(ActionEvent event) {
         Object src = event.getSource();
@@ -37,12 +54,19 @@ public class DashboardController {
         }
     }
 
-    // Call to set up an alternative window to open in initialization rather than home.fxml
+    /**
+     * set specific FXML to open on initialization.
+     *
+     * @param centerFxml the FXML resource name (e.g., {@code "profile.fxml"}) to open first
+     */
     public static void openOn(String centerFxml) {
         pendingCenterFxml = centerFxml;
     }
 
-    // Logout btn click
+    /**
+     * Handles the logout action: clears the current session and navigates to {@code login.fxml}.
+     * @param event the action event triggered by clicking the logout button
+     */
     @FXML
     private void handleLogout(ActionEvent event) {
         try {
@@ -53,7 +77,11 @@ public class DashboardController {
         }
     }
 
-    // Update dashboard center content
+    /**
+     * Loads an FXML view by name and replaces the contents of {@link #contentArea}.
+     * Any load failure is caught and logged via stack trace.
+     * @param fxmlName the resource name of the FXML to load (e.g., {@code "home.fxml"})
+     */
     private void safeLoadCenter(String fxmlName) {
         try {
             Node view = FXMLLoader.load(Objects.requireNonNull(Main.class.getResource(fxmlName)));
