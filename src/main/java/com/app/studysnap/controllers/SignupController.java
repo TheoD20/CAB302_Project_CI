@@ -1,5 +1,9 @@
 package com.app.studysnap.controllers;
 
+import com.app.studysnap.exceptions.AlreadyExistsException;
+import com.app.studysnap.exceptions.AuthenticationException;
+import com.app.studysnap.exceptions.ExternalServiceException;
+import com.app.studysnap.exceptions.ValidationException;
 import com.app.studysnap.services.Navigator;
 import com.app.studysnap.services.Popup;
 import com.app.studysnap.auth.AuthService;
@@ -14,6 +18,15 @@ import javafx.scene.control.*;
 import java.io.IOException;
 import java.util.Objects;
 
+import static com.app.studysnap.services.TextParser.isBlank;
+
+/**
+ * Controller for the signup page.
+ * <p>
+ * Supports both email/password sign-up and Google Sign-In. On success, the user is
+ * authenticated and redirected to the dashboard.
+ * </p>
+ */
 public class SignupController {
     @FXML private TextField nameField;
     @FXML private TextField emailField;
@@ -23,8 +36,15 @@ public class SignupController {
     @FXML private Button signButton;
     @FXML private Hyperlink toLoginLink;
 
+    /**
+     * Authentication service backed by a SQLite DAO.
+     */
     private final AuthService auth = new AuthService(new SqliteUserDAO());
 
+    /**
+     * Handles email/password sign-up. Validates password confirmation, registers the user,
+     * logs them in, and navigates to the dashboard.
+     */
     @FXML
     private void handleSignup() {
         try {
@@ -43,13 +63,18 @@ public class SignupController {
             Session.setCurrentUser(user);
             Navigator.goTo(signButton, "dashboard.fxml");
 
-        } catch (IllegalArgumentException ex) {
+        } catch (ValidationException | AlreadyExistsException | AuthenticationException ex) {
             Popup.error(ex.getMessage());
         } catch (Exception ex) {
             Popup.error("Unexpected error. Please try again.");
         }
     }
 
+    /**
+     * Handles Google Sign-In flow. After Google auth, provisions the account if needed,
+     * logs the user in, and navigates to the dashboard.
+     * @throws IOException if navigation fails
+     */
     @FXML
     private void handleGoogleSignup() throws IOException {
         try {
@@ -57,7 +82,7 @@ public class SignupController {
             var userInfo = googleAuth.login();
 
             String name = userInfo.getName();
-            if (name == null || name.isBlank()) name = userInfo.getEmail().split("@")[0];
+            if (isBlank(name)) name = userInfo.getEmail().split("@")[0];
 
             auth.registerGoogleUser(name, userInfo.getEmail(), userInfo.getId());
 
@@ -66,17 +91,23 @@ public class SignupController {
             Popup.info("Welcome, " + u.getUsername());
             Navigator.goTo(googleSignButton, "dashboard.fxml");
 
-        } catch (IllegalArgumentException ex) {
+        } catch (ValidationException | AlreadyExistsException | AuthenticationException ex) {
             String message = ex.getMessage();
             Popup.error(message);
             if (Objects.equals(message, "An account with this email uses a password. Use email login.")) {
                 goToLogin();
             }
+        } catch (ExternalServiceException e) {
+            Popup.error("Google external service error: " + e.getMessage());
         } catch (Exception e) {
             Popup.error("Google signup failed: " + e.getMessage());
         }
     }
 
+    /**
+     * Navigates to the login screen.
+     * @throws IOException if navigation fails
+     */
     @FXML
     private void goToLogin() throws IOException {
         Navigator.goTo(toLoginLink, "login.fxml");
