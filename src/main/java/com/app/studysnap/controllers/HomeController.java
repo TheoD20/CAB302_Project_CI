@@ -18,12 +18,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.util.List;
 
-import static com.app.studysnap.services.PdfExporter.safeFileName;
 import static com.app.studysnap.services.TextParser.*;
 
 /**
@@ -207,12 +205,8 @@ public class HomeController {
         }
 
         // Save file
-        FileChooser fc = new FileChooser();
-        fc.setTitle(includeAnswers ? "Export Quiz (with answers)" : "Export Quiz");
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
-        String base = safeFileName(full.getTitle());
-        fc.setInitialFileName(base + (includeAnswers ? "-with-answers" : "") + ".pdf");
-        File pdf = fc.showSaveDialog(deckContainer.getScene().getWindow());
+        File pdf = FileDialogs.chooseSavePdf(deckContainer.getScene().getWindow(),
+                (includeAnswers ? "quiz-with-answers" : "quiz"));
         if (pdf == null) return;
 
         try {
