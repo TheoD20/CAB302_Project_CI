@@ -1,22 +1,45 @@
 package com.app.studysnap.model;
 
+import com.app.studysnap.exceptions.DataAccessException;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.app.studysnap.services.TextParser.isBlank;
+import static com.app.studysnap.services.TextParser.trim;
+
+/**
+ * SQLite implementation of {@link IQuizDAO}.
+ * <p>
+ * Manages the {@code Quizzes} table (FK to {@code Users}) and delegates question
+ * persistence to {@link SqliteQuestionDAO}.
+ * </p>
+ * @see IQuizDAO
+ */
 public class SqliteQuizDAO implements IQuizDAO {
 
     private final Connection connection;
     private final SqliteQuestionDAO questionDAO;
 
+    /**
+     * Creates a DAO bound to the shared SQLite connection and ensures the schema exists.
+     */
     public SqliteQuizDAO() {
-        connection = SqliteConnection.getInstance();
-        questionDAO = new SqliteQuestionDAO();
-        createTables();
+        try {
+            connection = SqliteConnection.getInstance();
+            questionDAO = new SqliteQuestionDAO();
+            createTables();
+        } catch (Exception e) {
+            throw new DataAccessException("Failed to initialize SqliteQuizDAO.", e);
+        }
     }
 
+    /**
+     * Creates the {@code Quizzes} table if it does not already exist.
+     */
     private void createTables() {
         try (Statement st = connection.createStatement()) {
             st.execute("PRAGMA foreign_keys = ON");
@@ -31,11 +54,12 @@ public class SqliteQuizDAO implements IQuizDAO {
                     FOREIGN KEY(created_by) REFERENCES Users(user_id)
                 )
             """);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to create Quizzes table.", e);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void addQuiz(Quiz quiz) {
         final String insertQuiz = "INSERT INTO Quizzes(title,subject,description,is_private,created_by) VALUES(?,?,?,?,?)";
@@ -57,11 +81,12 @@ public class SqliteQuizDAO implements IQuizDAO {
                     questionDAO.replaceForQuiz(quizId, quiz.getQuestions());
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to insert quiz.", e);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void updateQuiz(Quiz quiz) {
         final String updQuiz = "UPDATE Quizzes SET title=?, subject=?, description=?, is_private=?, created_by=? WHERE quiz_id=?";
@@ -73,8 +98,8 @@ public class SqliteQuizDAO implements IQuizDAO {
             ps.setInt(5, quiz.getCreatedBy());
             ps.setInt(6, quiz.getQuizId());
             ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to update quiz id " + quiz.getQuizId() + ".", e);
         }
 
         // Replace questions only if provided
@@ -82,23 +107,25 @@ public class SqliteQuizDAO implements IQuizDAO {
             try {
                 for (Question q : quiz.getQuestions()) q.setQuizId(quiz.getQuizId());
                 questionDAO.replaceForQuiz(quiz.getQuizId(), quiz.getQuestions());
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                throw new DataAccessException("Failed to replace questions for quiz " + quiz.getQuizId() + ".", e);
             }
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void deleteQuiz(int quizId) {
         // ON DELETE CASCADE handles questions
         try (PreparedStatement ps = connection.prepareStatement("DELETE FROM Quizzes WHERE quiz_id=?")) {
             ps.setInt(1, quizId);
             ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to delete quiz id " + quizId + ".", e);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Quiz> getAllQuizzes() {
         List<Quiz> list = new ArrayList<>();
@@ -116,10 +143,13 @@ public class SqliteQuizDAO implements IQuizDAO {
                     ));
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to fetch all quizzes.", e);
+        }
         return list;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Quiz getQuizById(int quizId) {
         Quiz quiz = null;
@@ -138,8 +168,8 @@ public class SqliteQuizDAO implements IQuizDAO {
                     );
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to fetch quiz id " + quizId + ".", e);
         }
         if (quiz == null) return null;
 
@@ -149,6 +179,7 @@ public class SqliteQuizDAO implements IQuizDAO {
         return quiz;
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Quiz> getQuizzesByUser(int userId) {
         List<Quiz> list = new ArrayList<>();
@@ -167,11 +198,13 @@ public class SqliteQuizDAO implements IQuizDAO {
                     ));
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to fetch quizzes for user " + userId + ".", e);
+        }
         return list;
     }
 
-    // Map all user quizzes by topic
+    /** {@inheritDoc} */
     @Override
     public Map<String, Integer> getDeckCountsByTopic(int userId) {
         Map<String, Integer> out = new HashMap<>();
@@ -185,18 +218,20 @@ public class SqliteQuizDAO implements IQuizDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String subject = rs.getString("subject");
-                if (subject == null || subject.isBlank()) subject = "(No subject)";
+                // rule #3: delegate blank check
+                if (isBlank(subject)) subject = "(No subject)";
                 out.put(subject, rs.getInt("c"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataAccessException("Failed to compute deck counts by topic for user " + userId + ".", e);
         }
         return out;
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<PublicListItem> findPublic(String query) {
-        String like = "%" + (query == null ? "" : query.trim()) + "%";
+        String like = "%" + trim(query) + "%"; // rule #3: delegate trim/safe
         final String sql = """
             SELECT q.quiz_id, q.title, q.subject, q.description, IFNULL(u.username,'') AS author
             FROM Quizzes q
@@ -223,22 +258,24 @@ public class SqliteQuizDAO implements IQuizDAO {
                     ));
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to search public quizzes.", e);
+        }
         return out;
     }
 
-    //Reset the Quizzes table by deleting all the data in the table and reset the autoincrement at the same time
+    /** {@inheritDoc} */
+    @Override
     public void resetQuizzesTable() {
-        try {
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("DELETE FROM Quizzes");
 
-            //reset autoincrement
+            // reset autoincrement for related tables
             statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='Quizzes'");
             statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='Questions'");
             statement.executeUpdate("DELETE FROM sqlite_sequence WHERE name='QuizAttempts'");
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to reset Quizzes table.", e);
         }
     }
 }
