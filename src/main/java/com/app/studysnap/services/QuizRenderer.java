@@ -5,16 +5,29 @@ import com.app.studysnap.model.Quiz;
 
 import java.util.List;
 
-// Renders a Quiz back to preview text with up to 5 options (A–E).
+import static com.app.studysnap.services.TextParser.*;
+
+/**
+ * Renders {@link Quiz} instances to a human-readable plain-text format suitable for previews and exports.
+ * <p>
+ * Output uses a numbered list for questions (1., 2., …) and up to five options labelled A)–E).
+ * When requested, the correct option letter is appended as an {@code Answer: X} line.
+ * </p>
+ */
 public final class QuizRenderer {
 
-    // Parse a quiz object to a string for UI display
+    /**
+     * Builds a plain-text representation of the given quiz.
+     * @param quiz the quiz to render.
+     * @param includeAnswers whether to include answers in output
+     * @return a string containing the quiz title, subject (if present) and all questions/options
+     */
     public String renderAsText(Quiz quiz, boolean includeAnswers) {
         StringBuilder sb = new StringBuilder();
-        if (quiz.getTitle() != null && !quiz.getTitle().isBlank()) {
-            sb.append(quiz.getTitle());
-            if (quiz.getSubject() != null && !quiz.getSubject().isBlank()) {
-                sb.append(" — ").append(quiz.getSubject());
+        if (!isBlank(quiz.getTitle())) {
+            sb.append(trim(quiz.getTitle()));
+            if (!isBlank(quiz.getSubject())) {
+                sb.append(" — ").append(trim(quiz.getSubject()));
             }
             sb.append("\n\n");
         }
@@ -24,7 +37,7 @@ public final class QuizRenderer {
 
         int i = 1;
         for (Question q : qs) {
-            sb.append(i++).append(". ").append(nz(q.getQuestion())).append("\n");
+            sb.append(i++).append(". ").append(trim(q.getQuestion())).append("\n");
 
             if (q.getOption1()!=null) sb.append("   A) ").append(q.getOption1()).append("\n");
             if (q.getOption2()!=null) sb.append("   B) ").append(q.getOption2()).append("\n");
@@ -48,7 +61,4 @@ public final class QuizRenderer {
         }
         return sb.toString();
     }
-
-    // Handles null strings
-    private static String nz(String s) { return s == null ? "" : s; }
 }
