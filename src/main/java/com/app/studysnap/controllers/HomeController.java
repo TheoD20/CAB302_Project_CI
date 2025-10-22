@@ -23,6 +23,17 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.util.List;
 
+import static com.app.studysnap.services.PdfExporter.safeFileName;
+import static com.app.studysnap.services.TextParser.*;
+
+/**
+ * Controller for the Home view fxml.
+ * <p>
+ * Displays a personalized welcome message, the user's quiz cards, an empty state when
+ * no quizzes exist, and quick actions to play, edit, delete, or export a quiz to PDF.
+ * Also loads and displays the user's avatar.
+ * </p>
+ */
 public class HomeController {
 
     @FXML private Label welcomeLabel;
@@ -32,12 +43,15 @@ public class HomeController {
 
     private final AvatarService avatars = new AvatarService();
     private static final double AVATAR_SIZE = 48.0;
-    private Image defaultAvatar;
 
     private final IQuizDAO dao = new SqliteQuizDAO();
     private final PdfExporter pdfExporter = new PdfExporter();
     private final QuizRenderer renderer = new QuizRenderer();
 
+    /**
+     * JavaFX initialization – sets welcome text, loads the user's quizzes into cards,
+     * and applies the avatar image (user-specific or default).
+     */
     @FXML
     public void initialize() {
         User u = Session.getCurrentUser();
@@ -48,11 +62,14 @@ public class HomeController {
         loadMyQuizzes();
 
         // Load avatar image
-        defaultAvatar = avatars.loadDefaultAvatar(AVATAR_SIZE);
+        Image defaultAvatar = avatars.loadDefaultAvatar(AVATAR_SIZE);
         avatars.applyUserAvatarOrDefault(avatarView, u, AVATAR_SIZE, defaultAvatar);
     }
 
-    // Load user quizzes on fxml decks
+    /**
+     * Loads quizzes belonging to the current user and renders them as cards.
+     * Shows the empty state when there are no quizzes or no active session.
+     */
     private void loadMyQuizzes() {
         deckContainer.getChildren().clear();
 
@@ -74,30 +91,37 @@ public class HomeController {
         }
     }
 
-    // Handle display if user has no quizzes
+    /**
+     * Shows or hides the empty state panel for when user have no quizzes yet.
+     * @param show {@code true} to show the empty state; {@code false} to hide it
+     */
     private void showEmpty(boolean show) {
         emptyState.setVisible(show);
         emptyState.setManaged(show);
     }
 
-    // Create fxml deck
+    /**
+     * Builds a single quiz card node with title, subject, description, and action buttons.
+     * @param q the quiz to render
+     * @return a configured {@link Node} representing the quiz card
+     */
     private Node buildCard(Quiz q) {
         VBox card = new VBox(8);
         card.setPadding(new Insets(12));
         card.setPrefWidth(280);
         card.getStyleClass().add("card");
 
-        Label title = new Label(nz(q.getTitle()));
+        Label title = new Label(trim(q.getTitle()));
         title.getStyleClass().add("card-title");
 
         HBox meta = new HBox(10);
-        Label subject = new Label("📚 " + nz(q.getSubject()));
+        Label subject = new Label("📚 " + trim(q.getSubject()));
         subject.getStyleClass().add("card-meta");
         Label is_private = new Label(q.get_is_private() ? "🔒 Private" : "🌐 Public");
         is_private.getStyleClass().add("card-meta");
         meta.getChildren().addAll(subject, is_private);
 
-        Text desc = new Text(nz(q.getDescription()));
+        Text desc = new Text(trim(q.getDescription()));
         desc.setWrappingWidth(256);
         desc.getStyleClass().add("card-desc");
 
@@ -111,8 +135,8 @@ public class HomeController {
         Button deleteBtn = new Button("Delete");
         Button exportBtn = new Button("Export");
 
-        openBtn.setOnAction(e -> openQuizPlayPage(q, "playQuiz.fxml"));
-        editBtn.setOnAction(e -> openEditQuiz(q, "editQuiz.fxml"));
+        openBtn.setOnAction(e -> openQuizPlayPage(q));
+        editBtn.setOnAction(e -> openEditQuiz(q));
         deleteBtn.setOnAction(e -> handleDeleteQuiz(q));
         exportBtn.setOnAction(e -> exportQuizPdf(q.getQuizId()));
         actions.getChildren().addAll(openBtn, editBtn, deleteBtn, exportBtn);
@@ -121,18 +145,23 @@ public class HomeController {
         return card;
     }
 
-    // Empty-state button -> go to quiz generator inside the dashboard
+    /**
+     * Handles empty-state button click: open the quiz generator within the dashboard content area.
+     */
     @FXML
     private void onCreateQuiz() {
         // Load quizGen.fxml into the dashboard content area
         Navigator.showInDashboard(deckContainer, "quizGen.fxml");
     }
 
-    // Handle btn to delete a quiz
+    /**
+     * Confirms and deletes the given quiz, then reloads the list.
+     * @param q the quiz to delete
+     */
     private void handleDeleteQuiz(Quiz q) {
         boolean confirmed = Popup.confirm(
                 "Delete quiz",
-                "Delete \"" + nz(q.getTitle()) + "\"?\nThis will permanently remove the quiz and all its questions."
+                "Delete \"" + trim(q.getTitle()) + "\"?\nThis will permanently remove the quiz and all its questions."
         );
         if (!confirmed) return;
 
@@ -145,7 +174,10 @@ public class HomeController {
         }
     }
 
-    // handle btn to export quiz as pdf
+    /**
+     * Exports a quiz (with or without answers) to a PDF chosen by the user.
+     * @param quizId the ID of the quiz to export
+     */
     private void exportQuizPdf(int quizId) {
         // Load full quiz with questions
         Quiz full = dao.getQuizById(quizId);
@@ -169,7 +201,7 @@ public class HomeController {
 
         // Render text
         String txt = renderer.renderAsText(full, includeAnswers);
-        if (txt.isBlank()) {
+        if (isBlank(txt)) {
             Popup.warn("Nothing to export.");
             return;
         }
@@ -191,8 +223,11 @@ public class HomeController {
         }
     }
 
-    //This opens quiz play page where you see all the questions belongs to the selected quiz
-    private void openQuizPlayPage(Quiz quiz, String fxml) {
+    /**
+     * Navigates to the quiz play page (after confirmation) and injects the selected quiz.
+     * @param quiz the quiz to play
+     */
+    private void openQuizPlayPage(Quiz quiz) {
         if(!Popup.confirm(
                 "Play Quiz",
                 "Are you ready to attempt: " + quiz.getTitle()
@@ -200,7 +235,7 @@ public class HomeController {
             return;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxml));
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("playQuiz.fxml"));
             Parent view = loader.load();
 
             // Get controller from the loaded FXML and pass the quiz
@@ -215,7 +250,11 @@ public class HomeController {
         }
     }
 
-    private void openEditQuiz(Quiz quiz, String fxml) {
+    /**
+     * Navigates to the quiz edit page (after confirmation) and injects the selected quiz.
+     * @param quiz the quiz to edit
+     */
+    private void openEditQuiz(Quiz quiz) {
         if(!Popup.confirm(
                 "Edit Quiz",
                 "Do you want to make changes to: " + quiz.getTitle()
@@ -224,7 +263,7 @@ public class HomeController {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource(fxml));
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("editQuiz.fxml"));
             Parent view = loader.load();
 
             // Get controller from the loaded FXML and pass the quiz
@@ -238,13 +277,4 @@ public class HomeController {
             Popup.error("Failed to open quiz edit page:\n" + ex.getMessage());
         }
     }
-
-    // format pdf file name for download
-    private String safeFileName(String s) {
-        String base = (s == null || s.isBlank()) ? "quiz" : s.trim();
-        return base.replaceAll("[\\\\/:*?\"<>|]", "_");
-    }
-
-    // Helper to handle null strings
-    private String nz(String s) { return s == null ? "" : s; }
 }

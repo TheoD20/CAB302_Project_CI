@@ -11,6 +11,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.app.studysnap.services.TextParser.isBlank;
+import static com.app.studysnap.services.TextParser.trim;
+
 
 // Writes plain text to a simple multipage PDF.
 public final class PdfExporter {
@@ -89,5 +92,11 @@ public final class PdfExporter {
         }
         if (!line.isEmpty()) out.add(line.toString());
         return out;
+    }
+
+    // format pdf file name for download
+    public static String safeFileName(String s) {
+        String base = (isBlank(s)) ? "quiz" : trim(s);
+        return base.replaceAll("[\\\\/:*?\"<>|]", "_");
     }
 }
