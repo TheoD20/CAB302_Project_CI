@@ -1,5 +1,6 @@
 package com.app.studysnap.controllers;
 
+import com.app.studysnap.exceptions.DataAccessException;
 import com.app.studysnap.model.Question;
 import com.app.studysnap.model.Quiz;
 import com.app.studysnap.model.SqliteQuestionDAO;
@@ -18,6 +19,12 @@ import javafx.scene.layout.Region;
 import java.io.IOException;
 import java.util.List;
 
+import static com.app.studysnap.services.TextParser.isBlank;
+import static com.app.studysnap.services.TextParser.trim;
+
+/**
+ * Controller responsible for editing a {@link Quiz}, including quiz metadata and its questions.
+ */
 public class EditQuizController {
 
     // Topbar
@@ -48,6 +55,9 @@ public class EditQuizController {
     private Quiz quiz;
     private final ObservableList<Question> questions = FXCollections.observableArrayList();
 
+    /**
+     * Constructs the controller and initializes DAO dependencies.
+     */
     public EditQuizController() {
         SqliteQuizDAO qd;
         SqliteQuestionDAO qsd;
@@ -57,6 +67,9 @@ public class EditQuizController {
         this.questionDAO = qsd;
     }
 
+    /**
+     * JavaFX initialization: configures table columns.
+     */
     @FXML
     private void initialize() {
         if (colIndex != null) {
@@ -65,7 +78,7 @@ public class EditQuizController {
             colIndex.setSortable(false);
         }
         if (colQuestion != null) {
-            colQuestion.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(safe(c.getValue().getQuestion())));
+            colQuestion.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(trim(c.getValue().getQuestion())));
             colQuestion.setCellFactory(col -> {
                 TableCell<Question, String> cell = new TableCell<>() {
                     private final Label label = new Label();
@@ -97,6 +110,11 @@ public class EditQuizController {
         }
     }
 
+    /**
+     * Binds a {@link Quiz} instance to the form and loads its questions.
+     *
+     * @param quiz the quiz to edit; if {@code null}, an error popup is shown and the method returns
+     */
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
         if (quiz == null) {
@@ -108,14 +126,18 @@ public class EditQuizController {
             quizIdLabel.setText("#" + quiz.getQuizId());
         }
 
-        titleField.setText(safe(quiz.getTitle()));
-        subjectField.setText(safe(quiz.getSubject()));
+        titleField.setText(trim(quiz.getTitle()));
+        subjectField.setText(trim(quiz.getSubject()));
         privateCheck.setSelected(quiz.get_is_private());
-        descriptionArea.setText(safe(quiz.getDescription()));
+        descriptionArea.setText(trim(quiz.getDescription()));
 
         refreshQuestions();
     }
 
+    /**
+     * Reloads the questions for the current quiz into the list.
+     * Safely handles if {@code quiz} or {@code questionDAO} is {@code null}.
+     */
     private void refreshQuestions() {
         questions.clear();
         if (quiz == null || questionDAO == null) return;
@@ -123,11 +145,16 @@ public class EditQuizController {
         if (list != null) questions.addAll(list);
     }
 
+    /**
+     * Persists quiz metadata changes through {@link SqliteQuizDAO} and returns to the dashboard.
+     * Validation: title is required (non-blank).
+     * Any errors show a popup with details.
+     */
     @FXML
     private void handleSave() {
         if (quiz == null) return;
         String title = titleField.getText();
-        if (title == null || title.isBlank()) {
+        if (isBlank(title)) {
             Popup.warn("Title is required.");
             return;
         }
@@ -138,7 +165,7 @@ public class EditQuizController {
             quiz.set_is_private(privateCheck.isSelected());
             quiz.setDescription(descriptionArea.getText());
 
-            if (quizDAO == null) throw new IllegalStateException("Quiz DAO unavailable.");
+            if (quizDAO == null) throw new DataAccessException("Quiz DAO unavailable.");
             quizDAO.updateQuiz(quiz); // assumes this method exists in your DAO
 
             Popup.info("Quiz saved.");
@@ -148,19 +175,27 @@ public class EditQuizController {
         }
     }
 
+    /**
+     * Cancels editing (with confirmation) and navigates back to the dashboard.
+     * @throws IOException propagated if navigation fails
+     */
     @FXML
     private void handleCancel() throws IOException {
         if (!Popup.confirm("Discard changes", "Return to Home without saving?")) return;
         Navigator.goTo(cancelBtn, "dashboard.fxml");
     }
 
+    /**
+     * Opens the add-question dialog, persists the new question via DAO, and refreshes the table.
+     * Any errors show a popup with details.
+     */
     @FXML
     private void handleAddQuestion() {
         Question q = questionDialog(null);
         if (q == null) return;
         try {
             q.setQuizId(quiz.getQuizId());
-            if (questionDAO == null) throw new IllegalStateException("Question DAO unavailable.");
+            if (questionDAO == null) throw new DataAccessException("Question DAO unavailable.");
             questionDAO.addQuestion(q);
             refreshQuestions();
             Popup.info("Question added.");
@@ -169,6 +204,10 @@ public class EditQuizController {
         }
     }
 
+    /**
+     * Edits the selected question using a dialog and persists changes via DAO.
+     * Any errors show a popup with details.
+     */
     @FXML
     private void handleEditQuestion() {
         Question sel = questionTable.getSelectionModel().getSelectedItem();
@@ -188,7 +227,7 @@ public class EditQuizController {
             sel.setOption5(edited.getOption5());
             sel.setCorrectOption(edited.getCorrectOption());
 
-            if (questionDAO == null) throw new IllegalStateException("Question DAO unavailable.");
+            if (questionDAO == null) throw new DataAccessException("Question DAO unavailable.");
             questionDAO.updateQuestion(sel);
             questionTable.refresh();
             Popup.info("Question updated.");
@@ -197,6 +236,10 @@ public class EditQuizController {
         }
     }
 
+    /**
+     * Deletes the selected question after confirmation and updates the table.
+     * Any errors show a popup with details.
+     */
     @FXML
     private void handleDeleteQuestion() {
         Question sel = questionTable.getSelectionModel().getSelectedItem();
@@ -207,7 +250,7 @@ public class EditQuizController {
         if (!Popup.confirm("Delete question", "Are you sure you want to delete this question?")) return;
 
         try {
-            if (questionDAO == null) throw new IllegalStateException("Question DAO unavailable.");
+            if (questionDAO == null) throw new DataAccessException("Question DAO unavailable.");
             questionDAO.deleteQuestion(sel.getQuestionId());
             questions.remove(sel);
             Popup.info("Question deleted.");
@@ -216,6 +259,12 @@ public class EditQuizController {
         }
     }
 
+    /**
+     * Builds and displays the add/edit question dialog, returning the composed {@link Question}
+     * when the user confirms, or {@code null} if canceled/invalid.
+     * @param existing an existing question to edit, or {@code null} to create a new one
+     * @return the resulting {@link Question}, or {@code null} if the dialog is canceled
+     */
     private Question questionDialog(Question existing) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle(existing == null ? "Add Question" : "Edit Question");
@@ -224,14 +273,14 @@ public class EditQuizController {
         GridPane grid = new GridPane();
         grid.setHgap(8); grid.setVgap(8); grid.setPadding(new Insets(8));
 
-        TextArea qText = new TextArea(existing == null ? "" : safe(existing.getQuestion()));
+        TextArea qText = new TextArea(existing == null ? "" : trim(existing.getQuestion()));
         qText.setPromptText("Question text"); qText.setWrapText(true); qText.setPrefRowCount(3);
 
-        TextField o1 = new TextField(existing == null ? "" : safe(existing.getOption1()));
-        TextField o2 = new TextField(existing == null ? "" : safe(existing.getOption2()));
-        TextField o3 = new TextField(existing == null ? "" : safe(existing.getOption3()));
-        TextField o4 = new TextField(existing == null ? "" : safe(existing.getOption4()));
-        TextField o5 = new TextField(existing == null ? "" : safe(existing.getOption5()));
+        TextField o1 = new TextField(existing == null ? "" : trim(existing.getOption1()));
+        TextField o2 = new TextField(existing == null ? "" : trim(existing.getOption2()));
+        TextField o3 = new TextField(existing == null ? "" : trim(existing.getOption3()));
+        TextField o4 = new TextField(existing == null ? "" : trim(existing.getOption4()));
+        TextField o5 = new TextField(existing == null ? "" : trim(existing.getOption5()));
 
         ComboBox<Integer> correct = new ComboBox<>(FXCollections.observableArrayList(1,2,3,4,5));
         correct.setValue(existing == null ? 1 : Math.max(1, existing.getCorrectOption()));
@@ -251,7 +300,7 @@ public class EditQuizController {
         // validate title
         Button ok = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
         ok.addEventFilter(javafx.event.ActionEvent.ACTION, evt -> {
-            if (qText.getText().isBlank()) {
+            if (isBlank(qText.getText())) {
                 Popup.warn("Question text cannot be empty.");
                 evt.consume();
             }
@@ -276,6 +325,4 @@ public class EditQuizController {
         out.setCorrectOption(correct.getValue());
         return out;
     }
-
-    private static String safe(String s) { return (s == null) ? "" : s; }
 }
