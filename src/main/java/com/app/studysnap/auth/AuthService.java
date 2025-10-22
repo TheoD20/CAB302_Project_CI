@@ -11,7 +11,8 @@ import org.mindrot.jbcrypt.BCrypt;
 import static com.app.studysnap.services.TextParser.isBlank;
 
 /**
- * AuthService Class handles user authentication such as register, login and password resets.
+ * AuthService handles user authentication flows including registration (local and Google),
+ * email/password login, Google login, and password resets.
  */
 public class AuthService {
     private final IUserDAO users;
