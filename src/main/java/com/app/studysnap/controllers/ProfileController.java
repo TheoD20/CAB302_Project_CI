@@ -18,7 +18,6 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +25,18 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.app.studysnap.services.BadgeRenderer;
+import static com.app.studysnap.auth.AuthService.validateEmail;
+import static com.app.studysnap.auth.AuthService.validateUsername;
+import static com.app.studysnap.services.TextParser.*;
 
+/**
+ * Controller for the user's profile page.
+ * <p>
+ * Loads and edits profile details (username/email), manages avatar, renders progress
+ * charts, and displays earned badges. Persists changes via DAO services and uses
+ * {@link Session} to access the signed-in user.
+ * </p>
+ */
 public class ProfileController {
 
     @FXML
@@ -53,6 +63,10 @@ public class ProfileController {
     private VBox chartsEmptyState;
     @FXML
     private PieChart accuracyChart;
+    @FXML
+    private StackPane accuracyChartContainer;
+    @FXML
+    private Label accuracyOverlay;
     @FXML
     private BarChart<String, Number> weeklyActivityChart;
     @FXML
@@ -84,6 +98,10 @@ public class ProfileController {
     private static final double AVATAR_SIZE = 96.0;
     private Image defaultAvatar;
 
+    /**
+     * JavaFX initialization: initializes DAOs, loads user/profile data, sets up charts and badges,
+     * and applies the user's avatar.
+     */
     @FXML
     private void initialize() {
 
@@ -98,7 +116,7 @@ public class ProfileController {
         currentUser = Session.getCurrentUser();
         if (currentUser == null) {
             setStatus("No session found. Please log in again.");
-            disableForm(true);
+            disableForm();
             return;
         }
 
@@ -116,13 +134,13 @@ public class ProfileController {
         }
 
         // Profile info
-        usernameField.setText(safe(currentUser.getUsername()));
-        emailField.setText(safe(currentUser.getEmail()));
+        usernameField.setText(trim(currentUser.getUsername()));
+        emailField.setText(trim(currentUser.getEmail()));
 
-        String provider = safe(currentUser.getAuthProvider()).isBlank() ? "LOCAL" : currentUser.getAuthProvider();
+        String provider = isBlank(trim(currentUser.getAuthProvider())) ? "LOCAL" : currentUser.getAuthProvider();
         providerValue.setText(provider);
         providerLabel.setText(provider.equalsIgnoreCase("GOOGLE") ? "Google account" : "Local account");
-        displayName.setText(safe(currentUser.getUsername()).isBlank() ? "User" : currentUser.getUsername());
+        displayName.setText(isBlank(trim(currentUser.getUsername())) ? "User" : currentUser.getUsername());
 
         // block email change for Google account
         emailField.setEditable(!provider.equalsIgnoreCase("GOOGLE"));
@@ -193,17 +211,21 @@ public class ProfileController {
         renderBadges();
     }
 
+    /**
+     * Determines if changes in the profile form are valid.
+     * Toggles save button and status accordingly.
+     */
     private void validateDirty() {
         if (currentUser == null) {
             saveButton.setDisable(true);
             return;
         }
 
-        String newUsername = safe(usernameField.getText());
-        String newEmail = safe(emailField.getText());
+        String newUsername = trim(usernameField.getText());
+        String newEmail = trim(emailField.getText());
 
-        boolean changed = !newUsername.equals(safe(currentUser.getUsername()))
-                || !newEmail.equals(safe(currentUser.getEmail()));
+        boolean changed = !newUsername.equals(trim(currentUser.getUsername()))
+                || !newEmail.equals(trim(currentUser.getEmail()));
 
         boolean valid = validateUsername(newUsername)
                 && (!emailField.isEditable() || validateEmail(newEmail));
@@ -212,6 +234,9 @@ public class ProfileController {
         statusLabel.setText(changed && !valid ? "Fix validation errors to continue." : "");
     }
 
+    /**
+     * Saves profile changes (username/email) after validating, persists via DAO, and refreshes UI.
+     */
     @FXML
     private void handleSave() {
         if (currentUser == null || userDAO == null) {
@@ -219,10 +244,10 @@ public class ProfileController {
             return;
         }
 
-        String newUsername = safe(usernameField.getText());
-        String newEmail = safe(emailField.getText());
+        String newUsername = trim(usernameField.getText());
+        String newEmail = trim(emailField.getText());
 
-        // Validaciones
+        // Validations
         if (!validateUsername(newUsername)) {
             setStatus("Username must be 3–24 characters.");
             return;
@@ -232,19 +257,19 @@ public class ProfileController {
             return;
         }
 
-        // Si es GOOGLE, no permitir cambiar el email (ya está deshabilitado, de todas formas normalizamos)
+        // If it's GOOGLE, don't allow email changes
         if (!emailField.isEditable()) {
-            newEmail = safe(currentUser.getEmail());
+            newEmail = trim(currentUser.getEmail());
         }
 
-        // Actualizar modelo
+        // Update model
         currentUser.setUsername(newUsername);
         currentUser.setEmail(newEmail);
 
-        // Persistir
+        // Persist
         boolean ok = true;
         try {
-            userDAO.updateUser(currentUser);   // <= sin asignación
+            userDAO.updateUser(currentUser);
         } catch (Exception ex) {
             ex.printStackTrace();
             ok = false;
@@ -260,6 +285,10 @@ public class ProfileController {
         }
     }
 
+    /**
+     * Deletes the user profile and all associated content (after confirmation).
+     * Clears the session and navigates back to login page.
+     */
     @FXML
     private void handleDeleteProfile() {
         if (currentUser == null || userDAO == null || quizDAO == null) {
@@ -306,11 +335,18 @@ public class ProfileController {
         }
     }
 
+    /**
+     * Opens the password reset view.
+     * @throws IOException if navigation fails
+     */
     @FXML
     private void handleChangePassword() throws IOException {
         Navigator.goTo(changePasswordButton, "resetPassword.fxml");
     }
 
+    /**
+     * Prompts for an image file, saves it as the user's avatar, and updates the view.
+     */
     @FXML
     private void handleUploadAvatar() {
         if (currentUser == null) return;
@@ -333,6 +369,9 @@ public class ProfileController {
         }
     }
 
+    /**
+     * Removes the user's custom avatar (after confirmation) and reverts to the default image.
+     */
     @FXML
     private void handleDeleteAvatar() {
         if (currentUser == null) return;
@@ -348,7 +387,9 @@ public class ProfileController {
         }
     }
 
-    // update buttons to add/delete avatar image
+    /**
+     * Updates visibility of avatar action buttons depending on whether a custom avatar exists.
+     */
     @FXML
     private void updateAvatarButtons() {
         boolean hasCustom = avatars.findAvatarFile(currentUser).isPresent();
@@ -358,7 +399,9 @@ public class ProfileController {
         }
     }
 
-
+    /**
+     * Opens a dialog with the full badges view.
+     */
     @FXML
     private void handleSeeAllBadges() {
         try {
@@ -378,15 +421,39 @@ public class ProfileController {
     }
 
     // Progress Section:
+
+    /**
+     * Populates the accuracy pie chart with counts for correct/incorrect answers.
+     * Calculate accuracy and display on overlay text.
+     */
     private void setupAccuracyChart(int correct, int incorrect) {
-        accuracyChart.getData().clear();
-        accuracyChart.getData().addAll(
-                new PieChart.Data("Correct", correct),
-                new PieChart.Data("Incorrect", Math.max(incorrect, 0))
+        int safeCorrect = Math.max(correct, 0);
+        int safeIncorrect = Math.max(incorrect, 0);
+        int total = safeCorrect + safeIncorrect;
+
+        accuracyChart.getData().setAll(
+                new PieChart.Data("Correct", safeCorrect),
+                new PieChart.Data("Incorrect", safeIncorrect)
         );
         accuracyChart.setLegendVisible(false);
+        accuracyChart.setLabelsVisible(false); // keep the pie clean
+
+        // Create overlay label once
+        if (accuracyOverlay == null) {
+            accuracyOverlay = new Label();
+            accuracyOverlay.getStyleClass().add("accuracy-overlay");
+            accuracyOverlay.setMouseTransparent(true);
+            accuracyChartContainer.getChildren().add(accuracyOverlay);
+        }
+
+        // Compute % and update text
+        String text = (total == 0) ? "—" : String.format("%.0f%%", (safeCorrect * 100.0) / total);
+        accuracyOverlay.setText(text);
     }
 
+    /**
+     * Builds a bar chart of attempts in the last 7 days (Sun–Sat labels).
+     */
     private void setupWeeklyActivityChart() {
         weeklyActivityChart.getData().clear();
         XYChart.Series<String, Number> s = new XYChart.Series<>();
@@ -408,6 +475,9 @@ public class ProfileController {
         weeklyActivityChart.getData().add(s);
     }
 
+    /**
+     * Renders a line chart showing weekly streak values for the past four weeks and now.
+     */
     private void setupStreakLineChart() {
         streakLineChart.getData().clear();
         XYChart.Series<String, Number> s = new XYChart.Series<>();
@@ -438,6 +508,9 @@ public class ProfileController {
         streakLineChart.getData().add(s);
     }
 
+    /**
+     * Builds a stacked bar chart for quiz counts by topic (subject) for the current user.
+     */
     private void setupDecksByTopicChart() {
         decksByTopicChart.getData().clear();
 
@@ -454,6 +527,9 @@ public class ProfileController {
         decksByTopicChart.getData().add(series);
     }
 
+    /**
+     * Populates the badges grid: shows earned badges or an empty label if none.
+     */
     private void renderBadges() {
         badgesGrid.getChildren().clear();
 
@@ -469,18 +545,19 @@ public class ProfileController {
         }
     }
 
-    /* ------------ helpers ------------ */
-    private void setStatus(String msg) { statusLabel.setText(msg == null ? "" : msg); }
-    private void disableForm(boolean b) {
-        usernameField.setDisable(b);
-        emailField.setDisable(b);
-        saveButton.setDisable(b);
-    }
-    private static String safe(String s) { return s == null ? "" : s.trim(); }
-    private static boolean validateUsername(String s) { return s != null && s.trim().length() >= 3 && s.trim().length() <= 24; }
-    private static boolean validateEmail(String s) {
-        if (s == null) return false;
-        String v = s.trim().toLowerCase();
-        return v.contains("@") && v.indexOf('@') > 0 && v.indexOf('@') < v.length() - 3 && v.contains(".");
+    // helpers
+
+    /**
+     * Sets the status label (null-safe).
+     */
+    private void setStatus(String msg) { statusLabel.setText(trim(msg)); }
+
+    /**
+     * Disables core form controls.
+     */
+    private void disableForm() {
+        usernameField.setDisable(true);
+        emailField.setDisable(true);
+        saveButton.setDisable(true);
     }
 }

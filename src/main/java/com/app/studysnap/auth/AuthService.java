@@ -9,6 +9,7 @@ import com.app.studysnap.model.User;
 import org.mindrot.jbcrypt.BCrypt;
 
 import static com.app.studysnap.services.TextParser.isBlank;
+import static com.app.studysnap.services.TextParser.trim;
 
 /**
  * AuthService handles user authentication flows including registration (local and Google),
@@ -50,9 +51,13 @@ public class AuthService {
         if (users.emailExists(email))
             throw new AlreadyExistsException("Email already in use.");
 
+        if (!validateEmail(email) || !validateUsername(username)) {
+            throw new AuthenticationException("Invalid email.");
+        }
+
         User u = new User();
-        u.setUsername(username.trim());
-        u.setEmail(email.trim().toLowerCase());
+        u.setUsername(trim(username));
+        u.setEmail(trim(email).toLowerCase());
         u.setPassword(BCrypt.hashpw(rawPassword, BCrypt.gensalt()));
         u.setAuthProvider("LOCAL");
 
@@ -121,9 +126,13 @@ public class AuthService {
      * @throws AuthenticationException if the account is not LOCAL or credentials are invalid.
      */
     public User loginWithEmail(String email, String rawPassword) {
-        if (isBlank(email) || isBlank(rawPassword))
+        if (isBlank(email) || isBlank(rawPassword)) {
             throw new ValidationException("Email and password are required.");
-        User u = users.getUserByEmail(email.trim().toLowerCase());
+        }
+        if (validateEmail(email)) {
+            throw new AuthenticationException("Invalid email.");
+        }
+        User u = users.getUserByEmail(email);
         if (u == null) throw new AuthenticationException("Invalid email or password.");
         if (!"LOCAL".equals(u.getAuthProvider()))
             throw new AuthenticationException("This account uses Google Sign-In. Use 'Sign in with Google'.");
@@ -193,5 +202,23 @@ public class AuthService {
         }
         user.setPassword(BCrypt.hashpw(newPassword, BCrypt.gensalt()));
         users.updateUser(user);
+    }
+
+    /**
+     * Helper to test for valid emails
+     * @param s The email string to validate.
+     */
+    public static boolean validateEmail(String s) {
+        if (s == null) return false;
+        String v = s.trim().toLowerCase();
+        return v.contains("@") && v.indexOf('@') > 0 && v.indexOf('@') < v.length() - 3 && v.contains(".");
+    }
+
+    /**
+     * Helper to test for valid usernames
+     * @param s The username string to validate.
+     */
+    public static boolean validateUsername(String s) {
+        return s != null && s.trim().length() >= 3 && s.trim().length() <= 24;
     }
 }

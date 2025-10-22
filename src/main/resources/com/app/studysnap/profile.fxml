@@ -121,7 +121,9 @@
                         <!-- Accuracy donut -->
                         <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
                             <Label text="Accuracy" styleClass="chart-title" />
-                            <PieChart fx:id="accuracyChart" prefHeight="240" />
+                            <StackPane fx:id="accuracyChartContainer">
+                                <PieChart fx:id="accuracyChart" prefHeight="240" />
+                            </StackPane>
                         </VBox>
 
                         <!-- Weekly activity -->
