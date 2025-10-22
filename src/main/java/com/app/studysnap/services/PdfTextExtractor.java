@@ -1,41 +1,68 @@
 package com.app.studysnap.services;
 
+import com.app.studysnap.exceptions.DataAccessException;
+import com.app.studysnap.exceptions.ValidationException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.app.studysnap.services.TextParser.*;
+
+/**
+ * Extracts UTF-8 text from PDF and TXT files.
+ * <p>
+ * For large PDFs (&gt;30 pages), a random middle window is sampled to avoid
+ * front/back matter like TOCs and dedications. All output is normalized to a
+ * consistent line/whitespace format to behave like pasted text.
+ * </p>
+ */
 public final class PdfTextExtractor {
 
-    // Handles file types, call extractor and returns raw text
-    public String extract(File file) throws Exception {
-        String name = file.getName().toLowerCase();
-        String raw;
-        if (name.endsWith(".pdf")) {
-            if (countPages(file) > 30) {
-                raw = extractPdfMidSample(file);
-            }
-            else {
-                raw = extractPdf(file);
+    /**
+     * Extracts and normalizes raw text from a supported file type.
+     * <ul>
+     *   <li><b>PDF</b>: full extract if ≤30 pages, otherwise a random middle window.</li>
+     *   <li><b>TXT</b>: read as UTF-8.</li>
+     * </ul>
+     * @param file the input file (.pdf or .txt)
+     * @return normalized text
+     */
+    public String extract(File file) {
+        try {
+            String name = file.getName().toLowerCase();
+            String raw;
+            if (name.endsWith(".pdf")) {
+                raw = (countPages(file) > 30) ? extractPdfMidSample(file) : extractPdf(file);
+                if (isBlank(raw)) {
+                    throw new ValidationException("No extractable text found in the file (it may be a scanned PDF).");
+                }
+            } else if (name.endsWith(".txt")) {
+                raw = Files.readString(file.toPath(), StandardCharsets.UTF_8);
+            } else {
+                throw new ValidationException("Unsupported file type: " + file.getName());
             }
 
-            if (raw == null || raw.isBlank()) {
-                throw new IllegalArgumentException("No extractable text found in the file (it may be a scanned PDF).");
-            }
-        } else if (name.endsWith(".txt")) {
-            raw = Files.readString(file.toPath(), StandardCharsets.UTF_8);
-        } else {
-            throw new IllegalArgumentException("Unsupported file type: " + file.getName());
+            return normalize(raw);
+        } catch (ValidationException ve) {
+            throw ve;
+        } catch (IOException ioe) {
+            throw new DataAccessException("Failed to read file: " + file, ioe);
+        } catch (Exception e) {
+            throw new DataAccessException("Unexpected error while extracting text: " + file, e);
         }
-        return normalize(raw); // <-- make PDF behave like paste
     }
 
-    // Extract text from .pdf file
-    private String extractPdf(File f) throws Exception {
+    /**
+     * Extracts text from all pages of a PDF.
+     * @param f PDF file
+     * @return extracted text
+     */
+    private String extractPdf(File f) {
         try (PDDocument doc = PDDocument.load(f)) {
             PDFTextStripper stripper = new PDFTextStripper();
             stripper.setSortByPosition(true);
@@ -43,27 +70,38 @@ public final class PdfTextExtractor {
             stripper.setWordSeparator(" ");
             stripper.setLineSeparator("\n");
             return stripper.getText(doc);
+        } catch (IOException ioe) {
+            throw new DataAccessException("Failed to read PDF: " + f, ioe);
         }
     }
 
-    // Count pdf pages
+    /**
+     * Counts the number of pages in a PDF.
+     * @param f PDF file
+     * @return page count
+     * @throws DataAccessException if the PDF cannot be read
+     */
     private int countPages(File f) throws IOException {
         try (PDDocument doc = PDDocument.load(f)) {
             return doc.getNumberOfPages();
+        } catch (IOException ioe) {
+            throw new DataAccessException("Failed to open PDF for page count: " + f, ioe);
         }
     }
 
-    // Extract content from middle of pdf so quiz is not about summary, dedications etc
-    public String extractPdfMidSample(File f) throws Exception {
+    /**
+     * Extracts a random middle window of pages from a large PDF to avoid front/back matter.
+     * The window size is between 12 and 40 pages or pages/6, whichever fits.
+     * @param f PDF file
+     * @return extracted text from the window
+     */
+    public String extractPdfMidSample(File f) {
         try (PDDocument doc = PDDocument.load(f)) {
             int pages = doc.getNumberOfPages();
 
-            // pick a middle window
             int window = Math.min(40, Math.max(12, pages / 6));
-
-            // random start so quizzes vary on each run
             int maxStart = pages - window + 1;
-            int start = ThreadLocalRandom.current().nextInt(1, maxStart + 1);
+            int start = ThreadLocalRandom.current().nextInt(1, Math.max(2, maxStart + 1));
             int end = Math.min(pages, start + window - 1);
 
             PDFTextStripper stripper = new PDFTextStripper();
@@ -75,14 +113,25 @@ public final class PdfTextExtractor {
             stripper.setEndPage(end);
 
             return stripper.getText(doc);
+        } catch (IOException ioe) {
+            throw new DataAccessException("Failed to read PDF sample: " + f, ioe);
         }
     }
 
-    // Normalize text
+    /**
+     * Normalizes raw text to reduce layout artifacts:
+     * <ul>
+     *   <li>CRLF/CR → LF</li>
+     *   <li>NBSP/ZWSP/soft hyphen cleanup</li>
+     *   <li>Preserves words across hyphen line breaks</li>
+     *   <li>Collapses horizontal whitespace and tall gaps</li>
+     *   <li>Trims leading/trailing whitespace</li>
+     * </ul>
+     * @param raw original text
+     * @return normalized text (never {@code null})
+     */
     private static String normalize(String raw) {
-        // Return null input as empty string
         if (raw == null) return "";
-
         String s = raw;
 
         // New lines to LF
@@ -93,16 +142,16 @@ public final class PdfTextExtractor {
         s = s.replace("\u200B", "");
         s = s.replace("\u00AD", "");
 
-        // Handle hyphen wrappers
+        // Handle hyphen wrappers: break-hyphen at line end + lowercase continuation
         s = s.replaceAll("(?<=\\p{L})-\\n(?=\\p{Ll})", "");
 
-        // Handle horizontal whitespace
+        // Horizontal whitespace compaction
         s = s.replaceAll("[ \\t\\x0B\\f]+", " ");
 
-        // Normalize tall gaps to blank line
+        // Normalize tall gaps to a single blank line
         s = s.replaceAll("\\n{3,}", "\n\n");
 
-        // Trim leading/trailing whitespace
-        return s.trim();
+        // Trim edges via TextParser helper
+        return trim(s);
     }
 }
