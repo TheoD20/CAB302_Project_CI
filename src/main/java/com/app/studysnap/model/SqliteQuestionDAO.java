@@ -18,7 +18,7 @@ public class SqliteQuestionDAO implements IQuestionDAO {
     private final Connection connection;
 
     /**
-     * Creates a DAO using to the shared SQLite connection and ensures the schema exists.
+     * Creates a DAO using the shared SQLite connection and ensures the schema exists.
      */
     public SqliteQuestionDAO() {
         this.connection = SqliteConnection.getInstance();

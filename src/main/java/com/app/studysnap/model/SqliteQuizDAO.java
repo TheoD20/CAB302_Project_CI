@@ -25,7 +25,7 @@ public class SqliteQuizDAO implements IQuizDAO {
     private final SqliteQuestionDAO questionDAO;
 
     /**
-     * Creates a DAO bound to the shared SQLite connection and ensures the schema exists.
+     * Creates a DAO using the shared SQLite connection and ensures the schema exists.
      */
     public SqliteQuizDAO() {
         try {

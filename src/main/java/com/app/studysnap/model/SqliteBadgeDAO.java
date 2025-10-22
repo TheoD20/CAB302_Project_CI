@@ -21,7 +21,7 @@ public class SqliteBadgeDAO implements IBadgeDAO {
     private final Connection connection;
 
     /**
-     * Creates a DAO using to the shared SQLite connection and ensures the schema exists.
+     * Creates a DAO using the shared SQLite connection and ensures the schema exists.
      */
     public SqliteBadgeDAO() {
         this.connection = SqliteConnection.getInstance();
