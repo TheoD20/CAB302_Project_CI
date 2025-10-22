@@ -10,6 +10,9 @@ import javafx.scene.layout.FlowPane;
 
 import java.util.List;
 
+/**
+ * Controller responsible for rendering the full badge catalog for the current user.
+ */
 public class BadgesController {
 
     @FXML private FlowPane flow;
@@ -18,7 +21,13 @@ public class BadgesController {
     private IBadgeProgressDAO badgeProgressDAO;
     private User user;
 
-    // Load badges and render grid
+    /**
+     * JavaFX initialization method that loads badges and renders the grid view.
+     * <p>
+     * After loading DAOs it resolves the current session user, queries all
+     * badges, and renders each with an earned/locked state.
+     * </p>
+     */
     public void initialize() {
         try { badgeDAO = new SqliteBadgeDAO(); } catch (Throwable t) { badgeDAO = null; }
         try { badgeProgressDAO = new SqliteBadgeProgressDAO(); } catch (Throwable t) { badgeProgressDAO = null; }
