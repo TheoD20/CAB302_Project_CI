@@ -1,7 +1,7 @@
 package com.app.studysnap.model;
 
 /**
- * A model class representing an earnable badge in the application.
+ * An object class representing an earnable badge in the application.
  * <p>
  * Each badge has a unique identifier, display name, description, icon path, a type/category,
  * and a numeric completion goal (e.g., number of actions required to earn it).

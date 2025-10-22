@@ -7,7 +7,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
- * Singleton provider for a shared SQLite {@link Connection}.
+ * Provider for a shared SQLite {@link Connection}.
  * <p>
  * Opens a JDBC connection to the {@code StudySnap.db} file and reuses it
  * for subsequent calls. Any failure to open or retrieve the connection results

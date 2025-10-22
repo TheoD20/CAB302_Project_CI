@@ -1,7 +1,7 @@
 package com.app.studysnap.model;
 
 /**
- * A model class representing a single quiz attempt made by a user.
+ * An object class representing a single quiz attempt made by a user.
  * <p>
  * Each attempt records the user and quiz IDs, a display-form score (e.g. "8/10"),
  * the time taken in seconds, and a timestamp string indicating when the attempt occurred.

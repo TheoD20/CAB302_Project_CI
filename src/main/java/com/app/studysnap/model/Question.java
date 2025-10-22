@@ -1,7 +1,7 @@
 package com.app.studysnap.model;
 
 /**
- * Model representing a single multiple-choice question that belongs to a quiz.
+ * An object representing a single multiple-choice question that belongs to a quiz.
  * <p>
  * Each question contains the question text, up to five answer options, and the index
  * of the correct option (1–5).

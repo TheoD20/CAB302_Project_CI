@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A model representing a quiz with metadata and a list of {@link Question}s.
+ * An object class representing a quiz with metadata and a list of {@link Question}s.
  * <p>
  * A quiz belongs to a creator (via {@code createdBy}), can be marked as private/public,
  * and can include a subject, title, and description.

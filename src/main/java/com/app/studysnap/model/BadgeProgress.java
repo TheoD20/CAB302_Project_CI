@@ -1,7 +1,7 @@
 package com.app.studysnap.model;
 
 /**
- * A model class representing a user's progress toward earning a specific badge.
+ * An object class representing a user's progress toward earning a specific badge.
  * <p>
  * Tracks the user, the badge, current progress, the goal required to earn it, and whether
  * the badge has already been earned. A badge is considered earned when
