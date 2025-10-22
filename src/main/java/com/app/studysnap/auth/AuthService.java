@@ -15,6 +15,10 @@ import static com.app.studysnap.services.TextParser.isBlank;
  * email/password login, Google login, and password resets.
  */
 public class AuthService {
+
+    /**
+     * Data access object used to query and change user records.
+     */
     private final IUserDAO users;
 
     /**
