@@ -10,6 +10,15 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import static com.app.studysnap.services.TextParser.trim;
+
+/**
+ * Controller for a single multiple-choice question card.
+ * <p>
+ * Binds question text and up to five options into radio buttons, tracks the user's selection,
+ * and renders result styling (correct/incorrect) after submission.
+ * </p>
+ */
 public class QuestionController {
 
     @FXML private Label question_content;
@@ -24,26 +33,41 @@ public class QuestionController {
 
     @FXML private AnchorPane root;
 
-    private Question question; // store the current question
+    /** The question model displayed by this controller. */
+    private Question question;
+
+    /** Toggle group to ensure only one option is selected. */
     private final ToggleGroup optionsGroup = new ToggleGroup();
 
+    /**
+     * Returns the root node of this card (for embedding in parent layouts).
+     * @return the root {@link Node}
+     */
     public Node getRootNode() {
         return root;
     }
 
+    /**
+     * Gets the active {@link Question} model.
+     * @return the question model
+     */
     public Question getQuestion() {
         return this.question;
     }
 
+    /**
+     * Populates the view with the given {@link Question} and resets selection/styling.
+     * @param question the question to display
+     */
     public void setData(Question question){
         this.question = question; // must store it
 
-        question_content.setText(safe(question.getQuestion()));
-        option1.setText(safe(question.getOption1()));
-        option2.setText(safe(question.getOption2()));
-        option3.setText(safe(question.getOption3()));
-        option4.setText(safe(question.getOption4()));
-        option5.setText(safe(question.getOption5()));
+        question_content.setText(trim(question.getQuestion()));
+        option1.setText(trim(question.getOption1()));
+        option2.setText(trim(question.getOption2()));
+        option3.setText(trim(question.getOption3()));
+        option4.setText(trim(question.getOption4()));
+        option5.setText(trim(question.getOption5()));
 
         // Reset footer visibility/content if present
         if (correctFooter != null) {
@@ -61,6 +85,10 @@ public class QuestionController {
         option5.setSelected(false);
     }
 
+    /**
+     * JavaFX initialization: wires radio buttons to a common {@link ToggleGroup} and
+     * enables wrapping to fit responsive widths.
+     */
     @FXML
     public void initialize() {
         option1.setToggleGroup(optionsGroup);
@@ -85,7 +113,10 @@ public class QuestionController {
         }
     }
 
-    // Returns the index of the selected option (1–5), or -1 if none selected
+    /**
+     * Returns the index of the selected option (1–5), or -1 if none selected.
+     * @return selected option index, or -1
+     */
     public int getSelectedOptionIndex(){
         if(optionsGroup.getSelectedToggle() == null) return -1;
         if(optionsGroup.getSelectedToggle() == option1) return 1;
@@ -93,14 +124,25 @@ public class QuestionController {
         if(optionsGroup.getSelectedToggle() == option3) return 3;
         if(optionsGroup.getSelectedToggle() == option4) return 4;
         if(optionsGroup.getSelectedToggle() == option5) return 5;
-        return -1; // set default to returning -1 meaning nothing selected.
+
+        // set default to returning -1 meaning nothing selected.
+        return -1;
     }
 
-    // Check the correctness
+    /**
+     * Checks if the current selection matches the question's correct option.
+     * @return {@code true} if selected == correct; otherwise {@code false}
+     */
     public boolean isCorrect(){
         return getSelectedOptionIndex() == question.getCorrectOption();
     }
 
+    /**
+     * Applies result styling: highlights the user's selection (green/red) and
+     * outlines the true correct option. Optionally shows a footer with the correct text.
+     * @param selectedIndex the option index the user selected (or -1)
+     * @param correctIndex the correct option index
+     */
     public void showResult(int selectedIndex, int correctIndex){
         // Keep user's selection; clear previous visual styles
         clearOptionStyles();
@@ -134,26 +176,21 @@ public class QuestionController {
         }
     }
 
-    public int getOptionCount() { return 5; }
-
+    /**
+     * Returns the label text for the specified option index, or {@code null} if out of range.
+     * @param index option index (1–5)
+     * @return option text or {@code null}
+     */
     public String getOptionText(int index) {
         RadioButton rb = getOptionByIndex(index);
         return rb == null ? null : rb.getText();
     }
 
-    public boolean isOptionSelected(int index) {
-        RadioButton rb = getOptionByIndex(index);
-        return rb != null && rb.isSelected();
-    }
-
-    public boolean isOptionCorrect(int index) {
-        return index == getCorrectIndex();
-    }
-
-    public int getCorrectIndex() {
-        return question.getCorrectOption();
-    }
-
+    /**
+     * Resolves a radio button by its 1–5 index.
+     * @param index option index (1–5)
+     * @return the corresponding {@link RadioButton}, or {@code null} if out of range
+     */
     private RadioButton getOptionByIndex(int index){
         return switch (index){
             case 1 -> option1;
@@ -165,6 +202,7 @@ public class QuestionController {
         };
     }
 
+    /** Clears all styling classes from option buttons and applies the baseline class. */
     private void clearOptionStyles() {
         resetStyle(option1);
         resetStyle(option2);
@@ -173,6 +211,7 @@ public class QuestionController {
         resetStyle(option5);
     }
 
+    /** Resets the style for a single radio button to the default "opt-line" class. */
     private void resetStyle(RadioButton rb) {
         if (rb == null) return;
         rb.setStyle("");
@@ -181,12 +220,11 @@ public class QuestionController {
         rb.getStyleClass().add("opt-line");
     }
 
+    /** Adds a CSS style class to a radio button if not already present. */
     private void addStyleClass(RadioButton rb, String cls) {
         if (rb == null) return;
         if (!rb.getStyleClass().contains(cls)) {
             rb.getStyleClass().add(cls);
         }
     }
-
-    private static String safe(String s) { return (s == null) ? "" : s; }
 }

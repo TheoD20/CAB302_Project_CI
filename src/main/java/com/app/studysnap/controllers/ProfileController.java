@@ -142,10 +142,10 @@ public class ProfileController {
         providerLabel.setText(provider.equalsIgnoreCase("GOOGLE") ? "Google account" : "Local account");
         displayName.setText(isBlank(trim(currentUser.getUsername())) ? "User" : currentUser.getUsername());
 
-        // block email change for Google account
+        // Block email change for Google account
         emailField.setEditable(!provider.equalsIgnoreCase("GOOGLE"));
 
-        // handle disable save btn
+        // Handle disable save btn
         saveButton.setDisable(true);
         usernameField.textProperty().addListener((obs, a, b) -> validateDirty());
         emailField.textProperty().addListener((obs, a, b) -> validateDirty());
@@ -305,7 +305,7 @@ public class ProfileController {
         if (deleteButton != null) deleteButton.setDisable(true);
 
         try {
-            // delete quizzes
+            // Delete quizzes
             if (myQuizzes != null) {
                 for (Quiz q : myQuizzes) {
                     if (q != null) {
@@ -314,10 +314,10 @@ public class ProfileController {
                 }
             }
 
-            // delete avatar files
+            // Delete avatar files
             try { avatars.deleteAvatar(currentUser); } catch (Exception ignore) {}
 
-            // delete user
+            // Delete user
             userDAO.deleteUser(currentUser.getUserId());
 
             if (myQuizzes != null) myQuizzes.clear();
@@ -545,7 +545,7 @@ public class ProfileController {
         }
     }
 
-    // helpers
+    // Helpers
 
     /**
      * Sets the status label (null-safe).
