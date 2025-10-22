@@ -1,5 +1,6 @@
 package com.app.studysnap.services;
 
+import com.app.studysnap.exceptions.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,7 +40,7 @@ class PdfTextExtractorTest {
     void testExtractUnsupportedFileType() {
         File fake = new File("unsupported.docx");
 
-        Exception ex = assertThrows(IllegalArgumentException.class,
+        Exception ex = assertThrows(ValidationException.class,
                 () -> extractor.extract(fake));
 
         assertTrue(ex.getMessage().contains("Unsupported file type"));

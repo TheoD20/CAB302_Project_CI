@@ -129,8 +129,8 @@ public class AuthService {
         if (isBlank(email) || isBlank(rawPassword)) {
             throw new ValidationException("Email and password are required.");
         }
-        if (validateEmail(email)) {
-            throw new AuthenticationException("Invalid email.");
+        if (!validateEmail(email)) {
+            throw new ValidationException("Invalid email.");
         }
         User u = users.getUserByEmail(email);
         if (u == null) throw new AuthenticationException("Invalid email or password.");
