@@ -52,6 +52,7 @@ public class Badge {
     // Getters
 
     /**
+     * Getter for the badge ID
      * @return The unique identifier of the badge
      */
     public int getBadgeId() {
@@ -59,6 +60,7 @@ public class Badge {
     }
 
     /**
+     * Getter for the badge display name
      * @return The display name of the badge
      */
     public String getBadgeName() {
@@ -66,6 +68,7 @@ public class Badge {
     }
 
     /**
+     * Getter for the badge description
      * @return The description of the badge
      */
     public String getBadgeDescription() {
@@ -73,6 +76,7 @@ public class Badge {
     }
 
     /**
+     * Getter for the badge icon path
      * @return The icon path or resource identifier for the badge image
      */
     public String getBadgeIconPath() {
@@ -80,6 +84,7 @@ public class Badge {
     }
 
     /**
+     * Getter for the badge type
      * @return The badge type/category (e.g., {@code "score"}, {@code "creation"})
      */
     public String getBadgeType() {
@@ -87,6 +92,7 @@ public class Badge {
     }
 
     /**
+     * Getter for the badge completion goal
      * @return The numeric completion goal required to earn the badge
      */
     public int getBadgeGoal() {

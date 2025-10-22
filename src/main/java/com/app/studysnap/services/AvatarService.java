@@ -161,6 +161,7 @@ public final class AvatarService {
     // Helpers
 
     /**
+     * Getter for the base avatar directory path
      * @return the base avatars directory path
      */
     public static Path getAvatarsDir() { return AVATARS_DIR; }
@@ -177,6 +178,7 @@ public final class AvatarService {
     }
 
     /**
+     * Extracts file extension
      * @param name a file or path.
      * @return The lowercase file extension (including the dot), e.g. ".png".
      */

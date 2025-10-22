@@ -54,19 +54,16 @@ public class Question {
 
     /**
      * Creates a {@code Question} without a database id (useful before persistence).
-     *
-     * @param quizId        Identifier of the quiz this question belongs to
-     * @param question      The question text (stem)
-     * @param option1       Text for option 1 (may be {@code null})
-     * @param option2       Text for option 2 (may be {@code null})
-     * @param option3       Text for option 3 (may be {@code null})
-     * @param option4       Text for option 4 (may be {@code null})
-     * @param option5       Text for option 5 (may be {@code null})
-     * @param correctOption Index of the correct option (1–5)
+     * @param quizId Identifier of the quiz this question belongs to
+     * @param question The question text (stem)
+     * @param option1 Text for option 1 (can be {@code null})
+     * @param option2 Text for option 2 (can be {@code null})
+     * @param option3 Text for option 3 (can be {@code null})
+     * @param option4 Text for option 4 (can be {@code null})
+     * @param option5 Text for option 5 (can be {@code null})
+     * @param correctOption Index of the correct option (1-5)
      */
-    public Question(int quizId, String question,
-                    String option1, String option2, String option3,
-                    String option4, String option5, int correctOption) {
+    public Question(int quizId, String question, String option1, String option2, String option3, String option4, String option5, int correctOption) {
         this.quizId = quizId;
         this.question = question;
         this.option1 = option1;
@@ -78,6 +75,7 @@ public class Question {
     }
 
     /**
+     * Getter for question ID
      * @return the unique identifier of the question
      */
     public int getQuestionId() {
@@ -93,6 +91,7 @@ public class Question {
     }
 
     /**
+     * Getter for ID of quiz this question belongs
      * @return the id of the quiz this question belongs to
      */
     public int getQuizId() {
@@ -108,6 +107,7 @@ public class Question {
     }
 
     /**
+     * Getter for question stem text
      * @return the question text (stem)
      */
     public String getQuestion() {
@@ -123,6 +123,7 @@ public class Question {
     }
 
     /**
+     * Getter for option 1 text
      * @return text for option 1 (can be {@code null})
      */
     public String getOption1() {
@@ -138,6 +139,7 @@ public class Question {
     }
 
     /**
+     * Getter for option 2 text
      * @return text for option 2 (can be {@code null})
      */
     public String getOption2() {
@@ -153,6 +155,7 @@ public class Question {
     }
 
     /**
+     * Getter for option 3 text
      * @return text for option 3 (can be {@code null})
      */
     public String getOption3() {
@@ -168,6 +171,7 @@ public class Question {
     }
 
     /**
+     * Getter for option 4 text
      * @return text for option 4 (can be {@code null})
      */
     public String getOption4() {
@@ -183,6 +187,7 @@ public class Question {
     }
 
     /**
+     * Getter for option 5 text
      * @return text for option 5 (can be {@code null})
      */
     public String getOption5() {
@@ -198,7 +203,8 @@ public class Question {
     }
 
     /**
-     * @return the index of the correct option (1–5), or {@code null} if unset
+     * Getter for correct option index
+     * @return the index of the correct option (1-5), or {@code null} if unset
      */
     public Integer getCorrectOption() {
         return correctOption;
@@ -206,7 +212,7 @@ public class Question {
 
     /**
      * Sets the index of the correct option.
-     * @param correctOption the index (1–5), or {@code null} if unset
+     * @param correctOption the index (1-5), or {@code null} if unset
      */
     public void setCorrectOption(Integer correctOption) {
         this.correctOption = correctOption;

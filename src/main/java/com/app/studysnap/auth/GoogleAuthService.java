@@ -35,6 +35,7 @@ public class GoogleAuthService {
     /**
      * Performs the OAuth 2.0 login flow and returns the authenticated Google {@link Userinfo}.
      * @return The authenticated user's {@link Userinfo}.
+     * @throws Exception if the OAuth exchange fails or is cancelled
      * @throws ValidationException if the required environment variables are missing/blank.
      * @throws ExternalServiceException if the Google transport/flow or userinfo call fails.
      */

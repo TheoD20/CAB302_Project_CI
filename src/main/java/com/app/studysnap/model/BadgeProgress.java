@@ -48,6 +48,7 @@ public class BadgeProgress {
     // Getters
 
     /**
+     * Getter for the progress tracking ID
      * @return The ID of the badge being tracked
      */
     public int getBadgeId() {
@@ -55,6 +56,7 @@ public class BadgeProgress {
     }
 
     /**
+     * Getter for the ID of user whose progress is recorded
      * @return The ID of the user whose progress is tracked
      */
     public int getUserId() {
@@ -62,6 +64,7 @@ public class BadgeProgress {
     }
 
     /**
+     * Getter for the progress value
      * @return The current progress value toward the badge goal
      */
     public int getProgress() {
@@ -69,6 +72,7 @@ public class BadgeProgress {
     }
 
     /**
+     * Getter for the progress goal
      * @return The required goal value to earn the badge
      */
     public int getProgressGoal() {
@@ -76,6 +80,7 @@ public class BadgeProgress {
     }
 
     /**
+     * Boolean that represent if goal have been achieved
      * @return {@code true} if the badge is earned; otherwise {@code false}
      */
     public boolean getIsEarned() {

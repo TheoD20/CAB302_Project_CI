@@ -71,6 +71,7 @@ public class Quiz {
     }
 
     /**
+     * Getter for quiz ID
      * @return the unique identifier of the quiz
      */
     public int getQuizId() { return quizId; }
@@ -82,6 +83,7 @@ public class Quiz {
     public void setQuizId(int quizId) { this.quizId = quizId; }
 
     /**
+     * Getter for quiz title
      * @return the title of the quiz
      */
     public String getTitle() { return title; }
@@ -93,6 +95,7 @@ public class Quiz {
     public void setTitle(String title) { this.title = title; }
 
     /**
+     * Getter for quiz category
      * @return the subject or category of the quiz
      */
     public String getSubject() { return subject; }
@@ -104,6 +107,7 @@ public class Quiz {
     public void setSubject(String subject) { this.subject = subject; }
 
     /**
+     * Getter for quiz description
      * @return a short description of the quiz, or {@code null} if none
      */
     public String getDescription() { return description; }
@@ -115,6 +119,7 @@ public class Quiz {
     public void setDescription(String description) { this.description = description; }
 
     /**
+     * Check if the quiz is public or private
      * @return {@code true} if the quiz is private; {@code false} if public
      */
     public boolean get_is_private() { return is_private; }
@@ -126,6 +131,7 @@ public class Quiz {
     public void set_is_private(boolean is_private) { this.is_private = is_private; }
 
     /**
+     * Getter for quiz author id
      * @return the creator's user id
      */
     public int getCreatedBy() { return createdBy; }
@@ -137,6 +143,7 @@ public class Quiz {
     public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
 
     /**
+     * Getter for the question list associated to this quiz
      * @return the list of questions that belong to this quiz, or {@code null} if not loaded
      */
     public List<Question> getQuestions() { return questions; }

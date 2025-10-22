@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import static com.app.studysnap.services.TextParser.*;
 
 /**
- * Service that evaluates user activity (quiz attempts & creations) to update badge progress
+ * Service that evaluates user activity (quiz attempts and creations) to update badge progress.
  * and surface newly-earned badges in the UI.
  */
 public final class BadgeService {

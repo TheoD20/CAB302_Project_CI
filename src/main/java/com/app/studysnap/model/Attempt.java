@@ -59,31 +59,37 @@ public class Attempt {
     // Getters
 
     /**
+     * Getter for the attempt ID
      * @return The unique identifier of this attempt
      */
     public int getAttemptId() { return attemptId; }
 
     /**
+     * Getter for the user ID who took the quiz
      * @return The ID of the user who took the quiz
      */
     public int getUserId() { return userId; }
 
     /**
+     * Getter for the quiz ID that was attempted
      * @return The ID of the quiz that was attempted
      */
     public int getQuizId() { return quizId; }
 
     /**
+     * Getter for the score on this attempt
      * @return The display score for this attempt (e.g. {@code "8/10"})
      */
     public String getScore() { return score; }
 
     /**
+     * Getter for the time taken on this attempt
      * @return The total time taken in seconds to complete the quiz
      */
     public int getTimeTaken() { return timeTaken; }
 
     /**
+     * Getter for the timestamp on the moment of attempt
      * @return The timestamp of the attempt as a formatted string
      */
     public String getAttemptAt() { return attemptAt; }

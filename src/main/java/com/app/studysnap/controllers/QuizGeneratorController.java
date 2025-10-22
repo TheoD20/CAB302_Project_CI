@@ -423,6 +423,11 @@ public class QuizGeneratorController {
 
     /**
      * Row model for the public quizzes table.
+     * @param quizId Quiz unique identifier.
+     * @param name Quiz title.
+     * @param subject Quiz subject/topic.
+     * @param description Quiz description.
+     * @param author Author name.
      */
     public record PublicQuizRow(int quizId, String name, String subject, String description, String author) {
         public String getName() { return name; }

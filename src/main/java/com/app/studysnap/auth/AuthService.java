@@ -207,6 +207,7 @@ public class AuthService {
     /**
      * Helper to test for valid emails
      * @param s The email string to validate.
+     * @return true for valid email and false otherwise.
      */
     public static boolean validateEmail(String s) {
         if (s == null) return false;
@@ -217,6 +218,7 @@ public class AuthService {
     /**
      * Helper to test for valid usernames
      * @param s The username string to validate.
+     * @return true for valid username and false otherwise.
      */
     public static boolean validateUsername(String s) {
         return s != null && s.trim().length() >= 3 && s.trim().length() <= 24;

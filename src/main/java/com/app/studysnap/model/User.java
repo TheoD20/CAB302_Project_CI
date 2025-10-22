@@ -68,40 +68,76 @@ public class User {
         this.password = password;
     }
 
-    /** @return the user id (database primary key) */
+    /**
+     * Getter for the user id
+     * @return the user id (database primary key)
+     */
     public int getUserId() { return userId; }
 
-    /** Sets the user id (database primary key). */
+    /**
+     * Sets the user id (database primary key).
+     * @param userId user unique identifier
+     */
     public void setUserId(int userId) { this.userId = userId; }
 
-    /** @return the username */
+    /**
+     * Getter for user's username
+     * @return the username
+     */
     public String getUsername() { return userName; }
 
-    /** Sets the username. */
+    /**
+     * Sets the username.
+     * @param userName the username as a String
+     */
     public void setUsername(String userName) { this.userName = userName; }
 
-    /** @return the email address */
+    /**
+     * Getter for user email
+     * @return the email address
+     */
     public String getEmail() { return email; }
 
-    /** Sets the email address. */
+    /**
+     * Sets the email address.
+     * @param email user mail
+     */
     public void setEmail(String email) { this.email = email; }
 
-    /** @return the hashed password (never raw) */
+    /**
+     * Getter for user password
+     * @return the hashed password (never raw)
+     */
     public String getPassword() { return password; }
 
-    /** Sets the hashed password (never store raw). */
+    /**
+     * Sets the hashed password (never store raw).
+     * @param password hashed password
+     */
     public void setPassword(String password) { this.password = password; }
 
-    /** @return the authentication provider ("LOCAL" or "GOOGLE") */
+    /**
+     * Getter for auth provider
+     * @return the authentication provider ("LOCAL" or "GOOGLE")
+     */
     public String getAuthProvider() { return authProvider; }
 
-    /** Sets the authentication provider ("LOCAL" or "GOOGLE"). */
+    /**
+     * Sets the authentication provider ("LOCAL" or "GOOGLE")
+     * @param authProvider provider being "LOCAL" or "GOOGLE"
+     */
     public void setAuthProvider(String authProvider) { this.authProvider = authProvider; }
 
-    /** @return the Google OpenID subject (if applicable), otherwise {@code null} */
+    /**
+     * Getter for Google ID (sub)
+     * @return the Google ID subject (if applicable), otherwise {@code null}
+     */
     public String getGoogleSub() { return googleSub; }
 
-    /** Sets the Google OpenID subject (if applicable). */
+    /**
+     * Sets the Google ID subject (if applicable).
+     * @param googleSub the Google sub as a String
+     */
     public void setGoogleSub(String googleSub) { this.googleSub = googleSub; }
 
     /**
