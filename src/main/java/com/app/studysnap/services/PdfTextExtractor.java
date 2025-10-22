@@ -25,7 +25,6 @@ public final class PdfTextExtractor {
 
             if (raw == null || raw.isBlank()) {
                 throw new IllegalArgumentException("No extractable text found in the file (it may be a scanned PDF).");
-                // TODO: add OCR fallback (Tess4).
             }
         } else if (name.endsWith(".txt")) {
             raw = Files.readString(file.toPath(), StandardCharsets.UTF_8);

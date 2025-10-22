@@ -8,13 +8,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class QuizTextParserTest {
+class TextParserTest {
 
-    private QuizTextParser parser;
+    private TextParser parser;
 
     @BeforeEach
     void setup() {
-        parser = new QuizTextParser();
+        parser = new TextParser();
     }
 
     @Test

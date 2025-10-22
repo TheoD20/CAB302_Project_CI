@@ -13,7 +13,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public class QuizGeneratorController {
 
     // Services
     private final QuizService genGateway = new QuizService();
-    private final QuizTextParser parser = new QuizTextParser();
+    private final TextParser parser = new TextParser();
     private final QuizRenderer renderer = new QuizRenderer();
     private final PdfExporter pdfExporter = new PdfExporter();
     private final IQuizDAO quizDao = new SqliteQuizDAO();

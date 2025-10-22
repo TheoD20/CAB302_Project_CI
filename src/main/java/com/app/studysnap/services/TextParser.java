@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // Parses the text shown in previewArea into structured Questions,
-public final class QuizTextParser {
+public final class TextParser {
 
     // Question patter to look for
     private static final Pattern BLOCK = Pattern.compile(
@@ -100,14 +100,17 @@ public final class QuizTextParser {
     }
 
     // Trim and handles null string (not null)
-    private static String trim(String s) {
+    public static String trim(String s) {
         return s == null ? "" : s.trim();
     }
 
     // Trim and handles null string (accepts null)
-    private static String trimOrNull(String s) {
+    public static String trimOrNull(String s) {
         if (s == null) return null;
         String t = s.trim();
         return t.isEmpty() ? null : t;
     }
+
+    // Test if a string is null or empty
+    public static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
 }
