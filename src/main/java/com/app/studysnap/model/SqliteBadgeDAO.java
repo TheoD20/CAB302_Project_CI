@@ -1,35 +1,54 @@
 package com.app.studysnap.model;
 
+import com.app.studysnap.exceptions.DataAccessException;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.app.studysnap.services.TextParser.trim;
+
+/**
+ * SQLite implementation of {@link IBadgeDAO}.
+ * <p>
+ * Manages rows in the {@code Badges} table and seeds initial badges. Also initializes
+ * progress rows in {@code BadgeProgress} for all existing users when a new badge is added.
+ * </p>
+ * @see IBadgeDAO
+ */
 public class SqliteBadgeDAO implements IBadgeDAO {
 
     private final Connection connection;
 
+    /**
+     * Creates a DAO bound to the shared SQLite connection and ensures the schema exists.
+     */
     public SqliteBadgeDAO() {
         this.connection = SqliteConnection.getInstance();
         createTable();
     }
 
+    /**
+     * Creates the {@code Badges} table if it does not already exist.
+     */
     private void createTable() {
         try {
             Statement statement = connection.createStatement();
             String query = "CREATE TABLE IF NOT EXISTS Badges ("
-                    + "badge_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "name TEXT NOT NULL,"
-                    + "description TEXT NOT NULL,"
-                    + "icon_path TEXT NOT NULL UNIQUE,"
-                    + "type TEXT NOT NULL,"
-                    + "goal INTEGER NOT NULL"
-                    + ")";
+                + "badge_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "name TEXT NOT NULL,"
+                + "description TEXT NOT NULL,"
+                + "icon_path TEXT NOT NULL UNIQUE,"
+                + "type TEXT NOT NULL,"
+                + "goal INTEGER NOT NULL"
+                + ")";
             statement.execute(query);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DataAccessException("Failed to create Badges table.", e);
         }
     }
 
+    /** {@inheritDoc} */
     public void addBadge(Badge b) {
         final String insertBadge = """
             INSERT INTO Badges(name, description, icon_path, type, goal)
@@ -67,18 +86,19 @@ public class SqliteBadgeDAO implements IBadgeDAO {
             connection.commit();
         } catch (SQLException e){
             try { connection.rollback(); } catch (SQLException ignore) {}
-            e.printStackTrace();
+            throw new DataAccessException("Failed to add badge and seed user progress.", e);
         } finally {
             try { connection.setAutoCommit(true); } catch (SQLException ignore) {}
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Badge> getAllBadges () {
         List<Badge> badges = new ArrayList<>();
         String sql = "SELECT * FROM Badges ORDER BY badge_id DESC";
 
-        try(PreparedStatement ps = connection.prepareStatement(sql)){
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -91,12 +111,13 @@ public class SqliteBadgeDAO implements IBadgeDAO {
                     rs.getInt("goal")
                 ));
             }
-        } catch(SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to fetch all badges.", e);
         }
         return badges;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Badge getBadgeById(int badge_id) {
         Badge badge = null;
@@ -116,36 +137,38 @@ public class SqliteBadgeDAO implements IBadgeDAO {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DataAccessException("Failed to fetch badge by id: " + badge_id, e);
         }
         return badge;
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Badge> getBadgesByType (String type) {
         List<Badge> badges = new ArrayList<>();
         String sql = "SELECT * FROM Badges WHERE type = ? ORDER BY badge_id DESC";
 
-        try(PreparedStatement ps = connection.prepareStatement(sql)){
-            ps.setString(1, type);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, trim(type));  // rule #3: delegate simple text handling
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 badges.add(new Badge(
-                        rs.getInt("badge_id"),
-                        rs.getString("name"),
-                        rs.getString("description"),
-                        rs.getString("icon_path"),
-                        rs.getString("type"),
-                        rs.getInt("goal")
+                    rs.getInt("badge_id"),
+                    rs.getString("name"),
+                    rs.getString("description"),
+                    rs.getString("icon_path"),
+                    rs.getString("type"),
+                    rs.getInt("goal")
                 ));
             }
-        } catch(SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new DataAccessException("Failed to fetch badges by type.", e);
         }
         return badges;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void deleteBadge(int badgeId) {
         try {
@@ -155,11 +178,14 @@ public class SqliteBadgeDAO implements IBadgeDAO {
             statement.setInt(1, badgeId);
             statement.executeUpdate();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DataAccessException("Failed to delete badge id: " + badgeId, e);
         }
     }
 
-    // Seeds predefined badges
+    /**
+     * {@inheritDoc}
+     * <p>Seeds a curated list of badges if they don’t exist.</p>
+     */
     @Override
     public void initializeBadges() {
 
