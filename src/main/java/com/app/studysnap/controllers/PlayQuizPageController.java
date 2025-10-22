@@ -21,6 +21,7 @@ import java.util.List;
 import javafx.util.Duration;
 
 import static com.app.studysnap.auth.Session.getCurrentUser;
+import static com.app.studysnap.services.TextParser.formatTime;
 import static com.app.studysnap.services.TextParser.isBlank;
 
 /**
@@ -240,17 +241,5 @@ public class PlayQuizPageController {
         );
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
-    }
-
-    /**
-     * Formats seconds as {@code HH:mm:ss}.
-     * @param seconds total seconds elapsed
-     * @return formatted time string
-     */
-    private String formatTime(int seconds){
-        int h = seconds / 3600;
-        int m = (seconds % 3600) / 60;
-        int s = seconds % 60;
-        return String.format("%02d:%02d:%02d", h, m, s);
     }
 }

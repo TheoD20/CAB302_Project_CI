@@ -16,6 +16,15 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.util.List;
 
+import static com.app.studysnap.services.TextParser.formatTime;
+
+/**
+ * Controller for the quiz result page.
+ * <p>
+ * Displays score, time taken, summary charts, and a review list of the question cards with
+ * correct/incorrect styling applied. Provides actions to finish (return to dashboard) or restart.
+ * </p>
+ */
 public class ResultPageController {
 
     @FXML private Label scoreLabel;
@@ -24,8 +33,14 @@ public class ResultPageController {
     @FXML private Label timeTaken;
     @FXML private BarChart<String, Number> resultBar;
 
+    /**
+     * The quiz associated with this result view (used for restart).
+     */
     Quiz quiz;
 
+    /**
+     * JavaFX initialization: initializes default UI state for labels and charts.
+     */
     @FXML
     private void initialize() {
         if (scoreLabel != null) scoreLabel.setText("--/--");
@@ -40,10 +55,22 @@ public class ResultPageController {
         }
     }
 
+    /**
+     * Sets the quiz for this result page (primarily used when restarting).
+     * @param quiz the {@link Quiz} instance for result displaying
+     */
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
     }
 
+    /**
+     * Populates the result view with the user's score, elapsed time, charts,
+     * and a review list of question cards with result styling applied.
+     * @param score number of correct answers
+     * @param total total number of questions
+     * @param questionControllers the rendered question controllers from the play page
+     * @param elapsedSeconds total elapsed time in seconds
+     */
     public void setResult(int score, int total, List<QuestionController> questionControllers, int elapsedSeconds) {
         // Show score
         scoreLabel.setText(score + "/" + total);
@@ -77,13 +104,9 @@ public class ResultPageController {
         }
     }
 
-    private String formatTime(int seconds) {
-        int h = seconds / 3600;
-        int m = (seconds % 3600) / 60;
-        int s = seconds % 60;
-        return String.format("%02d:%02d:%02d", h, m, s);
-    }
-
+    /**
+     * Returns to the dashboard after user confirmation.
+     */
     @FXML
     private void handleFinish() {
         if(!Popup.confirm(
@@ -108,6 +131,9 @@ public class ResultPageController {
         }
     }
 
+    /**
+     * Restarts the quiz: confirms, reloads the play page, and injects the same quiz.
+     */
     @FXML
     private void handleRestart() {
         if(!Popup.confirm(

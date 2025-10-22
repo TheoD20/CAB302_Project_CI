@@ -113,4 +113,16 @@ public final class TextParser {
 
     // Test if a string is null or empty
     public static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
+
+    /**
+     * Formats seconds as {@code HH:mm:ss}.
+     * @param seconds total seconds elapsed
+     * @return formatted time string
+     */
+    public static String formatTime(int seconds){
+        int h = seconds / 3600;
+        int m = (seconds % 3600) / 60;
+        int s = seconds % 60;
+        return String.format("%02d:%02d:%02d", h, m, s);
+    }
 }
