@@ -14,11 +14,9 @@
                 <VBox spacing="10" alignment="TOP_CENTER">
                     <Label text="🎓 StudySnap" styleClass="sidebar-title"/>
 
-                    <Button text="Home"     styleClass="sidebar-btn" onAction="#handleNav" userData="home.fxml"/>
-                    <Button text="Profile"  styleClass="sidebar-btn" onAction="#handleNav" userData="profile.fxml"/>
-<!--                    <Button text="Quiz"  styleClass="sidebar-btn" onAction="#handleNav" userData="playQuiz.fxml"/>-->
+                    <Button text="Home" styleClass="sidebar-btn" onAction="#handleNav" userData="home.fxml"/>
+                    <Button text="Profile" styleClass="sidebar-btn" onAction="#handleNav" userData="profile.fxml"/>
                     <Button text="Create Quiz" styleClass="sidebar-btn" onAction="#handleNav" userData="quizGen.fxml"/>
-                    <Button text="Study Groups" styleClass="sidebar-btn" onAction="#handleNav" userData="studyGroups.fxml"/>
                 </VBox>
             </top>
 
