@@ -84,7 +84,7 @@ public class ProfileController {
     /** Service that loads and applies user avatars. */
     private final AvatarService avatars = new AvatarService();
     /** Avatar render size in pixels. */
-    private static final double AVATAR_SIZE = 48.0;
+    private static final double AVATAR_SIZE = 96;
     /** User default avatar image. */
     private Image defaultAvatar;
 

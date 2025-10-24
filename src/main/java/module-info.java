@@ -5,7 +5,11 @@
  * </p>
  * <p>
  *     * Controllers: JavaFX backend (bind UI to services)
+ * </p>
+ * <p>
  *     * Model: Object classes and DAOs
+ * </p>
+ * <p>
  *     * Services: Internal helpers and external API service handlers
  * </p>
  */
