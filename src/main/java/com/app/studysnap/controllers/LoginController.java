@@ -24,7 +24,9 @@ import java.util.Objects;
  * </p>
  */
 public class LoginController {
-    @FXML public Button googleLoginButton;
+
+    // Fxml
+    @FXML private Button googleLoginButton;
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
     @FXML private Button loginButton;
@@ -35,6 +37,12 @@ public class LoginController {
      * Auth service with SQLite DAO for user operations.
      */
     private final AuthService auth = new AuthService(new SqliteUserDAO());
+
+    /**
+     * Default constructor:
+     * Creates a new {@code LoginController}.
+     */
+    public LoginController() {}
 
     /**
      * Attempts an email/password login. On success, navigates to {@code dashboard.fxml}.

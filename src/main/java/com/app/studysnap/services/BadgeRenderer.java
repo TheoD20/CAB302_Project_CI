@@ -29,6 +29,12 @@ import static com.app.studysnap.services.TextParser.*;
 public class BadgeRenderer {
 
     /**
+     * Default constructor:
+     * Creates a new {@code BadgeRenderer}.
+     */
+    public BadgeRenderer() {}
+
+    /**
      * Builds a visual card for a single badge, optionally showing progress for a given user.
      * @param b the badge to render
      * @param u the user for whom to compute earned/progress state

@@ -17,6 +17,12 @@ import static com.app.studysnap.services.TextParser.*;
 public final class QuizRenderer {
 
     /**
+     * Default constructor:
+     * Creates a new {@code QuizRenderer}.
+     */
+    public QuizRenderer() {}
+
+    /**
      * Builds a plain-text representation of the given quiz.
      * @param quiz the quiz to render.
      * @param includeAnswers whether to include answers in output

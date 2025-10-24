@@ -42,6 +42,12 @@ public final class QuizService {
     private final PdfTextExtractor extractor = new PdfTextExtractor();
 
     /**
+     * Default constructor:
+     * Creates a new {@code QuizService}.
+     */
+    public QuizService() {}
+
+    /**
      * Resolve the first non-blank value from a list of environment variable names.
      */
     private static String env(String... names) {

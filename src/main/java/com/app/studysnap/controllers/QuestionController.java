@@ -21,6 +21,7 @@ import static com.app.studysnap.services.TextParser.trim;
  */
 public class QuestionController {
 
+    // Fxml
     @FXML private Label question_content;
     @FXML private RadioButton option1;
     @FXML private RadioButton option2;
@@ -38,6 +39,12 @@ public class QuestionController {
 
     /** Toggle group to ensure only one option is selected. */
     private final ToggleGroup optionsGroup = new ToggleGroup();
+
+    /**
+     * Default constructor:
+     * Creates a new {@code QuestionController}.
+     */
+    public QuestionController() {}
 
     /**
      * Returns the root node of this card (for embedding in parent layouts).

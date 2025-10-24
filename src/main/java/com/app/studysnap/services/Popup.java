@@ -11,7 +11,13 @@ import javafx.scene.control.ButtonType;
  * </p>
  */
 public final class Popup {
-    private Popup() {}
+
+    /**
+     * Not instantiable.
+     */
+    private Popup() {
+        throw new AssertionError("No instances");
+    }
 
     /**
      * Shows an information dialog with an OK button.

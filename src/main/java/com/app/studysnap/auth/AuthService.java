@@ -23,7 +23,7 @@ public class AuthService {
     private final IUserDAO users;
 
     /**
-     * Constructs a new AuthService with specified UserDAO object.
+     * Creates a new {@code AuthService} with specified UserDAO object.
      *
      * @param users The user DAO linked to the user's database.
      * @throws ValidationException if {@code users} is {@code null}.

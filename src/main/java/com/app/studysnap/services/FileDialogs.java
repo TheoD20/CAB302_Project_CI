@@ -14,7 +14,13 @@ import static com.app.studysnap.services.TextParser.*;
  * Helpers for standard file chooser dialogs.
  */
 public final class FileDialogs {
-    private FileDialogs() {}
+
+    /**
+     * Not instantiable.
+     */
+    private FileDialogs() {
+        throw new AssertionError("No instances");
+    }
 
     /**
      * Opens a native file chooser to pick a document suitable for quiz generation.

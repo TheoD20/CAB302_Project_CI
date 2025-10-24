@@ -24,6 +24,12 @@ import static com.app.studysnap.services.TextParser.*;
 public final class PdfTextExtractor {
 
     /**
+     * Default constructor:
+     * Creates a new {@code PdfTextExtractor}.
+     */
+    public PdfTextExtractor() {}
+
+    /**
      * Extracts and normalizes raw text from a supported file type.
      * <ul>
      *   <li><b>PDF</b>: full extract if ≤30 pages, otherwise a random middle window.</li>

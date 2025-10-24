@@ -56,7 +56,7 @@ public class EditQuizController {
     private final ObservableList<Question> questions = FXCollections.observableArrayList();
 
     /**
-     * Constructs the controller and initializes DAO dependencies.
+     * Creates a new {@code EditQuizController} and initializes DAO dependencies.
      */
     public EditQuizController() {
         SqliteQuizDAO qd;

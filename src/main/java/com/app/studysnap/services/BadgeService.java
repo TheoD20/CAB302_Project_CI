@@ -30,6 +30,12 @@ public final class BadgeService {
     private List<Integer> oldBadgeIds;
 
     /**
+     * Default constructor:
+     * Creates a new {@code BadgeService}.
+     */
+    public BadgeService() {}
+
+    /**
      * Updates score related badges after a quiz attempt and, if applicable,
      * opens an award dialog with newly-earned badges.
      * @param attempt the attempt just recorded

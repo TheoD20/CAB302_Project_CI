@@ -1,3 +1,10 @@
+/**
+ * StudySnap application module.
+ * <p>
+ * Declares JavaFX UI, data-access, and service layers, and opens controller/model
+ * packages for FXML injection.
+ * </p>
+ */
 module com.example.cab302_project {
     requires javafx.controls;
     requires javafx.fxml;

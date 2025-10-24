@@ -17,6 +17,12 @@ import java.util.regex.Pattern;
 public final class TextParser {
 
     /**
+     * Default constructor:
+     * Creates a new {@code TextParser}.
+     */
+    public TextParser() {}
+
+    /**
      * Question block pattern:
      * <ul>
      *   <li>Numbered question line capturing {@code content}</li>
@@ -82,7 +88,13 @@ public final class TextParser {
      *   <li>Full option text (case-insensitive) as a fallback</li>
      * </ul>
      *
-     * @return 1 - 5 for A - E, or {@code null} if it can’t be determined
+     * @param ans the formatted answer to compare.
+     * @param a Option A.
+     * @param b Option B.
+     * @param c Option C.
+     * @param d Option D.
+     * @param e Option E.
+     * @return The correct index 1 - 5 for A - E, or {@code null} if it can’t be determined
      */
     private Integer mapAnswer(String ans, String a, String b, String c, String d, String e) {
         if (ans == null) return null;
@@ -118,28 +130,49 @@ public final class TextParser {
 
     // Utilities
 
-    /** Case-insensitive string equality with trimming; returns false if either is null. */
+    /**
+     * Case-insensitive string equality with trimming
+     * @param x First String to compare.
+     * @param y Second String to compare.
+     * @return true if they are equal, false otherwise or if either is null
+     */
     private static boolean equalsIgnoreCaseSafe(String x, String y) {
         if (x == null || y == null) return false;
         return x.trim().equalsIgnoreCase(y.trim());
     }
 
-    /** Null-safe trim (never returns null). */
+    /**
+     * Null-safe trim
+     * @param s String to format
+     * @return trimmed string or "" if {@code null}.
+     */
     public static String trim(String s) {
         return s == null ? "" : s.trim();
     }
 
-    /** Null-safe trim that returns null if the trimmed result is empty. */
+    /**
+     * Null-safe trim
+     * @param s String to format.
+     * @return trim or {@code null} if the result is empty.
+     */
     public static String trimOrNull(String s) {
         if (s == null) return null;
         String t = s.trim();
         return t.isEmpty() ? null : t;
     }
 
-    /** True if null or only whitespace. */
+    /**
+     * Test if String is {@code null} or only whitespace.
+     * @param s String to test.
+     * @return true if {@code null} or only whitespace.
+     */
     public static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
 
-    /** Formats seconds as {@code HH:mm:ss}. */
+    /**
+     * Formats seconds as {@code HH:mm:ss}.
+     * @param seconds integer to format.
+     * @return formatted String as {@code HH:mm:ss}
+     */
     public static String formatTime(int seconds){
         int h = seconds / 3600;
         int m = (seconds % 3600) / 60;

@@ -28,6 +28,12 @@ import static com.app.studysnap.services.TextParser.isBlank;
 public class GoogleAuthService {
 
     /**
+     * Default constructor:
+     * Creates a new {@code GoogleAuthService}.
+     */
+    public GoogleAuthService() {}
+
+    /**
      * JSON factory used by the Google client library for request/response.
      */
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();

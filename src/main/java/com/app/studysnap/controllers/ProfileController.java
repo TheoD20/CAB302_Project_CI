@@ -39,64 +39,60 @@ import static com.app.studysnap.services.TextParser.*;
  */
 public class ProfileController {
 
-    @FXML
-    private Label displayName;
-    @FXML
-    private Label providerLabel;
-    @FXML
-    private Label providerValue;
-    @FXML
-    private Label statusLabel;
-    @FXML
-    private TextField usernameField;
-    @FXML
-    private TextField emailField;
-    @FXML
-    private Button saveButton;
-    @FXML
-    private Button deleteButton;
-    @FXML
-    private Label decksCount, quizzesCount, correctCount, streakCount, bestStreakCount;
-    @FXML
-    private GridPane ChartsArea;
-    @FXML
-    private VBox chartsEmptyState;
-    @FXML
-    private PieChart accuracyChart;
-    @FXML
-    private StackPane accuracyChartContainer;
-    @FXML
-    private Label accuracyOverlay;
-    @FXML
-    private BarChart<String, Number> weeklyActivityChart;
-    @FXML
-    private LineChart<String, Number> streakLineChart;
-    @FXML
-    private StackedBarChart<String, Number> decksByTopicChart;
-    @FXML
-    private FlowPane badgesGrid;
-    @FXML
-    private Button changePasswordButton;
-    @FXML
-    private ImageView avatarView;
-    @FXML
-    private Button deleteAvatarBtn;
+    // Fxml
+    @FXML private Label displayName;
+    @FXML private Label providerLabel, providerValue;
+    @FXML private Label statusLabel;
+    @FXML private TextField usernameField, emailField;
+    @FXML private Button saveButton, deleteButton;
+    @FXML private Label decksCount, quizzesCount, correctCount, streakCount, bestStreakCount;
+
+    // Chart region and empty-state container
+    @FXML private GridPane ChartsArea;
+    @FXML private VBox chartsEmptyState;
+
+    // Accuracy pie chart with overlay label placed in this container
+    @FXML private PieChart accuracyChart;
+    @FXML private StackPane accuracyChartContainer;
+    @FXML private Label accuracyOverlay;
+
+    // Activity, streak and topics charts
+    @FXML private BarChart<String, Number> weeklyActivityChart;
+    @FXML private LineChart<String, Number> streakLineChart;
+    @FXML private StackedBarChart<String, Number> decksByTopicChart;
+
+    // Badges flow grid.
+    @FXML private FlowPane badgesGrid;
+
+    // Password change, avatar image and delete button.
+    @FXML private Button changePasswordButton;
+    @FXML private ImageView avatarView;
+    @FXML private Button deleteAvatarBtn;
 
 
+    // DAOs
     private IUserDAO userDAO;
     private IQuizDAO quizDAO;
     private IAttemptDAO attemptDAO;
-    private IBadgeDAO badgeDAO;
     private IBadgeProgressDAO badgeProgressDAO;
 
+    // State
     private List<Quiz> myQuizzes;
-    private List<Badge> Badges;
     private List<Badge> CompletedBadges;
     private User currentUser;
 
+    /** Service that loads and applies user avatars. */
     private final AvatarService avatars = new AvatarService();
-    private static final double AVATAR_SIZE = 96.0;
+    /** Avatar render size in pixels. */
+    private static final double AVATAR_SIZE = 48.0;
+    /** User default avatar image. */
     private Image defaultAvatar;
+
+    /**
+     * Default constructor:
+     * Creates a new {@code ProfileController}.
+     */
+    public ProfileController() {}
 
     /**
      * JavaFX initialization: initializes DAOs, loads user/profile data, sets up charts and badges,
@@ -109,6 +105,7 @@ public class ProfileController {
         try { userDAO = new SqliteUserDAO(); } catch (Throwable t) { userDAO = null; }
         try { quizDAO = new SqliteQuizDAO(); } catch (Throwable t) { quizDAO = null; }
         try { attemptDAO = new SqliteAttemptDAO(); } catch (Throwable t) { attemptDAO = null; }
+        IBadgeDAO badgeDAO;
         try { badgeDAO = new SqliteBadgeDAO(); } catch (Throwable t) { badgeDAO = null; }
         try { badgeProgressDAO = new SqliteBadgeProgressDAO(); } catch (Throwable t) { badgeProgressDAO = null; }
 
@@ -194,17 +191,18 @@ public class ProfileController {
         }
 
         // Load badges
+        List<Badge> badges;
         try {
             if (badgeDAO != null || badgeProgressDAO != null) {
-                Badges = badgeDAO.getAllBadges();
+                badges = badgeDAO.getAllBadges();
                 CompletedBadges = badgeProgressDAO.getCompletedBadgesByUser(currentUser.getUserId());
             } else {
-                Badges = Collections.emptyList();
+                badges = Collections.emptyList();
                 CompletedBadges = Collections.emptyList();
                 setStatus("Badges service unavailable. Some actions may be limited.");
             }
         } catch (Exception e) {
-            Badges = Collections.emptyList();
+            badges = Collections.emptyList();
             CompletedBadges = Collections.emptyList();
             setStatus("Couldn’t load badges right now.");
         }
@@ -425,6 +423,8 @@ public class ProfileController {
     /**
      * Populates the accuracy pie chart with counts for correct/incorrect answers.
      * Calculate accuracy and display on overlay text.
+     * @param correct amount of correct answers.
+     * @param incorrect amount of incorrect answers.
      */
     private void setupAccuracyChart(int correct, int incorrect) {
         int safeCorrect = Math.max(correct, 0);
@@ -549,6 +549,7 @@ public class ProfileController {
 
     /**
      * Sets the status label (null-safe).
+     * @param msg Message to set as status
      */
     private void setStatus(String msg) { statusLabel.setText(trim(msg)); }
 

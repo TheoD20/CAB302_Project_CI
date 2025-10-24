@@ -27,6 +27,7 @@ import static com.app.studysnap.services.TextParser.formatTime;
  */
 public class ResultPageController {
 
+    // Fxml
     @FXML private Label scoreLabel;
     @FXML private PieChart resultChart;
     @FXML private VBox reviewLayout;
@@ -37,6 +38,12 @@ public class ResultPageController {
      * The quiz associated with this result view (used for restart).
      */
     Quiz quiz;
+
+    /**
+     * Default constructor:
+     * Creates a new {@code ResultPageController}.
+     */
+    public ResultPageController() {}
 
     /**
      * JavaFX initialization: initializes default UI state for labels and charts.

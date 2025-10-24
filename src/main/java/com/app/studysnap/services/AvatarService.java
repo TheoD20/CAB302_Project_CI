@@ -33,7 +33,10 @@ public final class AvatarService {
     private static final String DEFAULT_AVATAR_RESOURCE =
             "/com/app/studysnap/images/default_avatar.png";
 
-    /** Constructs a new {@code AvatarService}. */
+    /**
+     * Default constructor:
+     * Creates a new {@code AvatarService}.
+     */
     public AvatarService() {}
 
     // Load, save, delete

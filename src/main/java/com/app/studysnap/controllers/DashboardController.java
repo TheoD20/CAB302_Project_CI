@@ -18,8 +18,17 @@ import java.util.Objects;
  */
 public class DashboardController {
 
+    // Fxml
     @FXML private StackPane contentArea;
+
+    /** Store fxml to inject on the {@code contentArea}. */
     private static String pendingCenterFxml;
+
+    /**
+     * Default constructor:
+     * Creates a new {@code DashboardController}.
+     */
+    public DashboardController() {}
 
     /**
      * JavaFX initialize method.

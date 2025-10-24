@@ -5,6 +5,20 @@ package com.app.studysnap.exceptions;
  * <p>Use for duplicate email/username, etc.</p>
  */
 public class AlreadyExistsException extends AppException {
-    public AlreadyExistsException(String message) { super(message); }
-    public AlreadyExistsException(String message, Throwable cause) { super(message, cause); }
+    /**
+     * Creates a new {@code AlreadyExistsException} with a detail message.
+     * @param message human-readable explanation of the duplication conflict
+     */
+    public AlreadyExistsException(String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a new {@code AlreadyExistsException} with a detail message and root cause.
+     * @param message human-readable explanation of the duplication conflict
+     * @param cause underlying cause (e.g., a database unique-constraint exception)
+     */
+    public AlreadyExistsException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

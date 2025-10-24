@@ -5,6 +5,21 @@ package com.app.studysnap.exceptions;
  * <p>Use for missing users, quizzes, or lookups by ID/email.</p>
  */
 public class ResourceNotFoundException extends AppException {
-    public ResourceNotFoundException(String message) { super(message); }
-    public ResourceNotFoundException(String message, Throwable cause) { super(message, cause); }
+
+    /**
+     * Creates a new {@code ResourceNotFoundException} with a detail message and root cause.
+     * @param message human-readable explanation of the authentication failure
+     */
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a new {@code ResourceNotFoundException} with a detail message and root cause.
+     * @param message human-readable explanation of the authentication failure
+     * @param cause underlying cause (e.g., provider SDK error)
+     */
+    public ResourceNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

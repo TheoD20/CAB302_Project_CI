@@ -13,7 +13,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 
@@ -26,7 +25,13 @@ import java.util.Objects;
  * </p>
  */
 public class Navigator {
-    private Navigator() {}
+
+    /**
+     * Not instantiable.
+     */
+    private Navigator() {
+        throw new AssertionError("No instances");
+    }
 
     /**
      * Replaces the root of the current window with the view from the given FXML.

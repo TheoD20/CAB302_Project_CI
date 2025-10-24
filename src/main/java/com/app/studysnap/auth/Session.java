@@ -13,9 +13,11 @@ public final class Session {
     private static User currentUser;
 
     /**
-     * Package-private constructor to prevent external instantiation.
+     * Not instantiable.
      */
-    Session() {}
+    private Session() {
+        throw new AssertionError("No instances");
+    }
 
     /**
      * Sets the current authenticated user.

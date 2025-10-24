@@ -34,17 +34,32 @@ import static com.app.studysnap.services.TextParser.*;
  */
 public class HomeController {
 
+    // Fxml
     @FXML private Label welcomeLabel;
     @FXML private FlowPane deckContainer;
     @FXML private VBox emptyState;
     @FXML private ImageView avatarView;
 
+    /** Service that loads and applies user avatars. */
     private final AvatarService avatars = new AvatarService();
+
+    /** Avatar render size in pixels. */
     private static final double AVATAR_SIZE = 48.0;
 
+    /** Quiz data-access object used to list, open, and delete quizzes. */
     private final IQuizDAO dao = new SqliteQuizDAO();
+
+    /** Exports rendered quiz text to a PDF file. */
     private final PdfExporter pdfExporter = new PdfExporter();
+
+    /** Renders quizzes into displayable text for export. */
     private final QuizRenderer renderer = new QuizRenderer();
+
+    /**
+     * Default constructor:
+     * Creates a new {@code HomeController}.
+     */
+    public HomeController() {}
 
     /**
      * JavaFX initialization – sets welcome text, loads the user's quizzes into cards,

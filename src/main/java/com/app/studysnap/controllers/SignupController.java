@@ -28,6 +28,8 @@ import static com.app.studysnap.services.TextParser.isBlank;
  * </p>
  */
 public class SignupController {
+
+    // Fxml
     @FXML private TextField nameField;
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
@@ -40,6 +42,12 @@ public class SignupController {
      * Authentication service backed by a SQLite DAO.
      */
     private final AuthService auth = new AuthService(new SqliteUserDAO());
+
+    /**
+     * Default constructor:
+     * Creates a new {@code SignupController}.
+     */
+    public SignupController() {}
 
     /**
      * Handles email/password sign-up. Validates password confirmation, registers the user,

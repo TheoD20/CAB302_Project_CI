@@ -70,6 +70,12 @@ public class QuizGeneratorController {
     private String lastGeneratedWithAnswers = null;
 
     /**
+     * Default constructor:
+     * Creates a new {@code QuizGeneratorController}.
+     */
+    public QuizGeneratorController() {}
+
+    /**
      * JavaFX initialization: wires drag and drop handlers and configures the public-table columns/sizing.
      */
     @FXML
@@ -430,9 +436,29 @@ public class QuizGeneratorController {
      * @param author Author name.
      */
     public record PublicQuizRow(int quizId, String name, String subject, String description, String author) {
+
+        /**
+         * Getter for quiz name
+         * @return the quiz name as displayed in the public list
+         */
         public String getName() { return name; }
+
+        /**
+         * Getter for quiz subject
+         * @return the quiz subject as displayed in the public list
+         */
         public String getSubject() { return subject; }
+
+        /**
+         * Getter for quiz description
+         * @return the quiz description as displayed in the public list
+         */
         public String getDescription() { return description; }
+
+        /**
+         * Getter for quiz author
+         * @return the quiz author as displayed in the public list
+         */
         public String getAuthor() { return author; }
     }
 }

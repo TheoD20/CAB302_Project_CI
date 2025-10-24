@@ -32,29 +32,33 @@ import static com.app.studysnap.services.TextParser.isBlank;
  * </p>
  */
 public class PlayQuizPageController {
+
+    /** Quiz currently being played. */
     private Quiz quiz;
 
-    @FXML
-    private VBox questionLayout;
-    @FXML
-    private Label quizTitle;
-    @FXML
-    private Label quizSubtitle;
-    @FXML
-    private Label quizTimer;
-    @FXML
-    private Button cancelButton;
+    // Fxml
+    @FXML private VBox questionLayout;
+    @FXML private Label quizTitle;
+    @FXML private Label quizSubtitle;
+    @FXML private Label quizTimer;
+    @FXML private Button cancelButton;
 
-    /**
-     * Timeline for updating the visible timer every second.
-     */
-    private Timeline timeline;// this is for displaying the time elapse
+    /** Timeline for updating the visible timer every second. */
+    private Timeline timeline;
+
+    /** Elapsed time in seconds. */
     private int elapsedSecond = 0;
 
     /**
      * Holds the controller for each rendered question card, used to collect answers/results.
      */
     List<QuestionController> questionControllers = new ArrayList<>();
+
+    /**
+     * Default constructor:
+     * Creates a new {@code PlayQuizPageController}.
+     */
+    public PlayQuizPageController() {}
 
     /**
      * JavaFX initialization: initializes the timer display.

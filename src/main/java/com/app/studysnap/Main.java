@@ -15,9 +15,19 @@ import java.io.IOException;
  * </p>
  */
 public class Main extends Application {
+    /** Window title displayed in the application frame. */
     public static final String TITLE = "StudySnap";
+
+    /** Default application window width in pixels. */
     public static final int WIDTH = 1280;
+
+    /** Default application window height in pixels. */
     public static final int HEIGHT = 720;
+
+    /**
+     * Creates a new {@code Main} application instance.
+     */
+    public Main() {}
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -52,6 +62,10 @@ public class Main extends Application {
         //*/
     }
 
+    /**
+     * Standard Java entry point; delegates to {@link Application#launch(String...)}.
+     * @param args command-line arguments
+     */
     public static void main(String[] args) {
         launch();
     }

@@ -19,7 +19,13 @@ import static com.app.studysnap.services.TextParser.*;
  * </p>
  */
 public final class Async {
-    private Async() {}
+
+    /**
+     * Not instantiable.
+     */
+    private Async() {
+        throw new AssertionError("No instances");
+    }
 
     /**
      * Executes the given unit of work on a separate thread, toggling a progress indicator

@@ -31,6 +31,10 @@ public final class PdfExporter {
 
     private static final PDType1Font FONT = PDType1Font.HELVETICA;
 
+    /**
+     * Default constructor:
+     * Creates a new {@code PdfExporter}.
+     */
     public PdfExporter() {}
 
     /**

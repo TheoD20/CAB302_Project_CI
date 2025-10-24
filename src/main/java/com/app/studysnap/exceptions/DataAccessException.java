@@ -5,6 +5,20 @@ package com.app.studysnap.exceptions;
  * <p>Wrap lower-level SQL/IO errors in the data layer.</p>
  */
 public class DataAccessException extends AppException {
-    public DataAccessException(String message) { super(message); }
-    public DataAccessException(String message, Throwable cause) { super(message, cause); }
+    /**
+     * Creates a new {@code DataAccessException} with a detail message and root cause.
+     * @param message human-readable explanation of the authentication failure
+     */
+    public DataAccessException(String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a new {@code DataAccessException} with a detail message and root cause.
+     * @param message human-readable explanation of the authentication failure
+     * @param cause underlying cause (e.g., provider SDK error)
+     */
+    public DataAccessException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

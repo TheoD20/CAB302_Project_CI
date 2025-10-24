@@ -25,6 +25,7 @@ import static com.app.studysnap.services.TextParser.isBlank;
  */
 public class ResetPasswordController {
 
+    // Fxml
     @FXML private TextField emailField;
     @FXML private PasswordField newPasswordField;
     @FXML private PasswordField confirmPasswordField;
@@ -35,7 +36,7 @@ public class ResetPasswordController {
     private final AuthService authService;
 
     /**
-     * Constructs the controller and initializes dependencies.
+     * Creates a new {@code ResetPasswordController} and initializes dependencies.
      */
     public ResetPasswordController() {
         this.authService = new AuthService(new SqliteUserDAO());

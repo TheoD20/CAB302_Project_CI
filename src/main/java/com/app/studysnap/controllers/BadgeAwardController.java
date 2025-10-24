@@ -16,14 +16,25 @@ import static com.app.studysnap.services.TextParser.trim;
  * Controller responsible for displaying newly earned badges in a grid
  */
 public class BadgeAwardController {
-    @FXML
-    private FlowPane flow;
-    @FXML
-    private Label congratsSub;
 
-    private List<Badge> newBadges;
+    // Fxml
+    @FXML private FlowPane flow;
+    @FXML private Label congratsSub;
+
+    /** The badges earned in the latest event; defaults to an empty list. */
+    private List<Badge> newBadges = Collections.emptyList();
+
+    /** DAO used to fetch per-badge progress for rendering. */
     private SqliteBadgeProgressDAO badgeProgressDAO;
+
+    /** The user associated with the earned badges. */
     private User user;
+
+    /**
+     * Default constructor:
+     * Creates a new {@code BadgeAwardController}.
+     */
+    public BadgeAwardController() {}
 
     /**
      * Initializes the view with the newly earned badges and supporting context,
