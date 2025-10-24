@@ -1,8 +1,12 @@
 /**
  * StudySnap application module.
  * <p>
- * Declares JavaFX UI, data-access, and service layers, and opens controller/model
- * packages for FXML injection.
+ * Declares JavaFX UI, data-access, service layers and opens controller packages for FXML injection.
+ * </p>
+ * <p>
+ *     * Controllers: JavaFX backend (bind UI to services)
+ *     * Model: Object classes and DAOs
+ *     * Services: Internal helpers and external API service handlers
  * </p>
  */
 module com.example.cab302_project {
