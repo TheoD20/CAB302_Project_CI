@@ -24,6 +24,12 @@ The project focuses on building a complete desktop learning app with a clean Jav
 * Badge system for learning milestones and achievements
 * JUnit test coverage for core model, DAO, authentication, and service logic
 
+## Documentation
+
+Generated Java documentation is available through GitHub Pages:
+
+[View StudySnap JavaDocs](https://theod20.github.io/StudySnap_CI/com.app.studysnap/module-summary.html)
+
 ## Tech Stack
 
 | Area               | Technology                                           |
