@@ -4,10 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.example</groupId>
-    <artifactId>CAB302_Project</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <name>CAB302_Project</name>
+    <groupId>com.theonegrao</groupId>
+    <artifactId>studysnap</artifactId>
+    <version>1.0.0</version>
+    <name>StudySnap</name>
+    <description>JavaFX desktop study app with AI quiz generation, SQLite persistence, authentication, badges, and quiz tracking.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
