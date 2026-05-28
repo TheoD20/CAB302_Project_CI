@@ -13,7 +13,7 @@
  *     * Services: Internal helpers and external API service handlers
  * </p>
  */
-module com.example.cab302_project {
+module com.app.studysnap {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.google.api.client.auth;
@@ -31,13 +31,13 @@ module com.example.cab302_project {
     requires java.sql;
     requires jbcrypt;
 
-
-    opens com.app.studysnap to javafx.fxml;
     exports com.app.studysnap;
     exports com.app.studysnap.controllers;
-    opens com.app.studysnap.controllers to javafx.fxml;
     exports com.app.studysnap.model;
-    opens com.app.studysnap.model to javafx.fxml;
     exports com.app.studysnap.services;
+
+    opens com.app.studysnap to javafx.fxml;
+    opens com.app.studysnap.controllers to javafx.fxml;
+    opens com.app.studysnap.model to javafx.fxml;
     opens com.app.studysnap.services to javafx.fxml;
 }
