@@ -98,8 +98,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.example.cab302_project/com.app.studysnap.Main
-                            </mainClass>
+                            <mainClass>com.app.studysnap/com.app.studysnap.Main</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
