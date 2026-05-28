@@ -1,1 +1,1 @@
-moduleSearchIndex = [{"l":"com.example.cab302_project"}];updateSearchResults();
+moduleSearchIndex = [{"l":"com.app.studysnap"}];updateSearchResults();
